@@ -1,0 +1,116 @@
+{
+    "name": "Boyfriend",
+    "atlas": {
+        "image": "assets/images/BOYFRIEND.png",
+        "xml": "assets/images/BOYFRIEND.xml"
+    },
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "BF idle dance",
+            "fps": 24,
+            "loop": false,
+            "offset": [-5, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "BF NOTE UP0",
+            "fps": 24,
+            "loop": false,
+            "offset": [-29, 27]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "BF NOTE LEFT0",
+            "fps": 24,
+            "loop": false,
+            "offset": [12, -6]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "BF NOTE RIGHT0",
+            "fps": 24,
+            "loop": false,
+            "offset": [-38, -7]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "BF NOTE DOWN0",
+            "fps": 24,
+            "loop": false,
+            "offset": [-10, -50]
+        },
+        {
+            "name": "singUPmiss",
+            "prefix": "BF NOTE UP MISS",
+            "fps": 24,
+            "loop": false,
+            "offset": [-29, 27]
+        },
+        {
+            "name": "singLEFTmiss",
+            "prefix": "BF NOTE LEFT MISS",
+            "fps": 24,
+            "loop": false,
+            "offset": [12, 24]
+        },
+        {
+            "name": "singRIGHTmiss",
+            "prefix": "BF NOTE RIGHT MISS",
+            "fps": 24,
+            "loop": false,
+            "offset": [-30, 21]
+        },
+        {
+            "name": "singDOWNmiss",
+            "prefix": "BF NOTE DOWN MISS",
+            "fps": 24,
+            "loop": false,
+            "offset": [-11, -19]
+        },
+        {
+            "name": "hey",
+            "prefix": "BF HEY",
+            "fps": 24,
+            "loop": false,
+            "offset": [7, 4]
+        },
+        {
+            "name": "firstDeath",
+            "prefix": "BF dies",
+            "fps": 24,
+            "loop": false,
+            "offset": [37, 11]
+        },
+        {
+            "name": "deathLoop",
+            "prefix": "BF Dead Loop",
+            "fps": 24,
+            "loop": true,
+            "offset": [37, 5]
+        },
+        {
+            "name": "deathConfirm",
+            "prefix": "BF Dead confirm",
+            "fps": 24,
+            "loop": false,
+            "offset": [37, 69]
+        },
+        {
+            "name": "scared",
+            "prefix": "BF idle shaking",
+            "fps": 24,
+            "loop": false,
+            "offset": [-4, 0]
+        }
+    ],
+    "display": {
+        "antialiasing": true,
+        "flipX": true,
+        "scale": 1
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": true
+    }
+}
