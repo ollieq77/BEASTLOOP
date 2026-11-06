@@ -18,6 +18,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
+	<!-- got 144 fps hardcoded rn because 144- NEVER FUCKING MIND-->
 	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" />
 
 	<!--HTML5-specific-->
