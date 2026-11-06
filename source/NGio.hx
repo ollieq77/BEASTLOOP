@@ -14,6 +14,8 @@ import io.newgrounds.objects.events.Result.GetVersionResult;
 import lime.app.Application;
 import openfl.display.Stage;
 
+// ollz TODO: we can remove this shit later on since why do we need newgrounds
+
 /**
  * MADE BY GEOKURELI THE LEGENED GOD HERO MVP
  */
@@ -55,6 +57,9 @@ class NGio
 
 	public function new(api:String, encKey:String, ?sessionId:String)
 	{
+
+		if (api.length == 0) return;
+		
 		trace("connecting to newgrounds");
 
 		NG.createAndCheckSession(api, sessionId);
@@ -185,7 +190,7 @@ class NGio
 	    NG.core.calls.event.logEvent(event).send();
 	    trace('should have logged: ' + event);
 	}
-	
+
 	inline static public function unlockMedal(id:Int)
 	{
 		if (isLoggedIn)
