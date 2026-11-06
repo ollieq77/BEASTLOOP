@@ -100,24 +100,8 @@ class Character extends FlxSprite
 
 				
 			case 'spooky':
-				tex = FlxAtlasFrames.fromSparrow('assets/images/spooky_kids_assets.png', 'assets/images/spooky_kids_assets.xml');
-				frames = tex;
-				animation.addByPrefix('singUP', 'spooky UP NOTE', 24, false);
-				animation.addByPrefix('singDOWN', 'spooky DOWN note', 24, false);
-				animation.addByPrefix('singLEFT', 'note sing left', 24, false);
-				animation.addByPrefix('singRIGHT', 'spooky sing right', 24, false);
-				animation.addByIndices('danceLeft', 'spooky dance idle', [0, 2, 6], "", 12, false);
-				animation.addByIndices('danceRight', 'spooky dance idle', [8, 10, 12, 14], "", 12, false);
+			    CharacterLoader.load(this, curCharacter);
 
-				addOffset('danceLeft');
-				addOffset('danceRight');
-
-				addOffset("singUP", -20, 26);
-				addOffset("singRIGHT", -130, -14);
-				addOffset("singLEFT", 130, -10);
-				addOffset("singDOWN", -50, -130);
-
-				playAnim('danceRight');
 			case 'mom':
 				tex = FlxAtlasFrames.fromSparrow('assets/images/Mom_Assets.png', 'assets/images/Mom_Assets.xml');
 				frames = tex;
@@ -435,8 +419,14 @@ class Character extends FlxSprite
 		
 		if (reverseDirection)
 		{
+
+			trace('danceLeft: ' + (animation.getByName('danceLeft') != null));
+			trace('danceRight: ' + (animation.getByName('danceRight') != null));
+
 		    swapAnimations('singLEFT', 'singRIGHT');
 		    swapAnimations('singLEFTmiss', 'singRIGHTmiss');
+		
+		    swapAnimations('danceLeft', 'danceRight');
 		}
 	}
 
@@ -453,6 +443,12 @@ class Character extends FlxSprite
 
 			if (curCharacter == 'dad')
 				dadVar = 6.1;
+
+			trace('Character: ' + curCharacter
+    			+ ' | Animation: ' + animation.curAnim.name
+    			+ ' | HoldTimer: ' + holdTimer
+    			+ ' | Threshold: ' + (Conductor.stepCrochet * dadVar * 0.001));
+			
 			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
 			{
 				dance();
@@ -494,6 +490,10 @@ class Character extends FlxSprite
 	    {
 	        danced = !danced;
 	        playAnim(danced ? 'danceRight' : 'danceLeft');
+
+			trace('DANCE CALLED: ' + curCharacter);
+			trace('Current animation: ' + animation.curAnim.name);
+
 	        return;
 	    }
 
