@@ -177,12 +177,15 @@ class NGio
 		// NGio.scoreboardArray = NG.core.scoreBoards.get(8004).scores;
 	}
 
-	inline static public function logEvent(event:String)
+	inline static public function logEvent(event:String):Void
 	{
-		NG.core.calls.event.logEvent(event).send();
-		trace('should have logged: ' + event);
-	}
+		// null check because we should not be calling newgrounds functions
+	    if (NG.core == null) return;
 
+	    NG.core.calls.event.logEvent(event).send();
+	    trace('should have logged: ' + event);
+	}
+	
 	inline static public function unlockMedal(id:Int)
 	{
 		if (isLoggedIn)
