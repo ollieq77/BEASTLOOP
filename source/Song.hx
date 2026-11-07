@@ -9,17 +9,19 @@ using StringTools;
 
 typedef SwagSong =
 {
-	var song:String;
-	var notes:Array<SwagSection>;
-	var bpm:Int;
-	var sections:Int;
-	var sectionLengths:Array<Dynamic>;
-	var needsVoices:Bool;
-	var speed:Float;
+    var song:String;
+    var notes:Array<SwagSection>;
+    var bpm:Int;
+    var sections:Int;
+    var sectionLengths:Array<Dynamic>;
+    var needsVoices:Bool;
+    var speed:Float;
 
-	var player1:String;
-	var player2:String;
-	var validScore:Bool;
+    @:optional var stage:String;
+
+    var player1:String;
+    var player2:String;
+    var validScore:Bool;
 }
 
 class Song
@@ -31,6 +33,7 @@ class Song
 	public var sectionLengths:Array<Dynamic> = [];
 	public var needsVoices:Bool = true;
 	public var speed:Float = 1;
+	public var stage:String = 'stage';
 
 	public var player1:String = 'bf';
 	public var player2:String = 'dad';
@@ -64,6 +67,9 @@ class Song
 	{
 		var swagShit:SwagSong = cast Json.parse(rawJson).song;
 		swagShit.validScore = true;
+
+		if (swagShit.stage == null || swagShit.stage.length == 0)
+    		swagShit.stage = 'stage';
 		return swagShit;
 	}
 }
