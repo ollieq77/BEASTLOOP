@@ -56,6 +56,7 @@ class PlayState extends MusicBeatState
 	var halloweenLevel:Bool = false;
 
 	var stage:Stage;
+	var stageScript:StageScript;
 
 	private var vocals:FlxSound;
 
@@ -172,6 +173,16 @@ class PlayState extends MusicBeatState
 		    halloweenBG = stage.getSprite('halloweenBG');
 		
 		    add(stage.sprites);
+			stageScript = new StageScript(
+			    stage,
+			    'assets/data/stages/$curStage/stage.hxc'
+			);
+			
+			if (stageScript.load())
+			{
+				stageScript.api.setCameras(camGame, camHUD);
+			    stageScript.call("onCreate");
+			}
 		}
 		else if (SONG.song.toLowerCase() == 'pico' || SONG.song.toLowerCase() == 'blammed' || SONG.song.toLowerCase() == 'philly')
 		{
@@ -497,6 +508,8 @@ class PlayState extends MusicBeatState
 				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
 		}
 		boyfriend = new Boyfriend(770, 450, SONG.player1);
+
+		stageScript.api.setCharacters(boyfriend, dad, gf);
 
 		boyfriend.setPosition(stage.boyfriendPosition[0], stage.boyfriendPosition[1]);
 		dad.setPosition(stage.dadPosition[0], stage.dadPosition[1]);
@@ -2210,18 +2223,6 @@ class PlayState extends MusicBeatState
 		startedMoving = false;
 	}
 
-	function lightningStrikeShit():Void
-	{
-		FlxG.sound.play('assets/sounds/thunder_' + FlxG.random.int(1, 2) + TitleState.soundExt);
-		halloweenBG.animation.play('lightning');
-
-		lightningStrikeBeat = curBeat;
-		lightningOffset = FlxG.random.int(8, 24);
-
-		boyfriend.playAnim('scared', true);
-		gf.playAnim('scared', true);
-	}
-
 	override function stepHit()
 	{
 		if (SONG.needsVoices)
@@ -2241,13 +2242,16 @@ class PlayState extends MusicBeatState
 		super.stepHit();
 	}
 
-	var lightningStrikeBeat:Int = 0;
-	var lightningOffset:Int = 8;
-
 	override function beatHit()
 	{
 		wiggleShit.update(Conductor.crochet);
 		super.beatHit();
+
+		if (stageScript != null)
+		{
+		    stageScript.interp.variables.set("curBeat", curBeat);
+		    stageScript.call("onBeatHit");
+		}
 
 		if (generatedMusic)
 		{
@@ -2358,11 +2362,6 @@ class PlayState extends MusicBeatState
 					trainCooldown = FlxG.random.int(-4, 0);
 					trainStart();
 				}
-		}
-
-		if (isHalloween && FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset)
-		{
-			lightningStrikeShit();
 		}
 	}
 
