@@ -44,6 +44,11 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
+
+		FlxG.updateFramerate = 144;
+		FlxG.drawFramerate = 144;
+		trace('update=' + FlxG.updateFramerate + ' draw=' + FlxG.drawFramerate + ' stage=' + openfl.Lib.current.stage.frameRate);
+
 		Polymod.init({modRoot: "mods", dirs: ['introMod']});
 
 		#if (!web)

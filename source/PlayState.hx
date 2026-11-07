@@ -844,6 +844,12 @@ class PlayState extends MusicBeatState
 	var startTimer:FlxTimer;
 	var perfectMode:Bool = false;
 
+	/**
+	 * false = vanilla rules (pressing a lane with no note in its window is a miss)
+	 * true  = pressing with nothing to hit is free
+	 */
+	public static var ghostTapping:Bool = false;
+
 	function startCountdown():Void
 	{
 		inCutscene = false;
@@ -1441,8 +1447,9 @@ class PlayState extends MusicBeatState
 
 		if (camZooming)
 		{
-			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, 0.95);
-			camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, 0.95);
+			var zoomRatio = Math.pow(0.95, elapsed * 60);
+			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, zoomRatio);
+			camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, zoomRatio);
 		}
 
 		FlxG.watch.addQuick("beatShit", totalBeats);
@@ -1862,103 +1869,45 @@ class PlayState extends MusicBeatState
 		var controlArray:Array<Bool> = [leftP, downP, upP, rightP];
 
 		// FlxG.watch.addQuick('asdfa', upP);
-		if ((upP || rightP || downP || leftP) && !boyfriend.stunned && generatedMusic)
+		// PRESSES
+		// Every lane is judged on its own: a press can only ever hit or miss a note in
+		// the lane that was pressed, so notes in other lanes can never cause a miss.
+		// A miss never blocks input either (the old stun check used to swallow the next
+		// ~83ms of presses, which wipes out whole streams on dense charts).
+
+		// be glad i rewrote this JANKY ASS SHIT, it was a mess before and i hate it
+		if ((upP || rightP || downP || leftP) && generatedMusic)
 		{
 			boyfriend.holdTimer = 0;
 
-			var possibleNotes:Array<Note> = [];
-
-			var ignoreList:Array<Int> = [];
-
-			notes.forEachAlive(function(daNote:Note)
+			for (lane in 0...4)
 			{
-				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate)
-				{
-					// the sorting probably doesn't need to be in here? who cares lol
-					possibleNotes.push(daNote);
-					possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+				if (!controlArray[lane])
+					continue;
 
-					ignoreList.push(daNote.noteData);
-				}
-			});
+				var target:Note = null;
 
-			if (possibleNotes.length > 0)
-			{
-				var daNote = possibleNotes[0];
+				notes.forEachAlive(function(daNote:Note)
+				{
+					if (daNote.noteData != lane || !daNote.mustPress || daNote.isSustainNote || daNote.wasGoodHit)
+						return;
 
-				if (perfectMode)
-					noteCheck(true, daNote);
+					// judged against the song position right now, not the canBeHit flag
+					// (that flag is computed before songPosition moves, so it is a frame stale)
+					var diff:Float = daNote.strumTime - Conductor.songPosition;
 
-				// Jump notes
-				if (possibleNotes.length >= 2)
-				{
-					if (possibleNotes[0].strumTime == possibleNotes[1].strumTime)
+					if (diff > -Conductor.safeZoneOffset && diff < Conductor.safeZoneOffset * 0.5)
 					{
-						for (coolNote in possibleNotes)
-						{
-							if (controlArray[coolNote.noteData])
-								goodNoteHit(coolNote);
-							else
-							{
-								var inIgnoreList:Bool = false;
-								for (shit in 0...ignoreList.length)
-								{
-									if (controlArray[ignoreList[shit]])
-										inIgnoreList = true;
-								}
-								if (!inIgnoreList)
-									badNoteCheck();
-							}
-						}
+						// earliest note in the lane wins
+						if (target == null || daNote.strumTime < target.strumTime)
+							target = daNote;
 					}
-					else if (possibleNotes[0].noteData == possibleNotes[1].noteData)
-					{
-						noteCheck(controlArray[daNote.noteData], daNote);
-					}
-					else
-					{
-						for (coolNote in possibleNotes)
-						{
-							noteCheck(controlArray[coolNote.noteData], coolNote);
-						}
-					}
-				}
-				else // regular notes?
-				{
-					noteCheck(controlArray[daNote.noteData], daNote);
-				}
-				/* 
-					if (controlArray[daNote.noteData])
-						goodNoteHit(daNote);
-				 */
-				// trace(daNote.noteData);
-				/* 
-					switch (daNote.noteData)
-					{
-						case 2: // NOTES YOU JUST PRESSED
-							if (upP || rightP || downP || leftP)
-								noteCheck(upP, daNote);
-						case 3:
-							if (upP || rightP || downP || leftP)
-								noteCheck(rightP, daNote);
-						case 1:
-							if (upP || rightP || downP || leftP)
-								noteCheck(downP, daNote);
-						case 0:
-							if (upP || rightP || downP || leftP)
-								noteCheck(leftP, daNote);
-					}
-				 */
-				if (daNote.wasGoodHit)
-				{
-					daNote.kill();
-					notes.remove(daNote, true);
-					daNote.destroy();
-				}
-			}
-			else
-			{
-				badNoteCheck();
+				});
+
+				if (target != null)
+					goodNoteHit(target);
+				else if (!ghostTapping)
+					noteMiss(lane);
 			}
 		}
 
