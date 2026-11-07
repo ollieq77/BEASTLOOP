@@ -24,7 +24,7 @@ class StageLoader
         var stage = new Stage(stageName);
 
         // Stage settings
-        stage.defaultCamZoom = data.defaultCamZoom;
+        stage.defaultCamZoom = data.defaultCamZoom == null ? 1.0 : data.defaultCamZoom;
 
         // Character positions
         stage.boyfriendPosition = [
@@ -53,36 +53,64 @@ class StageLoader
             );
             
             var imagePath = 'assets/images/stages/$stageName/${spriteData.image}';
-            
+
             if (spriteData.type == "sparrow")
             {
                 var xmlPath = 'assets/images/stages/$stageName/${spriteData.xml}';
-            
                 sprite.frames = FlxAtlasFrames.fromSparrow(imagePath, xmlPath);
             
-                var animations:Array<Dynamic> = cast spriteData.animations;
-                            
-                for (anim in animations)
+                if (spriteData.animations != null)
                 {
-                    var fps:Int = anim.fps == null ? 24 : anim.fps;
-                    var loop:Bool = anim.loop == null ? true : anim.loop;
+                    var animations:Array<Dynamic> = cast spriteData.animations;
                 
-                    sprite.animation.addByPrefix(
-                        anim.name,
-                        anim.prefix,
-                        fps,
-                        loop
-                    );
+                    for (anim in animations)
+                    {
+                        var fps:Int = anim.fps == null ? 24 : anim.fps;
+                        var loop:Bool = anim.loop == null ? true : anim.loop;
+                    
+                        sprite.animation.addByPrefix(
+                            anim.name,
+                            anim.prefix,
+                            fps,
+                            loop
+                        );
+                    }
                 }
+            }
+            else if (spriteData.type == "packer")
+            {
+                var txtPath = 'assets/images/stages/$stageName/${spriteData.xml}';
+                sprite.frames = FlxAtlasFrames.fromSpriteSheetPacker(imagePath, txtPath);
             
-                if (spriteData.initialAnimation != null)
-                    sprite.animation.play(spriteData.initialAnimation);
+                if (spriteData.animations != null)
+                {
+                    var animations:Array<Dynamic> = cast spriteData.animations;
+                
+                    for (anim in animations)
+                    {
+                        var fps:Int = anim.fps == null ? 24 : anim.fps;
+                        var loop:Bool = anim.loop == null ? true : anim.loop;
+                    
+                        var frames:Array<Int> = cast anim.frames;
+                    
+                        sprite.animation.add(
+                            anim.name,
+                            frames,
+                            fps,
+                            loop
+                        );
+                    }
+                }
             }
             else
             {
                 sprite.loadGraphic(imagePath);
             }
-        
+
+            if (spriteData.initialAnimation != null)
+                sprite.animation.play(spriteData.initialAnimation);
+
+            // Scaling
             if (spriteData.scale != null)
             {
                 sprite.setGraphicSize(
@@ -92,15 +120,42 @@ class StageLoader
                 
                 sprite.updateHitbox();
             }
-        
-            sprite.antialiasing = spriteData.antialiasing;
-        
-            sprite.scrollFactor.set(
-                spriteData.scrollFactor[0],
-                spriteData.scrollFactor[1]
-            );
+
+            if (spriteData.matchWidth != null)
+            {
+                var target = stage.getSprite(spriteData.matchWidth);
             
-            sprite.active = spriteData.active;
+                if (target != null)
+                {
+                    var multiplier:Float = spriteData.matchWidthScale == null
+                        ? 1
+                        : spriteData.matchWidthScale;
+                
+                    sprite.setGraphicSize(
+                        Std.int(target.width * multiplier)
+                    );
+                    
+                    sprite.updateHitbox();
+                }
+            }
+        
+            // Optional sprite properties
+            var antialiasing:Bool = spriteData.antialiasing == null
+                ? false
+                : spriteData.antialiasing;
+
+            sprite.antialiasing = antialiasing;
+
+            var scrollX:Float = spriteData.scrollFactor == null ? 1 : spriteData.scrollFactor[0];
+            var scrollY:Float = spriteData.scrollFactor == null ? 1 : spriteData.scrollFactor[1];
+
+            sprite.visible = spriteData.visible == null
+                ? true
+                : spriteData.visible;
+
+            sprite.scrollFactor.set(scrollX, scrollY);
+
+            sprite.active = spriteData.active == null ? true : spriteData.active;
             
             stage.add(sprite, spriteData.name);
         }

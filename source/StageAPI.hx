@@ -1,7 +1,7 @@
-
 package;
 
 import flixel.FlxG;
+import flixel.FlxBasic;
 import flixel.FlxSprite;
 import flixel.FlxCamera;
 
@@ -19,18 +19,12 @@ class StageAPI
         this.stage = stage;
     }
 
-    public function setCharacters(
-        boyfriend:Boyfriend,
-        dad:Character,
-        gf:Character
-    ):Void
+    public function setCharacters(boyfriend:Boyfriend, dad:Character, gf:Character):Void
     {
         this.boyfriend = boyfriend;
         this.dad = dad;
         this.gf = gf;
     }
-
-    // Characters
 
     public function getCharacter(name:String):Character
     {
@@ -48,14 +42,20 @@ class StageAPI
         camera = new CameraAPI(game, hud);
     }
 
-    // Stage sprites
-
     public function getSprite(name:String):FlxSprite
     {
         return stage.getSprite(name);
     }
 
-    // Randomness
+    public function getObject(name:String):FlxBasic
+    {
+        return stage.getObject(name);
+    }
+
+    public function addObject(object:FlxBasic, name:String):Void
+    {
+        stage.addObject(object, name);
+    }
 
     public function randomInt(min:Int, max:Int):Int
     {
@@ -66,8 +66,6 @@ class StageAPI
     {
         return FlxG.random.bool(chance);
     }
-
-    // Audio
 
     public function playSound(path:String, volume:Float = 1):Void
     {
