@@ -79,6 +79,7 @@ class PlayState extends MusicBeatState
 	var opponentStrums:FlxTypedGroup<FlxSprite>;
 
 	private var camZooming:Bool = false;
+	var camTarget:Int = -1; // -1 = unset, 0 = dad, 1 = bf
 	private var curSong:String = "";
 
 	private var gfSpeed:Int = 1;
@@ -154,8 +155,10 @@ class PlayState extends MusicBeatState
 		    curStage = 'spooky';
 		else if (song == 'pico' || song == 'blammed' || song == 'philly')
 		    curStage = 'philly';
-		else if (song == 'senpai' || song == 'roses' || song == 'thorns')
+		else if (song == 'senpai' || song == 'roses')
 			curStage = 'school';
+		else if (song == 'thorns')
+			curStage = 'schoolEvil';
 		else
 		    curStage = 'stage';
 
@@ -406,6 +409,7 @@ class PlayState extends MusicBeatState
 			gfVersion = 'gf-car';
 
 		gf = new Character(400, 130, gfVersion);
+		gf.setPosition(stage.gfPosition[0], stage.gfPosition[1]);   // <-- add
 		gf.scrollFactor.set(0.95, 0.95);
 
 		// Shitty layering but whatev it works LOL
@@ -413,6 +417,7 @@ class PlayState extends MusicBeatState
 			add(limo);
 
 		dad = new Character(100, 100, SONG.player2, false, true);
+		dad.setPosition(stage.dadPosition[0], stage.dadPosition[1]); // <-- add
 
 		var camPos:FlxPoint = new FlxPoint(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
 
@@ -454,17 +459,10 @@ class PlayState extends MusicBeatState
 				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
 		}
 		boyfriend = new Boyfriend(770, 450, SONG.player1);
-
-		stageScript.api.setCharacters(boyfriend, dad, gf);
-
 		boyfriend.x = stage.boyfriendPosition[0];
 		boyfriend.y = stage.boyfriendPosition[1];
 
-		dad.x = stage.dadPosition[0];
-		dad.y = stage.dadPosition[1];
-
-		gf.x = stage.gfPosition[0];
-		gf.y = stage.gfPosition[1];
+		stageScript.api.setCharacters(boyfriend, dad, gf);
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
@@ -482,11 +480,6 @@ class PlayState extends MusicBeatState
 			case 'mallEvil':
 				boyfriend.x += 320;
 				dad.y -= 80;
-			case 'school':
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
 			case 'schoolEvil':
 				// trailArea.scrollFactor.set();
 
@@ -495,11 +488,6 @@ class PlayState extends MusicBeatState
 				// evilTrail.changeGraphic()
 				add(evilTrail);
 				// evilTrail.scrollFactor.set(1.1, 1.1);
-
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
 		}
 
 		add(gf);
@@ -1232,8 +1220,7 @@ class PlayState extends MusicBeatState
 
 		// config camera follow lerp to be framerate independent
 		// "honestly to god why is follow not framerate independant in flixel" - me, 2026
-		var lerp = 1 - Math.exp(-elapsed * 2);
-    	FlxG.camera.follow(camFollow, LOCKON, lerp);
+		FlxG.camera.followLerp = 1 - Math.exp(-elapsed * 2.45);
 
 		super.update(elapsed);
 
@@ -1335,58 +1322,53 @@ class PlayState extends MusicBeatState
 
 		if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
 		{
-			if (curBeat % 4 == 0)
+			var mustHit:Bool = PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection;
+			var wanted:Int = mustHit ? 1 : 0;
+		
+			if (wanted != camTarget)
 			{
-				// trace(PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection);
-			}
-
-			if (camFollow.x != dad.getMidpoint().x + 150 && !PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
-			{
-				camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
-				// camFollow.setPosition(lucky.getMidpoint().x - 120, lucky.getMidpoint().y + 210);
-
-				switch (dad.curCharacter)
+				camTarget = wanted;
+			
+				if (!mustHit)
 				{
-					case 'mom':
-						camFollow.y = dad.getMidpoint().y;
-					case 'senpai':
-						camFollow.y = dad.getMidpoint().y - 430;
-						camFollow.x = dad.getMidpoint().x - 100;
-					case 'senpai-angry':
-						camFollow.y = dad.getMidpoint().y - 430;
-						camFollow.x = dad.getMidpoint().x - 100;
+					var mid = dad.getMidpoint();
+					camFollow.setPosition(mid.x + 150, mid.y - 100);
+				
+					switch (dad.curCharacter)
+					{
+						case 'mom':
+							camFollow.y = mid.y;
+						case 'senpai', 'senpai-angry':
+							camFollow.x = mid.x - 100;
+							camFollow.y = mid.y - 430;
+					}
+					mid.put();
+				
+					if (dad.curCharacter == 'mom')
+						vocals.volume = 1;
+				
+					if (SONG.song.toLowerCase() == 'tutorial')
+						tweenCamIn();
 				}
-
-				if (dad.curCharacter == 'mom')
-					vocals.volume = 1;
-
-				if (SONG.song.toLowerCase() == 'tutorial')
+				else
 				{
-					tweenCamIn();
-				}
-			}
-
-			if (PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && camFollow.x != boyfriend.getMidpoint().x - 100)
-			{
-				camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
-
-				switch (curStage)
-				{
-					case 'limo':
-						camFollow.x = boyfriend.getMidpoint().x - 300;
-					case 'mall':
-						camFollow.y = boyfriend.getMidpoint().y - 200;
-					case 'school':
-						camFollow.x = boyfriend.getMidpoint().x - 200;
-						camFollow.y = boyfriend.getMidpoint().y - 200;
-					case 'schoolEvil':
-						camFollow.x = boyfriend.getMidpoint().x - 200;
-						camFollow.y = boyfriend.getMidpoint().y - 200;
-				}
-
-				if (SONG.song.toLowerCase() == 'tutorial')
-				{
-					FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+					var mid = boyfriend.getMidpoint();
+					camFollow.setPosition(mid.x - 100, mid.y - 100);
+				
+					switch (curStage)
+					{
+						case 'limo':
+							camFollow.x = mid.x - 300;
+						case 'mall':
+							camFollow.y = mid.y - 200;
+						case 'school', 'schoolEvil':
+							camFollow.x = mid.x - 200;
+							camFollow.y = mid.y - 200;
+					}
+					mid.put();
+				
+					if (SONG.song.toLowerCase() == 'tutorial')
+						FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 				}
 			}
 		}
