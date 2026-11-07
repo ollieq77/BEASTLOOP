@@ -28,6 +28,17 @@ class FreeplayState extends MusicBeatState
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
 
+	function getDifficultyName():String
+	{
+    	return switch (curDifficulty)
+    	{
+    	    case 0: "easy";
+    	    case 1: "normal";
+    	    case 2: "hard";
+    	    default: "normal";
+    	}
+	}
+
 	override function create()
 	{
 		songs = CoolUtil.coolTextFile('assets/data/freeplaySonglist.txt');
@@ -191,22 +202,18 @@ class FreeplayState extends MusicBeatState
 
 		if (accepted)
 		{
-			var poop:String = Highscore.formatSong(songs[curSelected].toLowerCase(), curDifficulty);
+			var song:String = songs[curSelected].toLowerCase();
+			var difficulty:String = getDifficultyName();
 
-			trace(poop);
+			trace('Loading $song ($difficulty)');
 
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].toLowerCase());
+			PlayState.SONG = Song.loadFromJson(difficulty, song);
 			PlayState.isStoryMode = false;
 			PlayState.storyDifficulty = curDifficulty;
 			FlxG.switchState(new PlayState());
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.stop();
 		}
-	}
-
-	function getSongPath(song:String, file:String):String
-	{
-		return 'assets/songs/${song.toLowerCase()}/$file${TitleState.soundExt}';
 	}
 
 	function changeDiff(change:Int = 0)
@@ -256,7 +263,7 @@ class FreeplayState extends MusicBeatState
 		// lerpScore = 0;
 		#end
 
-		FlxG.sound.playMusic(getSongPath(songs[curSelected], "Inst"), 0);
+		FlxG.sound.playMusic(Paths.song(songs[curSelected]) + 'Inst${TitleState.soundExt}', 0);
 
 		var bullShit:Int = 0;
 
