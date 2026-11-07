@@ -204,6 +204,11 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
+	function getSongPath(song:String, file:String):String
+	{
+		return 'assets/songs/${song.toLowerCase()}/$file${TitleState.soundExt}';
+	}
+
 	function changeDiff(change:Int = 0)
 	{
 		curDifficulty += change;
@@ -251,7 +256,7 @@ class FreeplayState extends MusicBeatState
 		// lerpScore = 0;
 		#end
 
-		FlxG.sound.playMusic('assets/music/' + songs[curSelected] + "_Inst" + TitleState.soundExt, 0);
+		FlxG.sound.playMusic(getSongPath(songs[curSelected], "Inst"), 0);
 
 		var bullShit:Int = 0;
 

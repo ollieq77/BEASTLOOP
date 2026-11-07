@@ -225,20 +225,57 @@ class ChartingState extends MusicBeatState
 		stepperBPM.value = Conductor.bpm;
 		stepperBPM.name = 'song_bpm';
 
-		var characters:Array<String> = CoolUtil.coolTextFile('assets/data/characterList.txt');
-
-		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		var characterData:Array<{id:String, name:String}> = [];
+			
+		for (path in openfl.utils.Assets.list())
 		{
-			_song.player1 = characters[Std.parseInt(character)];
-		});
-		player1DropDown.selectedLabel = _song.player1;
-
-		var player2DropDown = new FlxUIDropDownMenu(140, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		    if (!StringTools.startsWith(path, "assets/data/characters/")) continue;
+		    if (!StringTools.endsWith(path, ".json")) continue;
+		
+		    var id = path.substr(
+		        "assets/data/characters/".length,
+		        path.length - "assets/data/characters/".length - 5
+		    );
+			
+		    var data:Dynamic = haxe.Json.parse(openfl.utils.Assets.getText(path));
+			
+		    characterData.push({
+		        id: id,
+		        name: data.name
+		    });
+		}
+		
+		characterData.sort(function(a, b)
 		{
-			_song.player2 = characters[Std.parseInt(character)];
+		    return Reflect.compare(a.name.toLowerCase(), b.name.toLowerCase());
 		});
+		
+		var characters:Array<String> = [for (character in characterData) character.id];
+		var characterNames:Array<String> = [for (character in characterData) character.name];
 
-		player2DropDown.selectedLabel = _song.player2;
+		var player1DropDown = new FlxUIDropDownMenu(
+		    10,
+		    100,
+		    FlxUIDropDownMenu.makeStrIdLabelArray(characterNames, true),
+		    function(character:String)
+		    {
+		        _song.player1 = characters[Std.parseInt(character)];
+		    }
+		);
+		
+		player1DropDown.selectedLabel = characterNames[characters.indexOf(_song.player1)];
+		
+		var player2DropDown = new FlxUIDropDownMenu(
+		    140,
+		    100,
+		    FlxUIDropDownMenu.makeStrIdLabelArray(characterNames, true),
+		    function(character:String)
+		    {
+		        _song.player2 = characters[Std.parseInt(character)];
+		    }
+		);
+		
+		player2DropDown.selectedLabel = characterNames[characters.indexOf(_song.player2)];
 
 		var tab_group_song = new FlxUI(null, UI_box);
 		tab_group_song.name = "Song";

@@ -1,0 +1,57 @@
+
+{
+    "name": "Mom (Car)",
+
+    "atlas": {
+        "image": "assets/images/momCar.png",
+        "xml": "assets/images/momCar.xml"
+    },
+
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "Mom Idle",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "Mom Up Pose",
+            "fps": 24,
+            "loop": false,
+            "offset": [14, 71]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "MOM DOWN POSE",
+            "fps": 24,
+            "loop": false,
+            "offset": [20, -160]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Mom Left Pose",
+            "fps": 24,
+            "loop": false,
+            "offset": [250, -23]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Mom Pose Left",
+            "fps": 24,
+            "loop": false,
+            "offset": [10, -60]
+        }
+    ],
+
+    "display": {
+        "antialiasing": true,
+        "flipX": false,
+        "scale": 1
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}

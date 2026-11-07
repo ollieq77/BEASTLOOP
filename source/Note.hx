@@ -39,8 +39,7 @@ class Note extends FlxSprite
 
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
-
-		x += 50;
+		
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = strumTime;
@@ -126,20 +125,11 @@ class Note extends FlxSprite
 				antialiasing = true;
 		}
 
-		switch (noteData)
-		{
-			case 0:
-				x += swagWidth * 0;
-				animation.play('purpleScroll');
-			case 1:
-				x += swagWidth * 1;
-				animation.play('blueScroll');
-			case 2:
-				x += swagWidth * 2;
-				animation.play('greenScroll');
-			case 3:
-				x += swagWidth * 3;
-				animation.play('redScroll');
+		switch(noteData) {
+		    case 0: animation.play('purpleScroll');
+		    case 1: animation.play('blueScroll');
+		    case 2: animation.play('greenScroll');
+		    case 3: animation.play('redScroll');
 		}
 
 		// trace(prevNote);
@@ -148,9 +138,7 @@ class Note extends FlxSprite
 		{
 			noteScore * 0.2;
 			alpha = 0.6;
-
-			x += width / 2;
-
+			
 			switch (noteData)
 			{
 				case 2:
@@ -164,11 +152,7 @@ class Note extends FlxSprite
 			}
 
 			updateHitbox();
-
-			x -= width / 2;
-
-			if (PlayState.curStage.startsWith('school'))
-				x += 30;
+			if (PlayState.curStage.startsWith('school')) x += 30;
 
 			if (prevNote.isSustainNote)
 			{

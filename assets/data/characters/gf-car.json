@@ -1,0 +1,49 @@
+
+{
+    "name": "Girlfriend (Car)",
+
+    "atlas": {
+        "image": "assets/images/gfCar.png",
+        "xml": "assets/images/gfCar.xml"
+    },
+
+    "animations": [
+        {
+            "name": "singUP",
+            "type": "indices",
+            "prefix": "GF Dancing Beat Hair blowing CAR",
+            "frames": [0],
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "danceLeft",
+            "type": "indices",
+            "prefix": "GF Dancing Beat Hair blowing CAR",
+            "frames": [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "danceRight",
+            "type": "indices",
+            "prefix": "GF Dancing Beat Hair blowing CAR",
+            "frames": [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        }
+    ],
+
+    "display": {
+        "antialiasing": true,
+        "flipX": false,
+        "scale": 1
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}

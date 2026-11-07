@@ -1,0 +1,50 @@
+
+{
+    "name": "Boyfriend (Pixel Dead)",
+
+    "atlas": {
+        "image": "assets/images/weeb/bfPixelsDEAD.png",
+        "xml": "assets/images/weeb/bfPixelsDEAD.xml"
+    },
+
+    "animations": [
+        {
+            "name": "singUP",
+            "prefix": "BF Dies pixel",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "firstDeath",
+            "prefix": "BF Dies pixel",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "deathLoop",
+            "prefix": "Retry Loop",
+            "fps": 24,
+            "loop": true,
+            "offset": [-37, 0]
+        },
+        {
+            "name": "deathConfirm",
+            "prefix": "RETRY CONFIRM",
+            "fps": 24,
+            "loop": false,
+            "offset": [-37, 0]
+        }
+    ],
+
+    "display": {
+        "antialiasing": false,
+        "flipX": true,
+        "scale": 6
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": true
+    }
+}

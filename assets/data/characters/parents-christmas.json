@@ -1,0 +1,85 @@
+
+{
+    "name": "Parents (Christmas)",
+
+    "atlas": {
+        "image": "assets/images/christmas/mom_dad_christmas_assets.png",
+        "xml": "assets/images/christmas/mom_dad_christmas_assets.xml"
+    },
+
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "Parent Christmas Idle",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "Parent Up Note Dad",
+            "fps": 24,
+            "loop": false,
+            "offset": [-47, 24]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "Parent Down Note Dad",
+            "fps": 24,
+            "loop": false,
+            "offset": [-31, -29]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Parent Left Note Dad",
+            "fps": 24,
+            "loop": false,
+            "offset": [-30, 16]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Parent Right Note Dad",
+            "fps": 24,
+            "loop": false,
+            "offset": [-1, -23]
+        },
+        {
+            "name": "singUP-alt",
+            "prefix": "Parent Up Note Mom",
+            "fps": 24,
+            "loop": false,
+            "offset": [-47, 24]
+        },
+        {
+            "name": "singDOWN-alt",
+            "prefix": "Parent Down Note Mom",
+            "fps": 24,
+            "loop": false,
+            "offset": [-30, -27]
+        },
+        {
+            "name": "singLEFT-alt",
+            "prefix": "Parent Left Note Mom",
+            "fps": 24,
+            "loop": false,
+            "offset": [-30, 15]
+        },
+        {
+            "name": "singRIGHT-alt",
+            "prefix": "Parent Right Note Mom",
+            "fps": 24,
+            "loop": false,
+            "offset": [-1, -24]
+        }
+    ],
+
+    "display": {
+        "antialiasing": true,
+        "flipX": false,
+        "scale": 1
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}

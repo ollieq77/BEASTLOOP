@@ -1,0 +1,85 @@
+
+{
+    "name": "Pico",
+
+    "atlas": {
+        "image": "assets/images/Pico_FNF_assetss.png",
+        "xml": "assets/images/Pico_FNF_assetss.xml"
+    },
+
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "Pico Idle Dance",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "pico Up note0",
+            "fps": 24,
+            "loop": false,
+            "offset": [-29, 27]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "Pico Down Note0",
+            "fps": 24,
+            "loop": false,
+            "offset": [200, -70]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Pico NOTE LEFT0",
+            "fps": 24,
+            "loop": false,
+            "offset": [65, 9]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Pico Note Right0",
+            "fps": 24,
+            "loop": false,
+            "offset": [-68, -7]
+        },
+        {
+            "name": "singRIGHTmiss",
+            "prefix": "Pico Note Right Miss",
+            "fps": 24,
+            "loop": false,
+            "offset": [-60, 41]
+        },
+        {
+            "name": "singLEFTmiss",
+            "prefix": "Pico NOTE LEFT miss",
+            "fps": 24,
+            "loop": false,
+            "offset": [62, 64]
+        },
+        {
+            "name": "singUPmiss",
+            "prefix": "pico Up note miss",
+            "fps": 24,
+            "loop": false,
+            "offset": [-19, 67]
+        },
+        {
+            "name": "singDOWNmiss",
+            "prefix": "Pico Down Note MISS",
+            "fps": 24,
+            "loop": false,
+            "offset": [210, -28]
+        }
+    ],
+
+    "display": {
+        "antialiasing": true,
+        "flipX": true,
+        "scale": 1
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": true
+    }
+}

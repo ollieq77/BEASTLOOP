@@ -1,0 +1,57 @@
+
+{
+    "name": "Senpai (Angry)",
+
+    "atlas": {
+        "image": "assets/images/weeb/senpai.png",
+        "xml": "assets/images/weeb/senpai.xml"
+    },
+
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "Angry Senpai Idle",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "Angry Senpai UP NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [5, 37]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Angry Senpai LEFT NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [40, 0]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Angry Senpai RIGHT NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "Angry Senpai DOWN NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [14, 0]
+        }
+    ],
+
+    "display": {
+        "antialiasing": false,
+        "flipX": false,
+        "scale": 6
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}
