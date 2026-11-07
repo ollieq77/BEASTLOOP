@@ -977,6 +977,81 @@ class PlayState extends MusicBeatState
 			FlxG.sound.playMusic("assets/music/" + SONG.song + "_Inst" + TitleState.soundExt, 1, false);
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
+
+		// the countdown clock usually overshoots 0 by up to a frame, which would leave the
+		// song clock permanently ahead of the audio, so start the real clock from the audio itself
+		resetSongClock(FlxG.sound.music.time - Conductor.offset);
+	}
+
+	// ---- SONG CLOCK ----
+	// songPosition = clockRaw + clockOffset
+	//   clockRaw    only ever advances by elapsed time (smooth, never jumps)
+	//   clockOffset a smoothed correction that locks the clock to the audio
+	// The audio clock is not trusted reading by reading: it can update in chunks, so a reading is
+	// always a little late and averaging them would leave the song clock permanently behind.
+	// A reading can never be *ahead* of the truth, so the offset follows the best (largest)
+	// recent reading instead, which cancels that lag out.
+	var clockRaw:Float = 0;
+	var clockOffset:Float = 0;
+	var lastAudioTime:Float = -1;
+	var clockSampleT:Array<Float> = [];
+	var clockSampleD:Array<Float> = [];
+
+	// somehow the original code made the song time DRIFT, this should fix it (its so fucking annoying)
+
+	static inline var CLOCK_WINDOW:Float = 400; // ms of readings that get compared
+	static inline var CLOCK_SNAP:Float = 30; // ms off before we jump instead of easing (seek, lag spike)
+	static inline var CLOCK_EASE:Float = 12; // per second, ~83ms to settle, framerate independent
+
+	function resetSongClock(pos:Float):Void
+	{
+		clockRaw = pos;
+		clockOffset = 0;
+		lastAudioTime = -1;
+		clockSampleT = [];
+		clockSampleD = [];
+		Conductor.songPosition = pos;
+	}
+
+	function updateSongClock(elapsed:Float):Void
+	{
+		clockRaw += elapsed * 1000;
+
+		var music = FlxG.sound.music;
+		if (music != null && music.playing)
+		{
+			var audioTime:Float = music.time - Conductor.offset;
+
+			// only readings that actually changed are new information
+			if (audioTime != lastAudioTime)
+			{
+				lastAudioTime = audioTime;
+				clockSampleT.push(clockRaw);
+				clockSampleD.push(audioTime - clockRaw);
+
+				while (clockSampleT.length > 0 && clockRaw - clockSampleT[0] > CLOCK_WINDOW)
+				{
+					clockSampleT.shift();
+					clockSampleD.shift();
+				}
+			}
+		}
+
+		if (clockSampleD.length > 0)
+		{
+			var best:Float = clockSampleD[0];
+			for (d in clockSampleD)
+				if (d > best)
+					best = d;
+
+			var gap:Float = best - clockOffset;
+			if (Math.abs(gap) > CLOCK_SNAP)
+				clockOffset = best;
+			else
+				clockOffset += gap * (1 - Math.exp(-elapsed * CLOCK_EASE));
+		}
+
+		Conductor.songPosition = clockRaw + clockOffset;
 	}
 
 	var debugNum:Int = 0;
@@ -1263,8 +1338,8 @@ class PlayState extends MusicBeatState
 		vocals.pause();
 
 		FlxG.sound.music.play();
-		Conductor.songPosition = FlxG.sound.music.time;
-		vocals.time = Conductor.songPosition;
+		resetSongClock(FlxG.sound.music.time - Conductor.offset);
+		vocals.time = FlxG.sound.music.time;
 		vocals.play();
 	}
 
@@ -1301,6 +1376,11 @@ class PlayState extends MusicBeatState
 				}
 				// phillyCityLights.members[curLight].alpha -= (Conductor.crochet / 1000) * FlxG.elapsed;
 		}
+
+		// config camera follow lerp to be framerate independent
+		// "honestly to god why is follow not framerate independant in flixel" - me, 2026
+		var lerp = 1 - Math.exp(-elapsed * 2);
+    	FlxG.camera.follow(camFollow, LOCKON, lerp);
 
 		super.update(elapsed);
 
@@ -1366,8 +1446,8 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			// Conductor.songPosition = FlxG.sound.music.time;
-			Conductor.songPosition += FlxG.elapsed * 1000;
+			updateSongClock(FlxG.elapsed);
+			FlxG.watch.addQuick("clockOffset", clockOffset);
 
 			if (!paused)
 			{
@@ -2186,9 +2266,10 @@ class PlayState extends MusicBeatState
 	{
 		if (SONG.needsVoices)
 		{
-			if (vocals.time > Conductor.songPosition + 20 || vocals.time < Conductor.songPosition - 20)
+			// the song clock follows the music, so vocals just have to stay glued to the music
+			if (Math.abs(vocals.time - FlxG.sound.music.time) > 30)
 			{
-				resyncVocals();
+				vocals.time = FlxG.sound.music.time;
 			}
 		}
 
