@@ -1,0 +1,26 @@
+{
+    "name": "School Evil",
+    "defaultCamZoom": 0.9,
+
+    "characters": {
+        "boyfriend": { "x": 970, "y": 670 },
+        "dad":       { "x": -50, "y": 200 },
+        "gf":        { "x": 580, "y": 430 }
+    },
+
+    "sprites": [
+        {
+            "name": "evilBG",
+            "type": "sparrow",
+            "image": "animatedEvilSchool.png",
+            "xml": "animatedEvilSchool.xml",
+            "position": [-882, -1080],
+            "scale": [6, 6],
+            "scrollFactor": [0.8, 0.9],
+            "animations": [
+                { "name": "idle", "prefix": "background 2", "fps": 24, "loop": true }
+            ],
+            "initialAnimation": "idle"
+        }
+    ]
+}

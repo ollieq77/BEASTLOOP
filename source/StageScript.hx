@@ -33,6 +33,9 @@ class StageScript
         interp.variables.set("daPixelZoom", PlayState.daPixelZoom);
         interp.variables.set("BackgroundGirls", BackgroundGirls);
         interp.variables.set("Type", Type);
+        interp.variables.set("Std", Std);
+        interp.variables.set("Math", Math);
+        interp.variables.set("SONG", PlayState.SONG);
 
         api = new StageAPI(stage);
         interp.variables.set("api", api);

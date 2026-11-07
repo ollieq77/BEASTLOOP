@@ -47,6 +47,7 @@ class StageLoader
 
         for (spriteData in sprites)
         {
+            try {
             var sprite = new FlxSprite(
                 spriteData.position[0],
                 spriteData.position[1]
@@ -159,6 +160,10 @@ class StageLoader
             
             stage.add(sprite, spriteData.name);
         }
+        catch (e:Dynamic) {
+            trace('[StageLoader] Failed sprite "${spriteData.name}" in $stageName: $e');
+        }
+    }
 
 
         return stage;
