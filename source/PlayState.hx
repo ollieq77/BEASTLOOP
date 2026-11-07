@@ -409,7 +409,7 @@ class PlayState extends MusicBeatState
 			gfVersion = 'gf-car';
 
 		gf = new Character(400, 130, gfVersion);
-		gf.setPosition(stage.gfPosition[0], stage.gfPosition[1]);   // <-- add
+		placeCharacter(gf, stage.gfPosition);
 		gf.scrollFactor.set(0.95, 0.95);
 
 		// Shitty layering but whatev it works LOL
@@ -417,9 +417,10 @@ class PlayState extends MusicBeatState
 			add(limo);
 
 		dad = new Character(100, 100, SONG.player2, false, true);
-		dad.setPosition(stage.dadPosition[0], stage.dadPosition[1]); // <-- add
+		placeCharacter(dad, stage.dadPosition);
 
-		var camPos:FlxPoint = new FlxPoint(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
+		// Story-mode tutorial opens the camera shifted toward the middle.
+		var introCamX:Float = 0;
 
 		switch (SONG.player2)
 		{
@@ -428,13 +429,12 @@ class PlayState extends MusicBeatState
 				gf.visible = false;
 				if (isStoryMode)
 				{
-					camPos.x += 600;
+					introCamX = 600;
 					tweenCamIn();
 				}
 		}
 		boyfriend = new Boyfriend(770, 450, SONG.player1);
-		boyfriend.x = stage.boyfriendPosition[0];
-		boyfriend.y = stage.boyfriendPosition[1];
+		placeCharacter(boyfriend, stage.boyfriendPosition);
 
 		stageScript.api.setCharacters(boyfriend, dad, gf);
 
@@ -493,7 +493,9 @@ class PlayState extends MusicBeatState
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 
-		camFollow.setPosition(camPos.x, camPos.y);
+		var startCam = getCamTarget(false);
+		camFollow.setPosition(startCam.x + introCamX, startCam.y);
+		startCam.put();
 
 		if (prevCamFollow != null)
 		{
@@ -1124,6 +1126,27 @@ class PlayState extends MusicBeatState
 		FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 	}
 
+	// Stage slot position + the character's own offset from its JSON.
+	function placeCharacter(char:Character, slot:Array<Float>):Void
+	{
+		char.setPosition(slot[0] + char.positionOffset[0], slot[1] + char.positionOffset[1]);
+	}
+
+	// Default target + stage camera offset + character camera offset.
+	function getCamTarget(onBf:Bool):FlxPoint
+	{
+		var who:Character = onBf ? boyfriend : dad;
+		var stageOff = onBf ? stage.cameraBoyfriend : stage.cameraOpponent;
+		var mid = who.getMidpoint();
+
+		var p = FlxPoint.get(
+			mid.x + (onBf ? -100 : 150) + stageOff[0] + who.cameraOffset[0],
+			mid.y - 100 + stageOff[1] + who.cameraOffset[1]
+		);
+		mid.put();
+		return p;
+	}
+
 	override function openSubState(SubState:FlxSubState)
 	{
 		if (paused)
@@ -1298,49 +1321,25 @@ class PlayState extends MusicBeatState
 		{
 			var mustHit:Bool = PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection;
 			var wanted:Int = mustHit ? 1 : 0;
-		
+
 			if (wanted != camTarget)
 			{
 				camTarget = wanted;
-			
+
+				var camP = getCamTarget(mustHit);
+				camFollow.setPosition(camP.x, camP.y);
+				camP.put();
+
 				if (!mustHit)
 				{
-					var mid = dad.getMidpoint();
-					camFollow.setPosition(mid.x + 150, mid.y - 100);
-				
-					switch (dad.curCharacter)
-					{
-						case 'mom':
-							camFollow.y = mid.y;
-						case 'senpai', 'senpai-angry':
-							camFollow.x = mid.x - 100;
-							camFollow.y = mid.y - 430;
-					}
-					mid.put();
-				
 					if (dad.curCharacter == 'mom')
 						vocals.volume = 1;
-				
+
 					if (SONG.song.toLowerCase() == 'tutorial')
 						tweenCamIn();
 				}
 				else
 				{
-					var mid = boyfriend.getMidpoint();
-					camFollow.setPosition(mid.x - 100, mid.y - 100);
-				
-					switch (curStage)
-					{
-						case 'limo':
-							camFollow.x = mid.x - 300;
-						case 'mall':
-							camFollow.y = mid.y - 200;
-						case 'school', 'schoolEvil':
-							camFollow.x = mid.x - 200;
-							camFollow.y = mid.y - 200;
-					}
-					mid.put();
-				
 					if (SONG.song.toLowerCase() == 'tutorial')
 						FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 				}

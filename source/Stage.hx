@@ -16,6 +16,10 @@ class Stage
     public var dadPosition:Array<Float> = [100, 100];
     public var gfPosition:Array<Float> = [400, 130];
 
+    // Added to the default camera target for each side.
+    public var cameraBoyfriend:Array<Float> = [0, 0];
+    public var cameraOpponent:Array<Float> = [0, 0];
+
     // Holds every stage object, not just sprites.
     public var members:FlxGroup;
 

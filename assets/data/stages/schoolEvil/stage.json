@@ -4,8 +4,13 @@
 
     "characters": {
         "boyfriend": { "x": 970, "y": 670 },
-        "dad":       { "x": -50, "y": 200 },
+        "dad":       { "x": 100, "y": 100 },
         "gf":        { "x": 580, "y": 430 }
+    },
+
+    "camera": {
+        "boyfriend": [-100, -100],
+        "opponent": [0, 0]
     },
 
     "sprites": [
