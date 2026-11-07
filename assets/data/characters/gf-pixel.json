@@ -1,0 +1,49 @@
+
+{
+    "name": "Girlfriend (Pixel)",
+
+    "atlas": {
+        "image": "assets/images/weeb/gfPixel.png",
+        "xml": "assets/images/weeb/gfPixel.xml"
+    },
+
+    "animations": [
+        {
+            "name": "singUP",
+            "type": "indices",
+            "prefix": "GF IDLE",
+            "frames": [2],
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "danceLeft",
+            "type": "indices",
+            "prefix": "GF IDLE",
+            "frames": [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "danceRight",
+            "type": "indices",
+            "prefix": "GF IDLE",
+            "frames": [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        }
+    ],
+
+    "display": {
+        "antialiasing": false,
+        "flipX": false,
+        "scale": 6
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}

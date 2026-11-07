@@ -10,11 +10,20 @@ class CharacterLoader
         var rawData:String = openfl.utils.Assets.getText(path);
         var data:Dynamic = haxe.Json.parse(rawData);
 
-        // Load spritesheet
-        character.frames = FlxAtlasFrames.fromSparrow(
-            data.atlas.image,
-            data.atlas.xml
-        );
+        if (data.atlas.xml != null)
+        {
+            character.frames = FlxAtlasFrames.fromSparrow(
+                data.atlas.image,
+                data.atlas.xml
+            );
+        }
+        else if (data.atlas.txt != null)
+        {
+            character.frames = FlxAtlasFrames.fromSpriteSheetPacker(
+                data.atlas.image,
+                data.atlas.txt
+            );
+        }
 
         // Load animations
         
