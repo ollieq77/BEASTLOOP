@@ -1,0 +1,109 @@
+diff --git a/assets/data/characters/mom.json b/assets/data/characters/mom.json
+index 77ed4e3..3a760e9 100644
+--- a/assets/data/characters/mom.json
++++ b/assets/data/characters/mom.json
+@@ -1,6 +1,7 @@
+ 
+ {
+     "name": "Mom",
++    "cameraPosition": [0, 100],
+ 
+     "atlas": {
+         "image": "assets/images/Mom_Assets.png",
+diff --git a/assets/data/characters/monster-christmas.json b/assets/data/characters/monster-christmas.json
+index a53dbd7..be09185 100644
+--- a/assets/data/characters/monster-christmas.json
++++ b/assets/data/characters/monster-christmas.json
+@@ -1,6 +1,7 @@
+ 
+ {
+     "name": "Monster (Christmas)",
++    "position": [0, 130],
+ 
+     "atlas": {
+         "image": "assets/images/christmas/monsterChristmas.png",
+diff --git a/assets/data/characters/monster.json b/assets/data/characters/monster.json
+index 1ddd660..a101573 100644
+--- a/assets/data/characters/monster.json
++++ b/assets/data/characters/monster.json
+@@ -1,6 +1,7 @@
+ 
+ {
+     "name": "Monster",
++    "position": [0, 100],
+ 
+     "atlas": {
+         "image": "assets/images/Monster_Assets.png",
+diff --git a/assets/data/characters/parents-christmas.json b/assets/data/characters/parents-christmas.json
+index 493d0eb..e2c0f15 100644
+--- a/assets/data/characters/parents-christmas.json
++++ b/assets/data/characters/parents-christmas.json
+@@ -1,6 +1,7 @@
+ 
+ {
+     "name": "Parents (Christmas)",
++    "position": [-500, 0],
+ 
+     "atlas": {
+         "image": "assets/images/christmas/mom_dad_christmas_assets.png",
+diff --git a/assets/data/characters/pico.json b/assets/data/characters/pico.json
+index 3683f59..ca67c66 100644
+--- a/assets/data/characters/pico.json
++++ b/assets/data/characters/pico.json
+@@ -1,6 +1,7 @@
+ 
+ {
+     "name": "Pico",
++    "position": [0, 300],
+ 
+     "atlas": {
+         "image": "assets/images/Pico_FNF_assetss.png",
+diff --git a/assets/data/characters/senpai-angry.json b/assets/data/characters/senpai-angry.json
+index fa3e7fd..ec1482b 100644
+--- a/assets/data/characters/senpai-angry.json
++++ b/assets/data/characters/senpai-angry.json
+@@ -1,6 +1,8 @@
+ 
+ {
+     "name": "Senpai (Angry)",
++    "position": [150, 360],
++    "cameraPosition": [-250, -330],
+ 
+     "atlas": {
+         "image": "assets/images/weeb/senpai.png",
+diff --git a/assets/data/characters/senpai.json b/assets/data/characters/senpai.json
+index 3e6682b..399842f 100644
+--- a/assets/data/characters/senpai.json
++++ b/assets/data/characters/senpai.json
+@@ -1,6 +1,8 @@
+ 
+ {
+     "name": "Senpai",
++    "position": [150, 360],
++    "cameraPosition": [-250, -330],
+ 
+     "atlas": {
+         "image": "assets/images/weeb/senpai.png",
+diff --git a/assets/data/characters/spirit.json b/assets/data/characters/spirit.json
+index d08923f..1f46cd2 100644
+--- a/assets/data/characters/spirit.json
++++ b/assets/data/characters/spirit.json
+@@ -1,5 +1,6 @@
+ {
+     "name": "Spirit",
++    "position": [-150, 100],
+     "atlas": {
+         "image": "assets/images/weeb/spirit.png",
+         "txt": "assets/images/weeb/spirit.txt"
+diff --git a/assets/data/characters/spooky.json b/assets/data/characters/spooky.json
+index e7807c6..54355f2 100644
+--- a/assets/data/characters/spooky.json
++++ b/assets/data/characters/spooky.json
+@@ -1,6 +1,7 @@
+ 
+ {
+     "name": "Spooky",
++    "position": [0, 200],
+     "atlas": {
+         "image": "assets/images/spooky_kids_assets.png",
+         "xml": "assets/images/spooky_kids_assets.xml"

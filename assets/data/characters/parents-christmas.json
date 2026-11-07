@@ -1,6 +1,7 @@
 
 {
     "name": "Parents (Christmas)",
+    "position": [-500, 0],
 
     "atlas": {
         "image": "assets/images/christmas/mom_dad_christmas_assets.png",

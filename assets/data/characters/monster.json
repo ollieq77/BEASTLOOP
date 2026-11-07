@@ -1,6 +1,7 @@
 
 {
     "name": "Monster",
+    "position": [0, 100],
 
     "atlas": {
         "image": "assets/images/Monster_Assets.png",
