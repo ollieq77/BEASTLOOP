@@ -1,5 +1,6 @@
 {
     "name": "Spirit",
+    "position": [-150, 100],
     "atlas": {
         "image": "assets/images/weeb/spirit.png",
         "txt": "assets/images/weeb/spirit.txt"

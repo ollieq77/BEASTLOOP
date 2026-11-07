@@ -1,6 +1,8 @@
 
 {
     "name": "Senpai",
+    "position": [150, 360],
+    "cameraPosition": [-250, -330],
 
     "atlas": {
         "image": "assets/images/weeb/senpai.png",

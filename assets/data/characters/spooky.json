@@ -1,6 +1,7 @@
 
 {
     "name": "Spooky",
+    "position": [0, 200],
     "atlas": {
         "image": "assets/images/spooky_kids_assets.png",
         "xml": "assets/images/spooky_kids_assets.xml"

@@ -1,6 +1,7 @@
 
 {
     "name": "Monster (Christmas)",
+    "position": [0, 130],
 
     "atlas": {
         "image": "assets/images/christmas/monsterChristmas.png",

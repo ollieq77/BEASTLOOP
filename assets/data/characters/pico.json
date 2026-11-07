@@ -1,6 +1,7 @@
 
 {
     "name": "Pico",
+    "position": [0, 300],
 
     "atlas": {
         "image": "assets/images/Pico_FNF_assetss.png",
