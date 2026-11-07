@@ -1,0 +1,148 @@
+
+var trainMoving:Bool = false;
+var trainFrameTiming:Float = 0;
+
+var trainCars:Int = 8;
+var trainFinishing:Bool = false;
+var trainCooldown:Int = 0;
+
+var startedMoving:Bool = false;
+var curLight:Int = 0;
+
+var trainSound:Dynamic;
+
+function onCreate()
+{
+
+    trainSound = FlxG.sound.load(
+        'assets/sounds/train_passes' + api.soundExt,
+        1,
+        false
+    );
+
+    // Check city light registration
+    for (i in 0...5)
+    {
+        var light = api.getSprite("cityLight" + i);
+    }
+}
+
+// TRAIN SYSTEM
+
+function trainStart():Void
+{
+
+    trainMoving = true;
+
+    if (!trainSound.playing)
+        trainSound.play(true);
+}
+
+function updateTrainPos():Void
+{
+    var train = api.getSprite("train");
+    var gf = api.getCharacter("gf");
+
+    if (trainSound.time >= 4700)
+    {
+        startedMoving = true;
+        gf.playAnim("hairBlow");
+    }
+
+    if (startedMoving)
+    {
+        train.x -= 400;
+
+        if (train.x < -2000 && !trainFinishing)
+        {
+            train.x = -1150;
+            trainCars -= 1;
+
+            if (trainCars <= 0)
+                trainFinishing = true;
+        }
+
+        if (train.x < -4000 && trainFinishing)
+            trainReset();
+    }
+}
+
+function trainReset():Void
+{
+
+    var train = api.getSprite("train");
+    var gf = api.getCharacter("gf");
+
+    gf.playAnim("hairFall");
+
+    train.x = FlxG.width + 200;
+
+    trainMoving = false;
+    trainCars = 8;
+    trainFinishing = false;
+    startedMoving = false;
+}
+
+// UPDATE
+
+function onUpdate(elapsed:Float):Void
+{
+    if (!trainMoving)
+        return;
+
+    trainFrameTiming += elapsed;
+
+    if (trainFrameTiming >= 1 / 24)
+    {
+        updateTrainPos();
+        trainFrameTiming = 0;
+    }
+}
+
+// BEAT EVENTS
+
+function onBeatHit():Void
+{
+
+    if (!trainMoving)
+        trainCooldown += 1;
+
+    if (curBeat % 4 == 0)
+    {
+
+        for (i in 0...5)
+        {
+            var light = api.getSprite("cityLight" + i);
+
+            if (light != null)
+                light.visible = false;
+        }
+
+        curLight = FlxG.random.int(0, 4);
+
+        var selectedLight = api.getSprite("cityLight" + curLight);
+
+        if (selectedLight != null)
+        {
+            selectedLight.visible = true;
+        }
+    }
+
+    if (
+        curBeat % 8 == 4 &&
+        FlxG.random.bool(30) &&
+        !trainMoving &&
+        trainCooldown > 8
+    )
+    {
+
+        trainCooldown = FlxG.random.int(-4, 0);
+        trainStart();
+    }
+}
+
+function onDestroy():Void
+{
+    if (trainSound != null)
+        trainSound.stop();
+}

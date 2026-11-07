@@ -53,8 +53,6 @@ class PlayState extends MusicBeatState
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 1;
 
-	var halloweenLevel:Bool = false;
-
 	var stage:Stage;
 	var stageScript:StageScript;
 
@@ -100,13 +98,6 @@ class PlayState extends MusicBeatState
 
 	var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
 
-	var halloweenBG:FlxSprite;
-	var isHalloween:Bool = false;
-
-	var phillyCityLights:FlxTypedGroup<FlxSprite>;
-	var phillyTrain:FlxSprite;
-	var trainSound:FlxSound;
-
 	var limo:FlxSprite;
 	var grpLimoDancers:FlxTypedGroup<BackgroundDancer>;
 	var fastCar:FlxSprite;
@@ -114,8 +105,6 @@ class PlayState extends MusicBeatState
 	var upperBoppers:FlxSprite;
 	var bottomBoppers:FlxSprite;
 	var santa:FlxSprite;
-
-	var bgGirls:BackgroundGirls;
 	var wiggleShit:WiggleEffect = new WiggleEffect();
 
 	var talking:Bool = true;
@@ -159,73 +148,35 @@ class PlayState extends MusicBeatState
 		        dialogue = CoolUtil.coolTextFile(Paths.song(songName) + '${songName}Dialogue.txt');
 		}
 
-		if (SONG.song.toLowerCase() == 'spookeez' ||
-		    SONG.song.toLowerCase() == 'monster' ||
-		    SONG.song.toLowerCase() == 'south')
-		{
+		var song = SONG.song.toLowerCase();
+
+		if (song == 'spookeez' || song == 'monster' || song == 'south')
 		    curStage = 'spooky';
-		    halloweenLevel = true;
-		    isHalloween = true;
+		else if (song == 'pico' || song == 'blammed' || song == 'philly')
+		    curStage = 'philly';
+		else if (song == 'senpai' || song == 'roses' || song == 'thorns')
+			curStage = 'school';
+		else
+		    curStage = 'stage';
+
+		stage = StageLoader.load(curStage);
+		defaultCamZoom = stage.defaultCamZoom;
+
+		add(stage.members);
+
+		stageScript = new StageScript(
+		    stage,
+		    'assets/data/stages/$curStage/stage.hxc'
+		);
 		
-		    stage = StageLoader.load(curStage);
-		    defaultCamZoom = stage.defaultCamZoom;
-		
-		    halloweenBG = stage.getSprite('halloweenBG');
-		
-		    add(stage.sprites);
-			stageScript = new StageScript(
-			    stage,
-			    'assets/data/stages/$curStage/stage.hxc'
-			);
-			
-			if (stageScript.load())
-			{
-				stageScript.api.setCameras(camGame, camHUD);
-			    stageScript.call("onCreate");
-			}
-		}
-		else if (SONG.song.toLowerCase() == 'pico' || SONG.song.toLowerCase() == 'blammed' || SONG.song.toLowerCase() == 'philly')
+		if (stageScript.load())
 		{
-			curStage = 'philly';
-
-			var bg:FlxSprite = new FlxSprite(-100).loadGraphic('assets/images/philly/sky.png');
-			bg.scrollFactor.set(0.1, 0.1);
-			add(bg);
-
-			var city:FlxSprite = new FlxSprite(-10).loadGraphic('assets/images/philly/city.png');
-			city.scrollFactor.set(0.3, 0.3);
-			city.setGraphicSize(Std.int(city.width * 0.85));
-			city.updateHitbox();
-			add(city);
-
-			phillyCityLights = new FlxTypedGroup<FlxSprite>();
-			add(phillyCityLights);
-
-			for (i in 0...5)
-			{
-				var light:FlxSprite = new FlxSprite(city.x).loadGraphic('assets/images/philly/win' + i + '.png');
-				light.scrollFactor.set(0.3, 0.3);
-				light.visible = false;
-				light.setGraphicSize(Std.int(light.width * 0.85));
-				light.updateHitbox();
-				phillyCityLights.add(light);
-			}
-
-			var streetBehind:FlxSprite = new FlxSprite(-40, 50).loadGraphic('assets/images/philly/behindTrain.png');
-			add(streetBehind);
-
-			phillyTrain = new FlxSprite(2000, 360).loadGraphic('assets/images/philly/train.png');
-			add(phillyTrain);
-
-			trainSound = new FlxSound().loadEmbedded('assets/sounds/train_passes' + TitleState.soundExt);
-			FlxG.sound.list.add(trainSound);
-
-			// var cityLights:FlxSprite = new FlxSprite().loadGraphic(AssetPaths.win0.png);
-
-			var street:FlxSprite = new FlxSprite(-40, streetBehind.y).loadGraphic('assets/images/philly/street.png');
-			add(street);
+		    stageScript.api.setCameras(camGame, camHUD);
+		    stageScript.call("onCreate");
 		}
-		else if (SONG.song.toLowerCase() == 'milf' || SONG.song.toLowerCase() == 'satin-panties' || SONG.song.toLowerCase() == 'high')
+
+		/*
+		if (SONG.song.toLowerCase() == 'milf' || SONG.song.toLowerCase() == 'satin-panties' || SONG.song.toLowerCase() == 'high')
 		{
 			curStage = 'limo';
 			defaultCamZoom = 0.90;
@@ -433,12 +384,7 @@ class PlayState extends MusicBeatState
 			bg.scale.set(6, 6);
 			add(bg);
 		}
-		else
-		{
-		    stage = StageLoader.load(SONG.stage);
-		    defaultCamZoom = stage.defaultCamZoom;
-		    add(stage.sprites);
-		}
+		*/
 
 		var gfVersion:String = 'gf';
 
@@ -511,9 +457,14 @@ class PlayState extends MusicBeatState
 
 		stageScript.api.setCharacters(boyfriend, dad, gf);
 
-		boyfriend.setPosition(stage.boyfriendPosition[0], stage.boyfriendPosition[1]);
-		dad.setPosition(stage.dadPosition[0], stage.dadPosition[1]);
-		gf.setPosition(stage.gfPosition[0], stage.gfPosition[1]);
+		boyfriend.x = stage.boyfriendPosition[0];
+		boyfriend.y = stage.boyfriendPosition[1];
+
+		dad.x = stage.dadPosition[0];
+		dad.y = stage.dadPosition[1];
+
+		gf.x = stage.gfPosition[0];
+		gf.y = stage.gfPosition[1];
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
@@ -1265,28 +1216,18 @@ class PlayState extends MusicBeatState
 		perfectMode = false;
 		#end
 
+		if (stageScript != null)
+		{
+		    stageScript.setVariable("elapsed", elapsed);
+		    stageScript.call("onUpdate", [elapsed]);
+		}
+
 		if (FlxG.keys.justPressed.NINE)
 		{
 			if (iconP1.animation.curAnim.name == 'bf-old')
 				iconP1.animation.play(SONG.player1);
 			else
 				iconP1.animation.play('bf-old');
-		}
-
-		switch (curStage)
-		{
-			case 'philly':
-				if (trainMoving)
-				{
-					trainFrameTiming += elapsed;
-
-					if (trainFrameTiming >= 1 / 24)
-					{
-						updateTrainPos();
-						trainFrameTiming = 0;
-					}
-				}
-				// phillyCityLights.members[curLight].alpha -= (Conductor.crochet / 1000) * FlxG.elapsed;
 		}
 
 		// config camera follow lerp to be framerate independent
@@ -2169,60 +2110,6 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	var trainMoving:Bool = false;
-	var trainFrameTiming:Float = 0;
-
-	var trainCars:Int = 8;
-	var trainFinishing:Bool = false;
-	var trainCooldown:Int = 0;
-
-	function trainStart():Void
-	{
-		trainMoving = true;
-		if (!trainSound.playing)
-			trainSound.play(true);
-	}
-
-	var startedMoving:Bool = false;
-
-	function updateTrainPos():Void
-	{
-		if (trainSound.time >= 4700)
-		{
-			startedMoving = true;
-			gf.playAnim('hairBlow');
-		}
-
-		if (startedMoving)
-		{
-			phillyTrain.x -= 400;
-
-			if (phillyTrain.x < -2000 && !trainFinishing)
-			{
-				phillyTrain.x = -1150;
-				trainCars -= 1;
-
-				if (trainCars <= 0)
-					trainFinishing = true;
-			}
-
-			if (phillyTrain.x < -4000 && trainFinishing)
-				trainReset();
-		}
-	}
-
-	function trainReset():Void
-	{
-		gf.playAnim('hairFall');
-		phillyTrain.x = FlxG.width + 200;
-		trainMoving = false;
-		// trainSound.stop();
-		// trainSound.time = 0;
-		trainCars = 8;
-		trainFinishing = false;
-		startedMoving = false;
-	}
-
 	override function stepHit()
 	{
 		if (SONG.needsVoices)
@@ -2324,9 +2211,6 @@ class PlayState extends MusicBeatState
 
 		switch (curStage)
 		{
-			case 'school':
-				bgGirls.dance();
-
 			case 'mall':
 				upperBoppers.animation.play('bop', true);
 				bottomBoppers.animation.play('bop', true);
@@ -2340,28 +2224,6 @@ class PlayState extends MusicBeatState
 
 				if (FlxG.random.bool(10) && fastCarCanDrive)
 					fastCarDrive();
-			case "philly":
-				if (!trainMoving)
-					trainCooldown += 1;
-
-				if (totalBeats % 4 == 0)
-				{
-					phillyCityLights.forEach(function(light:FlxSprite)
-					{
-						light.visible = false;
-					});
-
-					curLight = FlxG.random.int(0, phillyCityLights.length - 1);
-
-					phillyCityLights.members[curLight].visible = true;
-					// phillyCityLights.members[curLight].alpha = 1;
-				}
-
-				if (totalBeats % 8 == 4 && FlxG.random.bool(30) && !trainMoving && trainCooldown > 8)
-				{
-					trainCooldown = FlxG.random.int(-4, 0);
-					trainStart();
-				}
 		}
 	}
 

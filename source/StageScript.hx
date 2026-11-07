@@ -4,6 +4,7 @@ package;
 import hscript.Parser;
 import hscript.Interp;
 import lime.utils.Assets;
+import flixel.FlxG;
 
 class StageScript
 {
@@ -29,9 +30,13 @@ class StageScript
         // Expose the stage to the script.
         interp.variables.set("stage", stage);
         interp.variables.set("curBeat", 0);
+        interp.variables.set("daPixelZoom", PlayState.daPixelZoom);
+        interp.variables.set("BackgroundGirls", BackgroundGirls);
+        interp.variables.set("Type", Type);
 
         api = new StageAPI(stage);
         interp.variables.set("api", api);
+        interp.variables.set("FlxG", FlxG);
     }
 
     public function load():Bool
