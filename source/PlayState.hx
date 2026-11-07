@@ -141,35 +141,16 @@ class PlayState extends MusicBeatState
 		persistentDraw = true;
 
 		if (SONG == null)
-			SONG = Song.loadFromJson('tutorial');
+			SONG = Song.loadFromJson('hard', 'tutorial');
 
 		Conductor.changeBPM(SONG.bpm);
 
-		switch (SONG.song.toLowerCase())
+		// store song name temporarily
+		var songName = SONG.song.toLowerCase();
+		switch (songName)
 		{
-			case 'tutorial':
-				dialogue = ["Hey you're pretty cute.", 'Use the arrow keys to keep up \nwith me singing.'];
-			case 'bopeebo':
-				dialogue = [
-					'HEY!',
-					"You think you can just sing\nwith my daughter like that?",
-					"If you want to date her...",
-					"You're going to have to go \nthrough ME first!"
-				];
-			case 'fresh':
-				dialogue = ["Not too shabby boy.", ""];
-			case 'dadbattle':
-				dialogue = [
-					"gah you think you're hot stuff?",
-					"If you can beat me here...",
-					"Only then I will even CONSIDER letting you\ndate my daughter!"
-				];
-			case 'senpai':
-				dialogue = CoolUtil.coolTextFile('assets/data/senpai/senpaiDialogue.txt');
-			case 'roses':
-				dialogue = CoolUtil.coolTextFile('assets/data/roses/rosesDialogue.txt');
-			case 'thorns':
-				dialogue = CoolUtil.coolTextFile('assets/data/thorns/thornsDialogue.txt');
+		    case 'senpai', 'roses', 'thorns':
+		        dialogue = CoolUtil.coolTextFile(Paths.song(songName) + '${songName}Dialogue.txt');
 		}
 
 		if (SONG.song.toLowerCase() == 'spookeez' || SONG.song.toLowerCase() == 'monster' || SONG.song.toLowerCase() == 'south')
@@ -978,7 +959,7 @@ class PlayState extends MusicBeatState
 		lastReportedPlayheadPosition = 0;
 
 		if (!paused)
-			FlxG.sound.playMusic('assets/songs/${SONG.song.toLowerCase()}/Inst${TitleState.soundExt}', 1, false);
+		    FlxG.sound.playMusic(Paths.song(SONG.song) + 'Inst${TitleState.soundExt}', 1, false);
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
 
@@ -1070,9 +1051,9 @@ class PlayState extends MusicBeatState
 		curSong = songData.song;
 
 		if (SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded('assets/songs/${curSong.toLowerCase()}/Voices${TitleState.soundExt}');
+		    vocals = new FlxSound().loadEmbedded(Paths.song(curSong) + 'Voices${TitleState.soundExt}');
 		else
-			vocals = new FlxSound();
+		    vocals = new FlxSound();
 
 		FlxG.sound.list.add(vocals);
 
