@@ -1,0 +1,48 @@
+
+{
+    "name": "Spooky",
+    "defaultCamZoom": 0.9,
+
+    "characters": {
+        "boyfriend": {
+            "x": 770,
+            "y": 450
+        },
+        "dad": {
+            "x": 100,
+            "y": 300
+        },
+        "gf": {
+            "x": 400,
+            "y": 130
+        }
+    },
+
+    "sprites": [
+        {
+            "name": "halloweenBG",
+            "type": "sparrow",
+            "image": "halloween_bg.png",
+            "xml": "halloween_bg.xml",
+            "position": [-200, -100],
+            "antialiasing": true,
+            "scrollFactor": [1, 1],
+            "active": true,
+
+            "animations": [
+                {
+                    "name": "idle",
+                    "prefix": "halloweem bg0"
+                },
+                {
+                    "name": "lightning",
+                    "prefix": "halloweem bg lightning strike",
+                    "fps": 24,
+                    "loop": false
+                }
+            ],
+
+            "initialAnimation": "idle"
+        }
+    ]
+}

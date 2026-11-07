@@ -3,8 +3,8 @@
 <project>
 	<!-- Application -->
 	<app
-		title="Friday Night Funkin'"
-		file="Funkin"
+		title="FNF': BeastLoop"
+		file="BeastLoop"
 		packageName="com.ninjamuffin99.funkin"
 		main="Main"
 		version="0.2.7"
