@@ -213,10 +213,6 @@ class Character extends FlxSprite
 			case 'bf':
 				CharacterLoader.load(this, curCharacter);
 
-				trace('Character: ' + curCharacter
-    					+ ' | isPlayer: ' + isPlayer
-    					+ ' | isPlayerCharacter: ' + isPlayerCharacter);
-
 			case 'bf-christmas':
 				var tex = FlxAtlasFrames.fromSparrow('assets/images/christmas/bfChristmas.png', 'assets/images/christmas/bfChristmas.xml');
 				frames = tex;
@@ -420,9 +416,6 @@ class Character extends FlxSprite
 		if (reverseDirection)
 		{
 
-			trace('danceLeft: ' + (animation.getByName('danceLeft') != null));
-			trace('danceRight: ' + (animation.getByName('danceRight') != null));
-
 		    swapAnimations('singLEFT', 'singRIGHT');
 		    swapAnimations('singLEFTmiss', 'singRIGHTmiss');
 		
@@ -443,11 +436,6 @@ class Character extends FlxSprite
 
 			if (curCharacter == 'dad')
 				dadVar = 6.1;
-
-			trace('Character: ' + curCharacter
-    			+ ' | Animation: ' + animation.curAnim.name
-    			+ ' | HoldTimer: ' + holdTimer
-    			+ ' | Threshold: ' + (Conductor.stepCrochet * dadVar * 0.001));
 			
 			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
 			{
@@ -490,9 +478,6 @@ class Character extends FlxSprite
 	    {
 	        danced = !danced;
 	        playAnim(danced ? 'danceRight' : 'danceLeft');
-
-			trace('DANCE CALLED: ' + curCharacter);
-			trace('Current animation: ' + animation.curAnim.name);
 
 	        return;
 	    }
