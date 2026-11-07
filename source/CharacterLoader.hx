@@ -45,6 +45,13 @@ class CharacterLoader
             character.addOffset(anim.name, anim.offset[0], anim.offset[1]);
         }
 
+        // Load position offsets
+        if (data.position != null)
+            character.positionOffset = [data.position[0], data.position[1]];
+
+        if (data.cameraPosition != null)
+            character.cameraOffset = [data.cameraPosition[0], data.cameraPosition[1]];
+
         // Load display properties
         if (data.display != null)
         {

@@ -19,6 +19,11 @@ class Character extends FlxSprite
 
 	public var holdTimer:Float = 0;
 
+	// Set from the character JSON ("position" / "cameraPosition").
+	// positionOffset is added to the stage slot, cameraOffset to the camera target.
+	public var positionOffset:Array<Float> = [0, 0];
+	public var cameraOffset:Array<Float> = [0, 0];
+
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false, ?isDad:Bool = false)
 	{
 		animOffsets = new Map<String, Array<Dynamic>>();

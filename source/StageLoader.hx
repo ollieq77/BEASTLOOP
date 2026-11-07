@@ -42,6 +42,16 @@ class StageLoader
             data.characters.gf.y
         ];
 
+        // Camera offsets (optional)
+        if (data.camera != null)
+        {
+            if (data.camera.boyfriend != null)
+                stage.cameraBoyfriend = [data.camera.boyfriend[0], data.camera.boyfriend[1]];
+
+            if (data.camera.opponent != null)
+                stage.cameraOpponent = [data.camera.opponent[0], data.camera.opponent[1]];
+        }
+
         // Stage sprites
         var sprites:Array<Dynamic> = cast data.sprites;
 
