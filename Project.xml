@@ -75,6 +75,12 @@
 
 	<assets path="CHANGELOG.md" />
 
+	<assets
+    	path=".haxelib/haxeui-flixel/1,7,0/haxe/ui/backend/flixel/_module/styles"
+    	rename="haxeui-flixel/styles"
+    	embed="true"
+	/>
+
 	<!-- Libraries -->
 	<haxelib name="flixel" />
 	<haxedev set="webgl" />
