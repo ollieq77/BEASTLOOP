@@ -3,8 +3,8 @@
     "name": "Girlfriend (Pixel)",
 
     "atlas": {
-        "image": "assets/images/characters/pixel/gfPixel.png",
-        "xml": "assets/images/characters/pixel/gfPixel.xml"
+        "image": "assets/images/weeb/gfPixel.png",
+        "xml": "assets/images/weeb/gfPixel.xml"
     },
 
     "animations": [

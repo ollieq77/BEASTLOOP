@@ -3,8 +3,8 @@
     "name": "Boyfriend (Car)",
     "position": [0, 350],
     "atlas": {
-        "image": "assets/images/characters/bfCar.png",
-        "xml": "assets/images/characters/bfCar.xml"
+        "image": "assets/images/bfCar.png",
+        "xml": "assets/images/bfCar.xml"
     },
 
     "animations": [

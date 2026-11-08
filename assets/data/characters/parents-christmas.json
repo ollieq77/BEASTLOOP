@@ -4,8 +4,8 @@
     "position": [-500, 0],
 
     "atlas": {
-        "image": "assets/images/characters/christmas/mom_dad_christmas_assets.png",
-        "xml": "assets/images/characters/christmas/mom_dad_christmas_assets.xml"
+        "image": "assets/images/christmas/mom_dad_christmas_assets.png",
+        "xml": "assets/images/christmas/mom_dad_christmas_assets.xml"
     },
 
     "animations": [

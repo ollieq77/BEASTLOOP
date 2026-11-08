@@ -256,7 +256,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.fixedTimestep = false;
 
-		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.image('gameplay/healthBar'));
+		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.image('healthBar'));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -336,7 +336,7 @@ class PlayState extends MusicBeatState
 			gf.dance();
 			boyfriend.playAnim('idle');
 
-			var introAlts:Array<String> = ['gameplay/ready', 'gameplay/set', 'gameplay/go'];
+			var introAlts:Array<String> = ['ready', 'set', 'go'];
 			var altSuffix:String = "";
 
 			if (isPixelStage)
@@ -615,7 +615,7 @@ class PlayState extends MusicBeatState
 	// TODO: probably make this modular so we dont hardcode everything
 	private function setupNormalArrow(arrow:FlxSprite, direction:Int):Void
 	{
-	    arrow.frames = Paths.sparrow('gameplay/NOTE_assets');
+	    arrow.frames = Paths.sparrow('NOTE_assets');
 
 	    arrow.animation.addByPrefix('green', 'arrowUP');
 	    arrow.animation.addByPrefix('blue', 'arrowDOWN');
@@ -1248,7 +1248,7 @@ class PlayState extends MusicBeatState
 				daRating = 'bad';
 		 */
 
-		var pixelShitPart1:String = "gameplay/";
+		var pixelShitPart1:String = "";
 		var pixelShitPart2:String = '';
 
 		if (isPixelStage)
