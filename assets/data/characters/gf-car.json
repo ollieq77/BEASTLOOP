@@ -3,8 +3,8 @@
     "name": "Girlfriend (Car)",
 
     "atlas": {
-        "image": "assets/images/characters/gfCar.png",
-        "xml": "assets/images/characters/gfCar.xml"
+        "image": "assets/images/gfCar.png",
+        "xml": "assets/images/gfCar.xml"
     },
 
     "animations": [
