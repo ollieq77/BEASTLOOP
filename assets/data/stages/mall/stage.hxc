@@ -1,0 +1,28 @@
+
+var upperBoppers:Dynamic;
+var bottomBoppers:Dynamic;
+var santa:Dynamic;
+
+function onCreate():Void
+{
+    upperBoppers = api.getSprite("upperBoppers");
+    bottomBoppers = api.getSprite("bottomBoppers");
+    santa = api.getSprite("santa");
+}
+
+function onBeatHit():Void
+{
+    if (upperBoppers != null)
+        upperBoppers.animation.play("bop", true);
+
+    if (bottomBoppers != null)
+        bottomBoppers.animation.play("bop", true);
+
+    if (santa != null)
+        santa.animation.play("idle", true);
+}
+
+function onDestroy():Void
+{
+
+}

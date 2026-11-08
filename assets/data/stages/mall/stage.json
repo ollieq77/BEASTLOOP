@@ -1,0 +1,148 @@
+{
+    "name": "Mall",
+    "defaultCamZoom": 0.8,
+    "characters": {
+        "boyfriend": {
+            "x": 970,
+            "y": 450
+        },
+        "dad": {
+            "x": 100,
+            "y": 100
+        },
+        "gf": {
+            "x": 400,
+            "y": 130
+        }
+    },
+    "sprites": [
+        {
+            "name": "bgWalls",
+            "image": "bgWalls.png",
+            "position": [
+                -1000,
+                -500
+            ],
+            "scale": [
+                0.8,
+                0.8
+            ],
+            "antialiasing": true,
+            "scrollFactor": [
+                0.2,
+                0.2
+            ],
+            "active": false
+        },
+        {
+            "name": "upperBoppers",
+            "type": "sparrow",
+            "image": "upperBop.png",
+            "xml": "upperBop.xml",
+            "position": [
+                -240,
+                -90
+            ],
+            "scale": [
+                0.85,
+                0.85
+            ],
+            "antialiasing": true,
+            "scrollFactor": [
+                0.33,
+                0.33
+            ],
+            "animations": [
+                {
+                    "name": "bop",
+                    "prefix": "Upper Crowd Bob",
+                    "fps": 24,
+                    "loop": false
+                }
+            ]
+        },
+        {
+            "name": "bgEscalator",
+            "image": "bgEscalator.png",
+            "position": [
+                -1100,
+                -600
+            ],
+            "scale": [
+                0.9,
+                0.9
+            ],
+            "antialiasing": true,
+            "scrollFactor": [
+                0.3,
+                0.3
+            ],
+            "active": false
+        },
+        {
+            "name": "tree",
+            "image": "christmasTree.png",
+            "position": [
+                370,
+                -250
+            ],
+            "antialiasing": true,
+            "scrollFactor": [
+                0.4,
+                0.4
+            ]
+        },
+        {
+            "name": "bottomBoppers",
+            "type": "sparrow",
+            "image": "bottomBop.png",
+            "xml": "bottomBop.xml",
+            "position": [
+                -300,
+                140
+            ],
+            "antialiasing": true,
+            "scrollFactor": [
+                0.9,
+                0.9
+            ],
+            "animations": [
+                {
+                    "name": "bop",
+                    "prefix": "Bottom Level Boppers",
+                    "fps": 24,
+                    "loop": false
+                }
+            ]
+        },
+        {
+            "name": "fgSnow",
+            "image": "fgSnow.png",
+            "position": [
+                -600,
+                700
+            ],
+            "antialiasing": true,
+            "active": false
+        },
+        {
+            "name": "santa",
+            "type": "sparrow",
+            "image": "santa.png",
+            "xml": "santa.xml",
+            "position": [
+                -840,
+                150
+            ],
+            "antialiasing": true,
+            "animations": [
+                {
+                    "name": "idle",
+                    "prefix": "santa idle in fear",
+                    "fps": 24,
+                    "loop": false
+                }
+            ]
+        }
+    ]
+}

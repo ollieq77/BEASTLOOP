@@ -1,0 +1,60 @@
+{
+    "name": "Mall Evil",
+    "defaultCamZoom": 1.05,
+    "characters": {
+        "boyfriend": {
+            "x": 1090,
+            "y": 450
+        },
+        "dad": {
+            "x": 100,
+            "y": 20
+        },
+        "gf": {
+            "x": 400,
+            "y": 130
+        }
+    },
+    "sprites": [
+        {
+            "name": "evilBG",
+            "image": "evilBG.png",
+            "position": [
+                -400,
+                -500
+            ],
+            "scale": [
+                0.8,
+                0.8
+            ],
+            "antialiasing": true,
+            "scrollFactor": [
+                0.2,
+                0.2
+            ],
+            "active": false
+        },
+        {
+            "name": "evilTree",
+            "image": "evilTree.png",
+            "position": [
+                300,
+                -300
+            ],
+            "antialiasing": true,
+            "scrollFactor": [
+                0.2,
+                0.2
+            ]
+        },
+        {
+            "name": "evilSnow",
+            "image": "evilSnow.png",
+            "position": [
+                -200,
+                700
+            ],
+            "antialiasing": true
+        }
+    ]
+}
