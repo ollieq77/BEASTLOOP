@@ -76,7 +76,7 @@ class Note extends FlxSprite
 		}
 		else
 		{
-			frames = Paths.sparrow('NOTE_assets');
+			frames = Paths.sparrow('gameplay/NOTE_assets');
 
 			animation.addByPrefix('greenScroll', 'green0');
 			animation.addByPrefix('redScroll', 'red0');

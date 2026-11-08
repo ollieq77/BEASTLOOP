@@ -3,8 +3,8 @@
     "name": "Mom (Car)",
 
     "atlas": {
-        "image": "assets/images/momCar.png",
-        "xml": "assets/images/momCar.xml"
+        "image": "assets/images/characters/momCar.png",
+        "xml": "assets/images/characters/momCar.xml"
     },
 
     "animations": [

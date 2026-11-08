@@ -2,8 +2,8 @@
     "name": "Daddy Dearest",
 
     "atlas": {
-        "image": "assets/images/DADDY_DEAREST.png",
-        "xml": "assets/images/DADDY_DEAREST.xml"
+        "image": "assets/images/characters/DADDY_DEAREST.png",
+        "xml": "assets/images/characters/DADDY_DEAREST.xml"
     },
 
     "animations": [

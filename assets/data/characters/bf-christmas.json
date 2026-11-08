@@ -3,8 +3,8 @@
     "name": "Boyfriend (Christmas)",
     "position": [0, 350],
     "atlas": {
-        "image": "assets/images/christmas/bfChristmas.png",
-        "xml": "assets/images/christmas/bfChristmas.xml"
+        "image": "assets/images/characters/christmas/bfChristmas.png",
+        "xml": "assets/images/characters/christmas/bfChristmas.xml"
     },
 
     "animations": [
