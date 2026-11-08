@@ -3,8 +3,8 @@
     "name": "Girlfriend",
 
     "atlas": {
-        "image": "assets/images/GF_assets.png",
-        "xml": "assets/images/GF_assets.xml"
+        "image": "assets/images/characters/GF_assets.png",
+        "xml": "assets/images/characters/GF_assets.xml"
     },
 
     "animations": [

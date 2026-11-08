@@ -4,8 +4,8 @@
     "position": [0, 300],
 
     "atlas": {
-        "image": "assets/images/Pico_FNF_assetss.png",
-        "xml": "assets/images/Pico_FNF_assetss.xml"
+        "image": "assets/images/characters/Pico_FNF_assetss.png",
+        "xml": "assets/images/characters/Pico_FNF_assetss.xml"
     },
 
     "animations": [

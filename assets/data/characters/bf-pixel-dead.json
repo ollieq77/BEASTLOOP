@@ -3,8 +3,8 @@
     "name": "Boyfriend (Pixel Dead)",
     "position": [0, 350],
     "atlas": {
-        "image": "assets/images/weeb/bfPixelsDEAD.png",
-        "xml": "assets/images/weeb/bfPixelsDEAD.xml"
+        "image": "assets/images/characters/pixel/bfPixelsDEAD.png",
+        "xml": "assets/images/characters/pixel/bfPixelsDEAD.xml"
     },
 
     "animations": [

@@ -4,8 +4,8 @@
     "position": [0, 130],
 
     "atlas": {
-        "image": "assets/images/christmas/monsterChristmas.png",
-        "xml": "assets/images/christmas/monsterChristmas.xml"
+        "image": "assets/images/characters/christmas/monsterChristmas.png",
+        "xml": "assets/images/characters/christmas/monsterChristmas.xml"
     },
 
     "animations": [
