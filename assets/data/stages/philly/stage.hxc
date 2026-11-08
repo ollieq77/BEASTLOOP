@@ -15,7 +15,7 @@ function onCreate()
 {
 
     trainSound = FlxG.sound.load(
-        'assets/sounds/train_passes' + api.soundExt,
+        api.soundPath('train_passes'),
         1,
         false
     );

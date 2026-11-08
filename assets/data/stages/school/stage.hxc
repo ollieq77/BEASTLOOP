@@ -40,7 +40,7 @@ function onIntro(dialogueBox):Bool
     var song = SONG.song.toLowerCase();
 
     if (song == "roses")
-        api.playSound('assets/sounds/ANGRY' + api.soundExt);
+        api.playSound('ANGRY');
 
     var black = api.makeSolid(-100, -100, FlxG.width * 2, FlxG.height * 2, 0xFF000000);
     black.scrollFactor.set();

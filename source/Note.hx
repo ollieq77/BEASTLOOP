@@ -48,7 +48,7 @@ class Note extends FlxSprite
 
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic('assets/images/weeb/pixelUI/arrows-pixels.png', true, 17, 17);
+			loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
 
 			animation.add('greenScroll', [6]);
 			animation.add('redScroll', [7]);
@@ -57,7 +57,7 @@ class Note extends FlxSprite
 
 			if (isSustainNote)
 			{
-				loadGraphic('assets/images/weeb/pixelUI/arrowEnds.png', true, 7, 6);
+				loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
 
 				animation.add('purpleholdend', [4]);
 				animation.add('greenholdend', [6]);
@@ -76,7 +76,7 @@ class Note extends FlxSprite
 		}
 		else
 		{
-			frames = FlxAtlasFrames.fromSparrow('assets/images/NOTE_assets.png', 'assets/images/NOTE_assets.xml');
+			frames = Paths.sparrow('NOTE_assets');
 
 			animation.addByPrefix('greenScroll', 'green0');
 			animation.addByPrefix('redScroll', 'red0');

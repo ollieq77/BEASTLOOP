@@ -3,7 +3,7 @@ package;
 
 import hscript.Parser;
 import hscript.Interp;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
 

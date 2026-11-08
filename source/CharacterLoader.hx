@@ -6,7 +6,7 @@ class CharacterLoader
 {
     public static function load(character:Character, id:String):Void
     {
-        var path = "assets/data/characters/" + id + ".json";
+        var path = Paths.character(id);
         var rawData:String = openfl.utils.Assets.getText(path);
         var data:Dynamic = haxe.Json.parse(rawData);
 

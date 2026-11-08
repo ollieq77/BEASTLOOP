@@ -16,7 +16,7 @@ function onIntro(dialogueBox):Bool
     {
         api.removeFromState(blackScreen);
 
-        api.playSound('assets/sounds/Lights_Turn_On' + api.soundExt);
+        api.playSound('Lights_Turn_On');
 
         api.camFollow.y = -2050;
         api.camFollow.x += 200;
