@@ -86,6 +86,9 @@
 	<haxelib name="faxe" if="switch" />
 	<haxelib name="polymod" />
 
+	<haxelib name="haxeui-core" />
+	<haxelib name="haxeui-flixel" />
+
 	<!-- Platform-specific input optimisations -->
 	<haxedef name="FLX_NO_MOUSE" if="mobile" />
 	<haxedef name="FLX_NO_KEYBOARD" if="mobile" />

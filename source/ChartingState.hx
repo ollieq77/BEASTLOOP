@@ -33,6 +33,11 @@ import openfl.media.Sound;
 import openfl.net.FileReference;
 import openfl.utils.ByteArray;
 
+import haxe.ui.Toolkit;
+import haxe.ui.containers.VBox;
+import haxe.ui.components.Label;
+import haxe.ui.components.Button;
+
 using StringTools;
 
 class ChartingState extends MusicBeatState
@@ -81,6 +86,8 @@ class ChartingState extends MusicBeatState
 
 	var leftIcon:HealthIcon;
 	var rightIcon:HealthIcon;
+
+	var editorPanel:VBox;
 
 	override function create()
 	{
@@ -171,7 +178,34 @@ class ChartingState extends MusicBeatState
 		add(curRenderedNotes);
 		add(curRenderedSustains);
 
+		Toolkit.init({ container: this });
+
+		createEditorUI();
+
 		super.create();
+	}
+
+	function createEditorUI():Void
+	{
+	    editorPanel = new VBox();
+
+	    editorPanel.width = 300;
+	    editorPanel.height = 400;
+
+	    var title = new Label();
+	    title.text = "BeastLoop Chart Editor";
+
+	    var saveButton = new Button();
+	    saveButton.text = "Save Chart";
+	    saveButton.onClick = function(_)
+	    {
+	        saveLevel();
+	    };
+
+	    editorPanel.addComponent(title);
+	    editorPanel.addComponent(saveButton);
+
+	    // Add the component through the HaxeUI Flixel backend.
 	}
 
 	function addSongUI():Void

@@ -1199,14 +1199,6 @@ class PlayState extends MusicBeatState
 				{
 					if (dad.curCharacter == 'mom')
 						vocals.volume = 1;
-
-					if (SONG.song.toLowerCase() == 'tutorial')
-						tweenCamIn();
-				}
-				else
-				{
-					if (SONG.song.toLowerCase() == 'tutorial')
-						FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 				}
 			}
 		}
@@ -1991,11 +1983,7 @@ class PlayState extends MusicBeatState
 		if (totalBeats % 8 == 7 && curSong == 'Bopeebo')
 		{
 			boyfriend.playAnim('hey', true);
-
-			if (SONG.song == 'Tutorial' && dad.curCharacter == 'gf')
-			{
-				dad.playAnim('cheer', true);
-			}
+			gf.playAnim('cheer', true);
 		}
 
 		opponentStrums.forEachAlive(function(spr:FlxSprite)
