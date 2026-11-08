@@ -1,6 +1,8 @@
 {
     "name": "School Evil",
     "defaultCamZoom": 0.9,
+    "gfVersion": "gf-pixel",
+    "pixel": true,
 
     "characters": {
         "boyfriend": { "x": 970, "y": 320 },

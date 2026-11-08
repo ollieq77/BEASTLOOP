@@ -25,6 +25,8 @@ class StageLoader
 
         // Stage settings
         stage.defaultCamZoom = data.defaultCamZoom == null ? 1.0 : data.defaultCamZoom;
+        stage.gfVersion = data.gfVersion == null ? 'gf' : data.gfVersion;
+        stage.isPixel = data.pixel == null ? false : data.pixel;
 
         // Character positions
         stage.boyfriendPosition = [

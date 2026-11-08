@@ -1,6 +1,7 @@
 {
     "name": "Mall",
     "defaultCamZoom": 0.8,
+    "gfVersion": "gf-christmas",
     "characters": {
         "boyfriend": {
             "x": 970,
