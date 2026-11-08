@@ -25,10 +25,7 @@ function fastCarDrive():Void
 {
     var fastCar = api.getSprite("fastCar");
 
-    api.playSound(
-        'assets/sounds/carPass' + api.randomInt(0, 1) + api.soundExt,
-        0.7
-    );
+    api.playSound('carPass' + api.randomInt(0, 1), 0.7);
 
     fastCar.velocity.x = (api.randomInt(170, 220) / FlxG.elapsed) * 3;
 

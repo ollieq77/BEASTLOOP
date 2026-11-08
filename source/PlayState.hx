@@ -34,7 +34,7 @@ import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
 import haxe.Json;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 import openfl.display.BlendMode;
 import openfl.display.StageQuality;
 import openfl.filters.ShaderFilter;
@@ -174,7 +174,7 @@ class PlayState extends MusicBeatState
 
 		stageScript = new StageScript(
 		    stage,
-		    'assets/data/stages/$curStage/stage.hxc'
+		    Paths.stageScript(curStage)
 		);
 		
 		stageScript.api.state = this;
@@ -267,7 +267,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.fixedTimestep = false;
 
-		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic('assets/images/healthBar.png');
+		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.image('healthBar'));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -280,7 +280,7 @@ class PlayState extends MusicBeatState
 		add(healthBar);
 
 		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
-		scoreTxt.setFormat("assets/fonts/vcr.ttf", 16, FlxColor.WHITE, RIGHT);
+		scoreTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT);
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
 
@@ -347,15 +347,15 @@ class PlayState extends MusicBeatState
 			gf.dance();
 			boyfriend.playAnim('idle');
 
-			var introAlts:Array<String> = ['ready.png', 'set.png', 'go.png'];
+			var introAlts:Array<String> = ['ready', 'set', 'go'];
 			var altSuffix:String = "";
 
 			if (isPixelStage)
 			{
 				introAlts = [
-					'weeb/pixelUI/ready-pixel.png',
-					'weeb/pixelUI/set-pixel.png',
-					'weeb/pixelUI/date-pixel.png'
+					'weeb/pixelUI/ready-pixel',
+					'weeb/pixelUI/set-pixel',
+					'weeb/pixelUI/date-pixel'
 				];
 				altSuffix = '-pixel';
 			}
@@ -364,9 +364,9 @@ class PlayState extends MusicBeatState
 
 			{
 				case 0:
-					FlxG.sound.play('assets/sounds/intro3' + altSuffix + TitleState.soundExt, 0.6);
+					FlxG.sound.play(Paths.sound('intro3' + altSuffix), 0.6);
 				case 1:
-					var ready:FlxSprite = new FlxSprite().loadGraphic('assets/images/' + introAlts[0]);
+					var ready:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[0]));
 					ready.scrollFactor.set();
 					ready.updateHitbox();
 
@@ -382,9 +382,9 @@ class PlayState extends MusicBeatState
 							ready.destroy();
 						}
 					});
-					FlxG.sound.play('assets/sounds/intro2' + altSuffix + TitleState.soundExt, 0.6);
+					FlxG.sound.play(Paths.sound('intro2' + altSuffix), 0.6);
 				case 2:
-					var set:FlxSprite = new FlxSprite().loadGraphic('assets/images/' + introAlts[1]);
+					var set:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[1]));
 					set.scrollFactor.set();
 
 					if (isPixelStage)
@@ -399,9 +399,9 @@ class PlayState extends MusicBeatState
 							set.destroy();
 						}
 					});
-					FlxG.sound.play('assets/sounds/intro1' + altSuffix + TitleState.soundExt, 0.6);
+					FlxG.sound.play(Paths.sound('intro1' + altSuffix), 0.6);
 				case 3:
-					var go:FlxSprite = new FlxSprite().loadGraphic('assets/images/' + introAlts[2]);
+					var go:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[2]));
 					go.scrollFactor.set();
 
 					if (isPixelStage)
@@ -418,7 +418,7 @@ class PlayState extends MusicBeatState
 							go.destroy();
 						}
 					});
-					FlxG.sound.play('assets/sounds/introGo' + altSuffix + TitleState.soundExt, 0.6);
+					FlxG.sound.play(Paths.sound('introGo' + altSuffix), 0.6);
 				case 4:
 			}
 
@@ -626,10 +626,7 @@ class PlayState extends MusicBeatState
 	// TODO: probably make this modular so we dont hardcode everything
 	private function setupNormalArrow(arrow:FlxSprite, direction:Int):Void
 	{
-	    arrow.frames = FlxAtlasFrames.fromSparrow(
-	        'assets/images/NOTE_assets.png',
-	        'assets/images/NOTE_assets.xml'
-	    );
+	    arrow.frames = Paths.sparrow('NOTE_assets');
 
 	    arrow.animation.addByPrefix('green', 'arrowUP');
 	    arrow.animation.addByPrefix('blue', 'arrowDOWN');
@@ -665,7 +662,7 @@ class PlayState extends MusicBeatState
 
 	private function setupPixelArrow(arrow:FlxSprite, direction:Int):Void
 	{
-	    arrow.loadGraphic('assets/images/weeb/pixelUI/arrows-pixels.png', true, 17, 17);
+	    arrow.loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
 
 	    arrow.animation.add('green', [6]);
 	    arrow.animation.add('red', [7]);
@@ -1162,7 +1159,7 @@ class PlayState extends MusicBeatState
 
 			if (storyPlaylist.length <= 0)
 			{
-				FlxG.sound.playMusic('assets/music/freakyMenu' + TitleState.soundExt);
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 				FlxG.switchState(new StoryMenuState());
 
@@ -1272,7 +1269,7 @@ class PlayState extends MusicBeatState
 			pixelShitPart2 = '-pixel';
 		}
 
-		rating.loadGraphic('assets/images/' + pixelShitPart1 + daRating + pixelShitPart2 + ".png");
+		rating.loadGraphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2));
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
 		rating.y -= 60;
@@ -1280,7 +1277,7 @@ class PlayState extends MusicBeatState
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic('assets/images/' + pixelShitPart1 + 'combo' + pixelShitPart2 + '.png');
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = 600;
@@ -1314,7 +1311,7 @@ class PlayState extends MusicBeatState
 		var daLoop:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic('assets/images/' + pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2 + '.png');
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y += 80;
@@ -1547,8 +1544,8 @@ class PlayState extends MusicBeatState
 
 			songScore -= 10;
 
-			FlxG.sound.play('assets/sounds/missnote' + FlxG.random.int(1, 3) + TitleState.soundExt, FlxG.random.float(0.1, 0.2));
-			// FlxG.sound.play('assets/sounds/missnote1' + TitleState.soundExt, 1, false);
+			FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), FlxG.random.float(0.1, 0.2));
+			// FlxG.sound.play(Paths.sound('missnote1'), 1, false);
 			// FlxG.log.add('played imss note');
 
 			boyfriend.stunned = true;

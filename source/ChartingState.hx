@@ -24,7 +24,7 @@ import flixel.ui.FlxButton;
 import flixel.ui.FlxSpriteButton;
 import flixel.util.FlxColor;
 import haxe.Json;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.events.IOErrorEvent;
@@ -260,15 +260,16 @@ class ChartingState extends MusicBeatState
 		stepperBPM.name = 'song_bpm';
 
 		var characterData:Array<{id:String, name:String}> = [];
+		var charDir:String = Paths.characterDir();
 			
 		for (path in openfl.utils.Assets.list())
 		{
-		    if (!StringTools.startsWith(path, "assets/data/characters/")) continue;
+		    if (!StringTools.startsWith(path, charDir)) continue;
 		    if (!StringTools.endsWith(path, ".json")) continue;
 		
 		    var id = path.substr(
-		        "assets/data/characters/".length,
-		        path.length - "assets/data/characters/".length - 5
+		        charDir.length,
+		        path.length - charDir.length - 5
 		    );
 			
 		    var data:Dynamic = haxe.Json.parse(openfl.utils.Assets.getText(path));

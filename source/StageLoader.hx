@@ -1,7 +1,7 @@
 package;
 
 import flixel.FlxSprite;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 import haxe.Json;
 import flixel.graphics.frames.FlxAtlasFrames;
 
@@ -12,12 +12,12 @@ class StageLoader
         if (stageName == null || stageName.length == 0)
             stageName = 'stage';
 
-        var jsonPath = 'assets/data/stages/$stageName/stage.json';
+        var jsonPath = Paths.stageData(stageName);
 
         if (!Assets.exists(jsonPath))
         {
             stageName = 'stage';
-            jsonPath = 'assets/data/stages/stage/stage.json';
+            jsonPath = Paths.stageData('stage');
         }
 
         var data:Dynamic = Json.parse(Assets.getText(jsonPath));
@@ -65,11 +65,11 @@ class StageLoader
                 spriteData.position[1]
             );
             
-            var imagePath = 'assets/images/stages/$stageName/${spriteData.image}';
+            var imagePath = Paths.stageImage(stageName, spriteData.image);
 
             if (spriteData.type == "sparrow")
             {
-                var xmlPath = 'assets/images/stages/$stageName/${spriteData.xml}';
+                var xmlPath = Paths.stageImage(stageName, spriteData.xml);
                 sprite.frames = FlxAtlasFrames.fromSparrow(imagePath, xmlPath);
             
                 if (spriteData.animations != null)
@@ -108,7 +108,7 @@ class StageLoader
             }
             else if (spriteData.type == "packer")
             {
-                var txtPath = 'assets/images/stages/$stageName/${spriteData.xml}';
+                var txtPath = Paths.stageImage(stageName, spriteData.xml);
                 sprite.frames = FlxAtlasFrames.fromSpriteSheetPacker(imagePath, txtPath);
             
                 if (spriteData.animations != null)

@@ -87,14 +87,28 @@ class StageAPI
         return FlxG.random.bool(chance);
     }
 
-    public function playSound(path:String, volume:Float = 1, ?onComplete:Dynamic):Void
+    // key is a sound name like 'carPass0' (resolved through Paths.sound, so mods can override it).
+    // A full path ('assets/sounds/carPass0.ogg') still works for older scripts.
+    public function playSound(key:String, volume:Float = 1, ?onComplete:Dynamic):Void
     {
         var done:Void->Void = null;
 
         if (onComplete != null)
             done = function() onComplete();
 
-        FlxG.sound.play(path, volume, false, null, true, done);
+        FlxG.sound.play(soundPath(key), volume, false, null, true, done);
+    }
+
+    // Path for a sound key, for scripts that need to load one themselves (FlxG.sound.load...).
+    public function soundPath(key:String):String
+    {
+        return StringTools.startsWith(key, 'assets/') ? key : Paths.sound(key);
+    }
+
+    // Path for an image key like 'weeb/senpaiCrazy' (no extension).
+    public function imagePath(key:String):String
+    {
+        return Paths.image(key);
     }
 
     // ---- State access (draws above the stage and the characters) ----
@@ -134,10 +148,11 @@ class StageAPI
     }
 
     // Sprite with a Sparrow atlas loaded (add animations on the result).
-    public function makeSparrow(x:Float, y:Float, imagePath:String, xmlPath:String):FlxSprite
+    // key is the shared png/xml name under assets/images, e.g. 'weeb/senpaiCrazy'.
+    public function makeSparrow(x:Float, y:Float, key:String):FlxSprite
     {
         var sprite = new FlxSprite(x, y);
-        sprite.frames = FlxAtlasFrames.fromSparrow(imagePath, xmlPath);
+        sprite.frames = Paths.sparrow(key);
         return sprite;
     }
 

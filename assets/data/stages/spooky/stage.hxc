@@ -15,9 +15,7 @@ function onBeatHit()
 
 function lightningStrike()
 {
-    api.playSound(
-        'assets/sounds/thunder_' + api.randomInt(1, 2) + api.soundExt
-    );
+    api.playSound('thunder_' + api.randomInt(1, 2));
 
     api.getSprite("halloweenBG").animation.play("lightning");
 

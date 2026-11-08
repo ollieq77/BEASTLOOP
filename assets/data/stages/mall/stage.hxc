@@ -45,6 +45,6 @@ function onSongEnd(nextSong):Void
 
         api.camera.hud.visible = false;
 
-        api.playSound('assets/sounds/Lights_Shut_off' + api.soundExt);
+        api.playSound('Lights_Shut_off');
     }
 }

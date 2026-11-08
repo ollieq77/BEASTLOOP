@@ -23,11 +23,7 @@ function onIntro(dialogueBox):Bool
     red.scrollFactor.set();
     api.addToState(red);
 
-    var senpaiEvil = api.makeSparrow(
-        0, 0,
-        'assets/images/weeb/senpaiCrazy.png',
-        'assets/images/weeb/senpaiCrazy.xml'
-    );
+    var senpaiEvil = api.makeSparrow(0, 0, 'weeb/senpaiCrazy');
     senpaiEvil.animation.addByPrefix('idle', 'Senpai Pre Explosion', 24, false);
     senpaiEvil.setGraphicSize(Std.int(senpaiEvil.width * daPixelZoom));
     senpaiEvil.updateHitbox();
@@ -69,7 +65,7 @@ function onIntro(dialogueBox):Bool
             {
                 senpaiEvil.animation.play('idle');
 
-                api.playSound('assets/sounds/Senpai_Dies' + api.soundExt, 1, function()
+                api.playSound('Senpai_Dies', 1, function()
                 {
                     api.removeFromState(senpaiEvil);
                     api.removeFromState(red);
