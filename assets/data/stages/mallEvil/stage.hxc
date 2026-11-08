@@ -1,0 +1,39 @@
+
+// ---- Story mode intro (Winter Horrorland): lights flick on, camera zooms out ----
+
+function onIntro(dialogueBox):Bool
+{
+    if (!isStoryMode)
+        return false;
+
+    var blackScreen = api.makeSolid(0, 0, FlxG.width * 2, FlxG.height * 2, 0xFF000000);
+    blackScreen.scrollFactor.set();
+    api.addToState(blackScreen);
+
+    api.camera.hud.visible = false;
+
+    api.timer(0.1, function(tmr)
+    {
+        api.removeFromState(blackScreen);
+
+        api.playSound('assets/sounds/Lights_Turn_On' + api.soundExt);
+
+        api.camFollow.y = -2050;
+        api.camFollow.x += 200;
+        FlxG.camera.focusOn(api.camFollow.getPosition());
+        FlxG.camera.zoom = 1.5;
+
+        api.timer(0.8, function(tmr2)
+        {
+            api.camera.hud.visible = true;
+            api.removeFromState(blackScreen);
+
+            api.tween(FlxG.camera, {zoom: stage.defaultCamZoom}, 2.5, "quadInOut", function()
+            {
+                api.startCountdown();
+            });
+        });
+    });
+
+    return true;
+}

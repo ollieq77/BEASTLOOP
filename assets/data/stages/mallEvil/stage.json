@@ -1,6 +1,7 @@
 {
     "name": "Mall Evil",
     "defaultCamZoom": 1.05,
+    "gfVersion": "gf-christmas",
     "characters": {
         "boyfriend": {
             "x": 1090,

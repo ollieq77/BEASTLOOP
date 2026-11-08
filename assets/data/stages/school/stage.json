@@ -2,6 +2,8 @@
 {
     "name": "School",
     "defaultCamZoom": 0.9,
+    "gfVersion": "gf-pixel",
+    "pixel": true,
 
     "characters": {
         "boyfriend": {

@@ -9,6 +9,12 @@ class Stage
     public var name:String;
     public var defaultCamZoom:Float = 0.9;
 
+    // Which gf character this stage uses (gf-car, gf-christmas, gf-pixel...).
+    public var gfVersion:String = 'gf';
+
+    // Pixel stages use the pixel note/arrow skin, pixel countdown and pixel game over.
+    public var isPixel:Bool = false;
+
     public var spritesByName:Map<String, FlxSprite> = new Map();
     public var objectsByName:Map<String, FlxBasic> = new Map();
 

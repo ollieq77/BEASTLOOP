@@ -1,6 +1,7 @@
 {
     "name": "Limo",
     "defaultCamZoom": 0.9,
+    "gfVersion": "gf-car",
     "characters": {
         "boyfriend": {
             "x": 1030,

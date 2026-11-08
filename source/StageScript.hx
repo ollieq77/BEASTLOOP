@@ -5,6 +5,7 @@ import hscript.Parser;
 import hscript.Interp;
 import lime.utils.Assets;
 import flixel.FlxG;
+import flixel.addons.effects.FlxTrail;
 
 class StageScript
 {
@@ -36,6 +37,8 @@ class StageScript
         interp.variables.set("Std", Std);
         interp.variables.set("Math", Math);
         interp.variables.set("SONG", PlayState.SONG);
+        interp.variables.set("isStoryMode", PlayState.isStoryMode);
+        interp.variables.set("FlxTrail", FlxTrail);
 
         api = new StageAPI(stage);
         interp.variables.set("api", api);
