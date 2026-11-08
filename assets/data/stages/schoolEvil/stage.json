@@ -3,7 +3,7 @@
     "defaultCamZoom": 0.9,
 
     "characters": {
-        "boyfriend": { "x": 970, "y": 670 },
+        "boyfriend": { "x": 970, "y": 320 },
         "dad":       { "x": 100, "y": 100 },
         "gf":        { "x": 580, "y": 430 }
     },

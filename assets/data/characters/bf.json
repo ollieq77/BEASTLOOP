@@ -1,5 +1,6 @@
 {
     "name": "Boyfriend",
+    "position": [0, 350],
     "atlas": {
         "image": "assets/images/BOYFRIEND.png",
         "xml": "assets/images/BOYFRIEND.xml"
