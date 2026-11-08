@@ -79,12 +79,28 @@ class StageLoader
                         var fps:Int = anim.fps == null ? 24 : anim.fps;
                         var loop:Bool = anim.loop == null ? true : anim.loop;
                     
-                        sprite.animation.addByPrefix(
-                            anim.name,
-                            anim.prefix,
-                            fps,
-                            loop
-                        );
+                        if (anim.indices != null)
+                        {
+                            var indices:Array<Int> = cast anim.indices;
+
+                            sprite.animation.addByIndices(
+                                anim.name,
+                                anim.prefix,
+                                indices,
+                                "",
+                                fps,
+                                loop
+                            );
+                        }
+                        else
+                        {
+                            sprite.animation.addByPrefix(
+                                anim.name,
+                                anim.prefix,
+                                fps,
+                                loop
+                            );
+                        }
                     }
                 }
             }
