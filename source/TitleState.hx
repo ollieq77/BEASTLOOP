@@ -53,12 +53,6 @@ class TitleState extends MusicBeatState
 		Polymod.init({modRoot: "mods", dirs: ['introMod']});
 		Assets.cache.clear();
 
-		trace('MODDED FILE EXISTS: ' +
-		    PolymodAssets.exists('assets/songs/tutorial/Inst.ogg'));
-
-		trace('MODDED FILE PATH: ' +
-		    PolymodAssets.getPath('assets/songs/tutorial/Inst.ogg'));
-
 		#if (!web)
 		TitleState.soundExt = '.ogg';
 		#end
