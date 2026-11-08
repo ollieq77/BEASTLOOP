@@ -1419,13 +1419,13 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				var difficulty:String = "";
+				var difficulty:String = "normal";
 
 				if (storyDifficulty == 0)
-					difficulty = '-easy';
+					difficulty = 'easy';
 
 				if (storyDifficulty == 2)
-					difficulty = '-hard';
+					difficulty = 'hard';
 
 				trace('LOADING NEXT SONG');
 				trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
@@ -1448,7 +1448,7 @@ class PlayState extends MusicBeatState
 					prevCamFollow = camFollow;
 				}
 
-				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
+				PlayState.SONG = Song.loadFromJson(difficulty, PlayState.storyPlaylist[0]);
 				FlxG.sound.music.stop();
 
 				FlxG.switchState(new PlayState());
