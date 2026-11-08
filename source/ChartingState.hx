@@ -192,6 +192,9 @@ class ChartingState extends MusicBeatState
 	    editorPanel.width = 300;
 	    editorPanel.height = 400;
 
+		editorPanel.x = 20;
+		editorPanel.y = 40;
+
 	    var title = new Label();
 	    title.text = "BeastLoop Chart Editor";
 
@@ -205,7 +208,7 @@ class ChartingState extends MusicBeatState
 	    editorPanel.addComponent(title);
 	    editorPanel.addComponent(saveButton);
 
-	    // Add the component through the HaxeUI Flixel backend.
+	    add(editorPanel);
 	}
 
 	function addSongUI():Void
