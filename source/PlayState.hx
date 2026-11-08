@@ -38,6 +38,7 @@ import lime.utils.Assets;
 import openfl.display.BlendMode;
 import openfl.display.StageQuality;
 import openfl.filters.ShaderFilter;
+import openfl.media.Sound;
 
 import Stage;
 import StageLoader;
@@ -683,7 +684,12 @@ class PlayState extends MusicBeatState
 		lastReportedPlayheadPosition = 0;
 
 		if (!paused)
-		    FlxG.sound.playMusic(Paths.song(SONG.song) + 'Inst${TitleState.soundExt}', 1, false);
+		    FlxG.sound.playMusic(
+		        Sound.fromFile(Paths.resolve(Paths.inst(SONG.song))),
+		        1,
+		        false
+		    );
+			
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
 
@@ -775,7 +781,9 @@ class PlayState extends MusicBeatState
 		curSong = songData.song;
 
 		if (SONG.needsVoices)
-		    vocals = new FlxSound().loadEmbedded(Paths.song(curSong) + 'Voices${TitleState.soundExt}');
+		    vocals = new FlxSound().loadEmbedded(
+		        Sound.fromFile(Paths.resolve(Paths.voices(curSong)))
+		    );
 		else
 		    vocals = new FlxSound();
 

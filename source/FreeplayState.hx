@@ -1,5 +1,6 @@
 package;
 
+import openfl.utils.Assets;
 import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -8,7 +9,8 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import lime.utils.Assets;
+import polymod.backends.PolymodAssets;
+import openfl.media.Sound;
 
 using StringTools;
 
@@ -262,8 +264,11 @@ class FreeplayState extends MusicBeatState
 		intendedScore = Highscore.getScore(songs[curSelected], curDifficulty);
 		// lerpScore = 0;
 		#end
-
-		FlxG.sound.playMusic(Paths.song(songs[curSelected]) + 'Inst${TitleState.soundExt}', 0);
+		
+		FlxG.sound.playMusic(
+		    Sound.fromFile(Paths.resolve(Paths.inst(songs[curSelected]))),
+		    0
+		);
 
 		var bullShit:Int = 0;
 

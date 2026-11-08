@@ -24,6 +24,7 @@ import io.newgrounds.NG;
 import lime.app.Application;
 import openfl.Assets;
 import polymod.Polymod;
+import polymod.backends.PolymodAssets;
 
 using StringTools;
 
@@ -50,6 +51,13 @@ class TitleState extends MusicBeatState
 		trace('update=' + FlxG.updateFramerate + ' draw=' + FlxG.drawFramerate + ' stage=' + openfl.Lib.current.stage.frameRate);
 
 		Polymod.init({modRoot: "mods", dirs: ['introMod']});
+		Assets.cache.clear();
+
+		trace('MODDED FILE EXISTS: ' +
+		    PolymodAssets.exists('assets/songs/tutorial/Inst.ogg'));
+
+		trace('MODDED FILE PATH: ' +
+		    PolymodAssets.getPath('assets/songs/tutorial/Inst.ogg'));
 
 		#if (!web)
 		TitleState.soundExt = '.ogg';

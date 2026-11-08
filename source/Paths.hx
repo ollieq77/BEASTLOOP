@@ -1,7 +1,12 @@
 package;
 
+import polymod.backends.PolymodAssets;
+
 class Paths
 {
+    public static inline function resolve(path:String):String
+        return PolymodAssets.getPath(path);
+
     public static inline function image(key:String):String
         return 'assets/images/$key.png';
 
@@ -18,8 +23,8 @@ class Paths
         return Paths.song(song) + '${difficulty.toLowerCase()}.json';
 
     public static inline function inst(song:String):String
-        return Paths.music('${song}_Inst') ;
-
+        return Paths.song(song) + 'Inst${TitleState.soundExt}';
+    
     public static inline function voices(song:String):String
-        return Paths.music('${song}_Voices');
+        return Paths.song(song) + 'Voices${TitleState.soundExt}';
 }
