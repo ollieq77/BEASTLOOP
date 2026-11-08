@@ -149,26 +149,15 @@ class PlayState extends MusicBeatState
 
 		var song = SONG.song.toLowerCase();
 
-		if (song == 'spookeez' || song == 'monster' || song == 'south')
-		    curStage = 'spooky';
-		else if (song == 'pico' || song == 'blammed' || song == 'philly')
-		    curStage = 'philly';
-		else if (song == 'senpai' || song == 'roses')
-			curStage = 'school';
-		else if (song == 'thorns')
-			curStage = 'schoolEvil';
-		else if (song == 'satin-panties' || song == 'high' || song == 'milf')
-			curStage = 'limo';
-		else if (song == 'cocoa' || song == 'eggnog')
-			curStage = 'mall';
-		else if (song == 'winter-horrorland')
-			curStage = 'mallEvil';
+		if (SONG.stage != null && SONG.stage.length > 0)
+		    curStage = SONG.stage;
 		else
 		    curStage = 'stage';
 
 		stage = StageLoader.load(curStage);
 		defaultCamZoom = stage.defaultCamZoom;
 		isPixelStage = stage.isPixel;
+
 
 		add(stage.members);
 
@@ -186,8 +175,8 @@ class PlayState extends MusicBeatState
 		    stageScript.api.setCameras(camGame, camHUD);
 		    stageScript.call("onCreate");
 		}
-
-		var gfVersion:String = stage.gfVersion;
+		
+		var gfVersion = SONG.gfVersion != null && SONG.gfVersion.length > 0 ? SONG.gfVersion : stage.gfVersion;
 
 		gf = new Character(400, 130, gfVersion);
 		placeCharacter(gf, stage.gfPosition);
@@ -1053,8 +1042,7 @@ class PlayState extends MusicBeatState
 
 				if (!daNote.mustPress && daNote.wasGoodHit)
 				{
-					if (SONG.song != 'Tutorial')
-						camZooming = true;
+					camZooming = true;
 
 					var altAnim:String = "";
 
