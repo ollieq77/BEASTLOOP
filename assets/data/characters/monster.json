@@ -4,8 +4,8 @@
     "position": [0, 100],
 
     "atlas": {
-        "image": "assets/images/Monster_Assets.png",
-        "xml": "assets/images/Monster_Assets.xml"
+        "image": "assets/images/characters/Monster_Assets.png",
+        "xml": "assets/images/characters/Monster_Assets.xml"
     },
 
     "animations": [

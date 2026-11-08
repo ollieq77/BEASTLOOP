@@ -5,8 +5,8 @@
     "cameraPosition": [-250, -330],
 
     "atlas": {
-        "image": "assets/images/weeb/senpai.png",
-        "xml": "assets/images/weeb/senpai.xml"
+        "image": "assets/images/characters/pixel/senpai.png",
+        "xml": "assets/images/characters/pixel/senpai.xml"
     },
 
     "animations": [
