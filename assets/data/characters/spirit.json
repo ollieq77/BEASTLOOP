@@ -2,8 +2,8 @@
     "name": "Spirit",
     "position": [-150, 100],
     "atlas": {
-        "image": "assets/images/weeb/spirit.png",
-        "txt": "assets/images/weeb/spirit.txt"
+        "image": "assets/images/characters/pixel/spirit.png",
+        "txt": "assets/images/characters/pixel/spirit.txt"
     },
     "animations": [
         {
