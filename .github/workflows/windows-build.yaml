@@ -58,17 +58,22 @@ jobs:
           )
 
           foreach ($Library in $Libraries) {
-            Write-Host "Installing $($Library.Name) $($Library.Version)..."
+            $Name = $Library.Name
+            $Version = $Library.Version
 
-            haxelib install $Library.Name $Library.Version
+            Write-Host "Installing $Name $Version..."
+
+            haxelib install $Name $Version --quiet
             if ($LASTEXITCODE -ne 0) {
-              throw "Failed to install $($Library.Name)."
+              throw "Failed to install $Name."
             }
 
-            haxelib set $Library.Name $Library.Version
+            haxelib set $Name $Version
             if ($LASTEXITCODE -ne 0) {
-              throw "Failed to activate $($Library.Name)."
+              throw "Failed to activate $Name."
             }
+
+            Write-Host "Installed $Name $Version."
           }
 
       # Compile BEASTLOOP
