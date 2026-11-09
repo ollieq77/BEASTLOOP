@@ -50,6 +50,8 @@ class ChartingState extends MusicBeatState
 
 	var dummyArrow:FlxSprite;
 
+	var menuBG:FlxSprite;
+
 	var curRenderedNotes:FlxTypedGroup<Note>;
 	var curRenderedSustains:FlxTypedGroup<FlxSprite>;
 
@@ -84,6 +86,18 @@ class ChartingState extends MusicBeatState
 	override function create()
 	{
 		curSection = lastSection;
+
+		menuBG = new FlxSprite().loadGraphic(
+    		Paths.image('menus/menuBGblacknwhite')
+		);
+
+		menuBG.setGraphicSize(FlxG.width, FlxG.height);
+		menuBG.updateHitbox();
+		menuBG.screenCenter();
+		menuBG.scrollFactor.set();
+		menuBG.alpha = 0.5;
+
+		add(menuBG);
 
 		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 8, GRID_SIZE * 16);
 		gridBG.scrollFactor.set(1, 1);
