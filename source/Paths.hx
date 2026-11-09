@@ -82,8 +82,4 @@ class Paths
 
     public static inline function voices(song:String):String
         return Paths.song(song) + 'Voices${TitleState.soundExt}';
-
-    // Optional per-song script. Same API as a stage script.
-    public static inline function songScript(song:String):String
-        return Paths.song(song) + 'song.hxc';
 }

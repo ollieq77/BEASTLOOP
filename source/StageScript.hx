@@ -17,16 +17,12 @@ class StageScript
     public var scriptPath:String;
     public var api:StageAPI;
 
-    // Only used to tag traces, so a song script's errors don't look like stage script errors.
-    public var label:String;
-
     public var loaded:Bool = false;
 
-    public function new(stage:Stage, scriptPath:String, ?label:String)
+    public function new(stage:Stage, scriptPath:String)
     {
         this.stage = stage;
         this.scriptPath = scriptPath;
-        this.label = label == null ? "StageScript" : label;
 
         parser = new Parser();
         parser.allowTypes = true;
@@ -53,7 +49,7 @@ class StageScript
     {
         if (!Assets.exists(scriptPath))
         {
-            trace('[$label] Script not found: $scriptPath');
+            trace('[StageScript] Script not found: $scriptPath');
             return false;
         }
 
@@ -66,13 +62,13 @@ class StageScript
 
             loaded = true;
 
-            trace('[$label] Loaded: $scriptPath');
+            trace('[StageScript] Loaded: $scriptPath');
 
             return true;
         }
         catch (e:Dynamic)
         {
-            trace('[$label] Failed to load $scriptPath: $e');
+            trace('[StageScript] Failed to load $scriptPath: $e');
             return false;
         }
     }
@@ -96,7 +92,7 @@ class StageScript
         }
         catch (e:Dynamic)
         {
-            trace('[$label] Error in $func(): $e');
+            trace('[StageScript] Error in $func(): $e');
             return null;
         }
     }
