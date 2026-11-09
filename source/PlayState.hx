@@ -57,6 +57,28 @@ class PlayState extends MusicBeatState
 	var stage:Stage;
 	var stageScript:StageScript;
 
+	// Optional per-song script (assets/songs/<song>/song.hxc). Same API as the stage script.
+	var songScript:StageScript;
+
+	// Runs a hook on the stage script, then the song script (the song is more specific, so it gets the last word).
+	function callScripts(func:String, ?args:Array<Dynamic>):Void
+	{
+		if (stageScript != null)
+			stageScript.call(func, args);
+
+		if (songScript != null)
+			songScript.call(func, args);
+	}
+
+	function setScriptVariable(name:String, value:Dynamic):Void
+	{
+		if (stageScript != null)
+			stageScript.setVariable(name, value);
+
+		if (songScript != null)
+			songScript.setVariable(name, value);
+	}
+
 	private var vocals:FlxSound;
 
 	private var dad:Character;
@@ -175,6 +197,22 @@ class PlayState extends MusicBeatState
 		    stageScript.api.setCameras(camGame, camHUD);
 		    stageScript.call("onCreate");
 		}
+
+		// Most songs won't have one, so only create it when the file exists.
+		if (Assets.exists(Paths.songScript(SONG.song)))
+		{
+			songScript = new StageScript(stage, Paths.songScript(SONG.song), "SongScript");
+
+			songScript.api.state = this;
+			songScript.api.startCountdownFn = startCountdown;
+			songScript.api.setCutsceneFn = function(value:Bool) { inCutscene = value; };
+
+			if (songScript.load())
+			{
+				songScript.api.setCameras(camGame, camHUD);
+				songScript.call("onCreate");
+			}
+		}
 		
 		var gfVersion = SONG.gfVersion != null && SONG.gfVersion.length > 0 ? SONG.gfVersion : stage.gfVersion;
 
@@ -204,11 +242,14 @@ class PlayState extends MusicBeatState
 
 		stageScript.api.setCharacters(boyfriend, dad, gf);
 
+		if (songScript != null)
+			songScript.api.setCharacters(boyfriend, dad, gf);
+
 		add(gf);
 		add(dad);
 		add(boyfriend);
 
-		stageScript.call("onCreatePost");
+		callScripts("onCreatePost");
 
 		var doof:DialogueBox = new DialogueBox(false, dialogue);
 		// doof.x += 70;
@@ -297,11 +338,18 @@ class PlayState extends MusicBeatState
 		// cameras = [FlxG.cameras.list[1]];
 		startingSong = true;
 
-		// The stage script can take over the intro (cutscenes, dialogue...) by returning true.
+		// The song or stage script can take over the intro (cutscenes, dialogue...) by returning true.
 		// If it does, it is responsible for calling api.startCountdown() when it's done.
+		// The song script gets first dibs, and if it takes over, the stage's onIntro doesn't run.
 		stageScript.api.camFollow = camFollow;
 
-		if (stageScript.call("onIntro", [doof]) != true)
+		if (songScript != null)
+			songScript.api.camFollow = camFollow;
+
+		var introHandled:Bool = (songScript != null && songScript.call("onIntro", [doof]) == true)
+			|| stageScript.call("onIntro", [doof]) == true;
+
+		if (!introHandled)
 			startCountdown();
 
 		super.create();
@@ -441,8 +489,7 @@ class PlayState extends MusicBeatState
 		// song clock permanently ahead of the audio, so start the real clock from the audio itself
 		resetSongClock(FlxG.sound.music.time - Conductor.offset);
 
-		if (stageScript != null)
-			stageScript.call("onSongStart");
+		callScripts("onSongStart");
 	}
 
 	// ---- SONG CLOCK ----
@@ -806,11 +853,8 @@ class PlayState extends MusicBeatState
 		perfectMode = false;
 		#end
 
-		if (stageScript != null)
-		{
-		    stageScript.setVariable("elapsed", elapsed);
-		    stageScript.call("onUpdate", [elapsed]);
-		}
+		setScriptVariable("elapsed", elapsed);
+		callScripts("onUpdate", [elapsed]);
 
 		if (FlxG.keys.justPressed.NINE)
 		{
@@ -1129,8 +1173,7 @@ class PlayState extends MusicBeatState
 		// nextSong is the next story-mode song, or null if this is the last one (or freeplay).
 		var nextSong:String = (isStoryMode && storyPlaylist.length > 1) ? storyPlaylist[1] : null;
 
-		if (stageScript != null)
-			stageScript.call("onSongEnd", [nextSong]);
+		callScripts("onSongEnd", [nextSong]);
 
 		if (SONG.validScore)
 		{
@@ -1177,13 +1220,13 @@ class PlayState extends MusicBeatState
 				trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
 
 				// onSongEnd can ask to skip the transition and keep the camera for the next song.
-				if (stageScript != null && stageScript.api.skipNextTransition)
+				if ((stageScript != null && stageScript.api.skipNextTransition) || (songScript != null && songScript.api.skipNextTransition))
 				{
 					transIn = null;
 					transOut = null;
 				}
 
-				if (stageScript != null && stageScript.api.carryCamera)
+				if ((stageScript != null && stageScript.api.carryCamera) || (songScript != null && songScript.api.carryCamera))
 					prevCamFollow = camFollow;
 
 				PlayState.SONG = Song.loadFromJson(difficulty, PlayState.storyPlaylist[0]);
@@ -1662,11 +1705,8 @@ class PlayState extends MusicBeatState
 		wiggleShit.update(Conductor.crochet);
 		super.beatHit();
 
-		if (stageScript != null)
-		{
-		    stageScript.interp.variables.set("curBeat", curBeat);
-		    stageScript.call("onBeatHit");
-		}
+		setScriptVariable("curBeat", curBeat);
+		callScripts("onBeatHit");
 
 		if (generatedMusic)
 		{
