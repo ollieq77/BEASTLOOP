@@ -40,7 +40,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path $Repo | Out-Null
           haxelib setup $Repo
 
-      # Install the exact dependencies used by BEASTLOOP
       - name: Install Haxelibs
         shell: pwsh
         run: |
@@ -57,11 +56,20 @@ jobs:
             @{ Name = 'haxeui-flixel'; Version = '1.7.0' }
           )
 
+          $Total = $Libraries.Count
+          $Current = 0
+
+          Write-Host ""
+          Write-Host "Installing $Total Haxelibs..."
+          Write-Host ""
+
           foreach ($Library in $Libraries) {
+            $Current++
             $Name = $Library.Name
             $Version = $Library.Version
+            $Percentage = [math]::Round(($Current / $Total) * 100)
 
-            Write-Host "Installing $Name $Version..."
+            Write-Host "[$Current/$Total] ($Percentage%) Installing $Name $Version..."
 
             haxelib install $Name $Version --quiet
             if ($LASTEXITCODE -ne 0) {
@@ -73,8 +81,11 @@ jobs:
               throw "Failed to activate $Name."
             }
 
-            Write-Host "Installed $Name $Version."
+            Write-Host "[$Current/$Total] $Name $Version installed successfully."
+            Write-Host ""
           }
+
+          Write-Host "Successfully installed all $Total Haxelibs!" -ForegroundColor Green
 
       # Compile BEASTLOOP
       - name: Build BEASTLOOP
