@@ -149,7 +149,7 @@ class PlayState extends MusicBeatState
 	var playerStrums:FlxTypedGroup<FlxSprite>;
 	var opponentStrums:FlxTypedGroup<FlxSprite>;
 
-	private var camZooming:Bool = false;
+	private var camZooming:Bool = true;
 	var camTarget:Int = -1; // -1 = unset, 0 = dad, 1 = bf
 	private var curSong:String = "";
 
@@ -1292,64 +1292,74 @@ class PlayState extends MusicBeatState
 
 		if (isStoryMode)
 		{
-			campaignScore += songScore;
+		    campaignScore += songScore;
+		
+		    storyPlaylist.remove(storyPlaylist[0]);
+		
+		    if (storyPlaylist.length <= 0)
+		    {
+		        FlxG.sound.playMusic(Paths.music('freakyMenu'));
+			
+		        FlxG.switchState(new StoryMenuState());
+			
+		        var nextWeekIndex:Int = storyWeek + 1;
+			
+		        if (nextWeekIndex < StoryMenuState.weeks.length)
+		        {
+		            var nextWeek:WeekData = StoryMenuState.weeks[nextWeekIndex];
+				
+		            nextWeek.unlocked = true;
+				
+		            if (FlxG.save.data.weekUnlocks == null)
+		                FlxG.save.data.weekUnlocks = {};
+				
+		            Reflect.setField(FlxG.save.data.weekUnlocks, nextWeek.id, true);
+		        }
+			
+		        if (SONG.validScore)
+		        {
+		            NGio.unlockMedal(60961);
+		            Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
+		        }
+			
+		        FlxG.save.flush();
+		    }
+		    else
+		    {
+		        var difficulty:String = "normal";
+			
+		        if (storyDifficulty == 0)
+		            difficulty = 'easy';
+			
+		        if (storyDifficulty == 2)
+		            difficulty = 'hard';
+			
+		        trace('LOADING NEXT SONG');
+		        trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
 
-			storyPlaylist.remove(storyPlaylist[0]);
+		        // onSongEnd can ask to skip the transition and keep the camera for the next song.
+		        if ((stageScript != null && stageScript.api.skipNextTransition) || (songScript != null && songScript.api.skipNextTransition))
+		        {
+		            transIn = null;
+		            transOut = null;
+		        }
+			
+		        if ((stageScript != null && stageScript.api.carryCamera) || (songScript != null && songScript.api.carryCamera))
+		            prevCamFollow = camFollow;
+			
+		        PlayState.SONG = Song.loadFromJson(difficulty, PlayState.storyPlaylist[0]);
+		        FlxG.sound.music.stop();
 
-			if (storyPlaylist.length <= 0)
-			{
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+		        FlxG.switchState(new PlayState());
 
-				FlxG.switchState(new StoryMenuState());
-
-				// if ()
-				StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
-
-				if (SONG.validScore)
-				{
-					NGio.unlockMedal(60961);
-					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
-				}
-
-				FlxG.save.data.weekUnlocked = StoryMenuState.weekUnlocked;
-				FlxG.save.flush();
-			}
-			else
-			{
-				var difficulty:String = "normal";
-
-				if (storyDifficulty == 0)
-					difficulty = 'easy';
-
-				if (storyDifficulty == 2)
-					difficulty = 'hard';
-
-				trace('LOADING NEXT SONG');
-				trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
-
-				// onSongEnd can ask to skip the transition and keep the camera for the next song.
-				if ((stageScript != null && stageScript.api.skipNextTransition) || (songScript != null && songScript.api.skipNextTransition))
-				{
-					transIn = null;
-					transOut = null;
-				}
-
-				if ((stageScript != null && stageScript.api.carryCamera) || (songScript != null && songScript.api.carryCamera))
-					prevCamFollow = camFollow;
-
-				PlayState.SONG = Song.loadFromJson(difficulty, PlayState.storyPlaylist[0]);
-				FlxG.sound.music.stop();
-
-				FlxG.switchState(new PlayState());
-
-				transIn = FlxTransitionableState.defaultTransIn;
-				transOut = FlxTransitionableState.defaultTransOut;
-			}
+		        transIn = FlxTransitionableState.defaultTransIn;
+		        transOut = FlxTransitionableState.defaultTransOut;
+		    }
 		}
 		else
 		{
-			trace('WENT BACK TO FREEPLAY??');
-			FlxG.switchState(new FreeplayState());
+		    trace('WENT BACK TO FREEPLAY??');
+		    FlxG.switchState(new FreeplayState());
 		}
 	}
 
