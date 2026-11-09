@@ -1,0 +1,9 @@
+function onBeatHit()
+{
+    if (curBeat >= 168 && curBeat <= 200
+        && api.camZooming
+        && api.camera.game.zoom < 1.35)
+    {
+        api.addCameraZoom(0.015, 0.03);
+    }
+}

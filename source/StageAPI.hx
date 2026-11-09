@@ -30,6 +30,14 @@ class StageAPI
     public var startCountdownFn:Void->Void;
     public var setCutsceneFn:Bool->Void;
 
+    public var setGfSpeedFn:Int->Void;
+    public var setVocalsVolumeFn:Float->Void;
+    public var setMusicVolumeFn:Float->Void;
+    public var setCamZoomingFn:Bool->Void;
+    public var addCameraZoomFn:Float->Float->Void;
+    public var getCamZoomingFn:Void->Bool;
+    public var loadDialogueFn:String->Void;
+
     var boyfriend:Boyfriend;
     var dad:Character;
     var gf:Character;
@@ -86,6 +94,50 @@ class StageAPI
     {
         return FlxG.random.bool(chance);
     }
+
+    public function setGfSpeed(value:Int):Void
+    {
+        if (setGfSpeedFn != null)
+            setGfSpeedFn(value);
+    }
+
+    public function setVocalsVolume(value:Float):Void
+    {
+        if (setVocalsVolumeFn != null)
+            setVocalsVolumeFn(value);
+    }
+
+    public function setMusicVolume(value:Float):Void
+    {
+        if (setMusicVolumeFn != null)
+            setMusicVolumeFn(value);
+    }
+
+    public function setCamZooming(value:Bool):Void
+    {
+        if (setCamZoomingFn != null)
+            setCamZoomingFn(value);
+    }
+
+    public function addCameraZoom(game:Float, hud:Float):Void
+    {
+        if (addCameraZoomFn != null)
+            addCameraZoomFn(game, hud);
+    }
+
+    public var camZooming(get, never):Bool;
+
+    function get_camZooming():Bool
+    {
+        return getCamZoomingFn != null ? getCamZoomingFn() : false;
+    }
+
+    public function loadDialogue(file:String):Void
+    {
+        if (loadDialogueFn != null)
+            loadDialogueFn(file);
+    }
+    
 
     // key is a sound name like 'carPass0' (resolved through Paths.sound, so mods can override it).
     // A full path ('assets/sounds/carPass0.ogg') still works for older scripts.
