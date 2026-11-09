@@ -86,4 +86,7 @@ class Paths
     // Optional per-song script. Same API as a stage script.
     public static inline function songScript(song:String):String
         return Paths.song(song) + 'song.hxc';
+
+    public static inline function week(id:String):String
+        return Paths.data('weeks/$id.json');
 }

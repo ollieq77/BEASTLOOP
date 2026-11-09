@@ -12,11 +12,16 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.net.curl.CURLCode;
 
+import openfl.utils.Assets;
+import haxe.Json;
+
 using StringTools;
 
 class StoryMenuState extends MusicBeatState
 {
 	var scoreText:FlxText;
+
+	var weeks:Array<WeekData> = [];
 
 	var weekData:Array<Dynamic> = [
 		['Tutorial'],
@@ -67,12 +72,51 @@ class StoryMenuState extends MusicBeatState
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
 
+	function loadWeeks():Void
+	{
+	    weeks = [];
+
+	    var weekDirectory:String = Paths.data('weeks/');
+
+	    for (asset in Assets.list())
+	    {
+	        if (!asset.startsWith(weekDirectory) || !asset.endsWith('.json'))
+	            continue;
+
+	        var fileName:String = asset.substr(weekDirectory.length);
+	        var weekID:String = fileName.substr(0, fileName.length - 5);
+
+	        var rawData:String = Assets.getText(Paths.week(weekID));
+
+	        if (rawData == null)
+	            continue;
+
+	        var week:WeekData = cast Json.parse(rawData);
+	        weeks.push(week);
+	    }
+
+	    weeks.sort(function(a:WeekData, b:WeekData):Int
+	    {
+	        if (a.order == b.order)
+	            return Reflect.compare(a.id, b.id);
+
+	        return Reflect.compare(a.order, b.order);
+	    });
+	}
+
 	override function create()
 	{
 		if (FlxG.sound.music != null)
 		{
 			if (!FlxG.sound.music.playing)
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+		}
+
+		loadWeeks();
+
+		for (week in weeks)
+		{
+		    trace('Loaded week: ${week.id} | Order: ${week.order}');
 		}
 
 		persistentUpdate = persistentDraw = true;
