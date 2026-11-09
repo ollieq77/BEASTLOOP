@@ -43,7 +43,6 @@ class FreeplayState extends MusicBeatState
 
 	override function create()
 	{
-		songs = CoolUtil.coolTextFile(Paths.data('freeplaySonglist.txt'));
 
 		/* 
 			if (FlxG.sound.music != null)
@@ -59,39 +58,25 @@ class FreeplayState extends MusicBeatState
 		isDebug = true;
 		#end
 
-		if (StoryMenuState.weekUnlocked[2] || isDebug)
+		StoryMenuState.loadWeeks();
+		
+		songs = [];
+		
+		var isDebug:Bool = false;
+		
+		#if debug
+		isDebug = true;
+		#end
+		
+		for (week in StoryMenuState.weeks)
 		{
-			songs.push('Spookeez');
-			songs.push('South');
-		}
-
-		if (StoryMenuState.weekUnlocked[3] || isDebug)
-		{
-			songs.push('Pico');
-			songs.push('Philly');
-			songs.push('Blammed');
-		}
-
-		if (StoryMenuState.weekUnlocked[4] || isDebug)
-		{
-			songs.push('Satin-Panties');
-			songs.push('High');
-			songs.push('Milf');
-		}
-
-		if (StoryMenuState.weekUnlocked[5] || isDebug)
-		{
-			songs.push('Cocoa');
-			songs.push('Eggnog');
-			songs.push('Winter-Horrorland');
-		}
-
-		if (StoryMenuState.weekUnlocked[6] || isDebug)
-		{
-			songs.push('Senpai');
-			songs.push('Roses');
-			songs.push('Thorns');
-			// songs.push('Winter-Horrorland');
+		    if (!week.unlocked && !isDebug)
+		        continue;
+		
+		    for (song in week.songs)
+		    {
+		        songs.push(song);
+		    }
 		}
 
 		// LOAD MUSIC
