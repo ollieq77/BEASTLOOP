@@ -62,7 +62,7 @@ BEASTLOOP uses the following Haxelibs. Make sure you're using the specified vers
 
 These versions are pinned to the ones currently used by BEASTLOOP.
 
-## "But I don't use Windows!"
+## "But I don't like using scripts! I like making my life harder!"
 
 Okay, this may be a little harder, but it's still possible!
 

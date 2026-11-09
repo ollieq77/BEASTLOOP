@@ -22,9 +22,12 @@ class Conductor
 
 	public static function changeBPM(newBpm:Int)
 	{
-		bpm = newBpm;
-
-		crochet = ((60 / bpm) * 1000);
-		stepCrochet = crochet / 4;
+	    if (newBpm <= 0)
+	        return;
+	
+	    bpm = newBpm;
+	
+	    crochet = ((60 / bpm) * 1000);
+	    stepCrochet = crochet / 4;
 	}
 }

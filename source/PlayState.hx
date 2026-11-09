@@ -662,27 +662,34 @@ class PlayState extends MusicBeatState
 				swagNote.sustainLength = songNotes[2];
 				swagNote.scrollFactor.set(0, 0);
 
-				var susLength:Float = swagNote.sustainLength;
-
-				susLength = susLength / Conductor.stepCrochet;
-				unspawnNotes.push(swagNote);
-
-				for (susNote in 0...Math.floor(susLength))
-				{
-					oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
-
-					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true);
-					sustainNote.scrollFactor.set();
-					unspawnNotes.push(sustainNote);
-
-					sustainNote.mustPress = gottaHitNote;
-					sustainNote.x = getStrumX(daNoteData, sustainNote.mustPress ? 1 : 0)
-    					+ sustainNote.width
-    					+ sustainNote.offset.x / 4;
-				}
-
 				swagNote.mustPress = gottaHitNote;
 				swagNote.x = getStrumX(daNoteData, swagNote.mustPress ? 1 : 0);
+				unspawnNotes.push(swagNote);
+
+				var remainingSustain:Float = swagNote.sustainLength;
+				var sustainTime:Float = daStrumTime;
+
+				while (remainingSustain > 0)
+				{
+				    var stepDuration:Float = getStepDurationAtTime(sustainTime);
+				
+				    if (remainingSustain + 0.001 < stepDuration)
+				        break;
+				
+				    sustainTime += stepDuration;
+				    remainingSustain -= stepDuration;
+
+				    oldNote = swagNote;
+
+				    var sustainNote:Note = new Note(sustainTime, daNoteData, oldNote, true);
+				    sustainNote.scrollFactor.set();
+				    unspawnNotes.push(sustainNote);
+
+				    sustainNote.mustPress = gottaHitNote;
+				    sustainNote.x = getStrumX(daNoteData, sustainNote.mustPress ? 1 : 0)
+				        + sustainNote.width
+				        + sustainNote.offset.x / 4;
+				}
 			}
 			daBeats += 1;
 		}
@@ -885,6 +892,99 @@ class PlayState extends MusicBeatState
 		vocals.play();
 	}
 
+	override public function usesTempoMap():Bool
+	{
+	    return true;
+	}
+	
+	override public function getStepAtTime(time:Float):Int
+	{
+	    var bpm:Float = SONG.bpm;
+	    var elapsed:Float = time;
+	    var totalSteps:Int = 0;
+	
+	    // Countdown time uses the base song BPM.
+	    if (elapsed < 0)
+	    {
+	        var stepDuration:Float = 60000 / (bpm * 4);
+	        return Std.int(Math.floor(elapsed / stepDuration));
+	    }
+	
+	    for (section in SONG.notes)
+	    {
+	        if (section.changeBPM && section.bpm > 0)
+	            bpm = section.bpm;
+		
+	        if (section.lengthInSteps <= 0)
+	            continue;
+		
+	        var stepDuration:Float = 60000 / (bpm * 4);
+	        var sectionDuration:Float = stepDuration * section.lengthInSteps;
+	
+	        if (elapsed < sectionDuration)
+	        {
+	            return totalSteps + Std.int(Math.floor(elapsed / stepDuration));
+	        }
+		
+	        elapsed -= sectionDuration;
+	        totalSteps += section.lengthInSteps;
+	    }
+	
+	    // Continue using the last effective BPM beyond the final section.
+	    var finalStepDuration:Float = 60000 / (bpm * 4);
+	
+	    return totalSteps + Std.int(Math.floor(elapsed / finalStepDuration));
+	}
+	
+	override public function getBPMAtStep(step:Int):Int
+	{
+	    var bpm:Float = SONG.bpm;
+	    var totalSteps:Int = 0;
+
+		if (step < 0)
+    		return SONG.bpm;
+	
+	    for (section in SONG.notes)
+	    {
+	        if (section.changeBPM && section.bpm > 0)
+	            bpm = section.bpm;
+		
+	        if (section.lengthInSteps <= 0)
+	            continue;
+		
+	        if (step < totalSteps + section.lengthInSteps)
+	            return Std.int(bpm);
+		
+	        totalSteps += section.lengthInSteps;
+	    }
+	
+	    return Std.int(bpm);
+	}
+
+	function getSectionIndexAtStep(step:Int):Int
+	{
+	    var totalSteps:Int = 0;
+
+	    for (i in 0...SONG.notes.length)
+	    {
+	        var sectionLength:Int = SONG.notes[i].lengthInSteps;
+
+	        if (step < totalSteps + sectionLength)
+	            return i;
+
+	        totalSteps += sectionLength;
+	    }
+
+	    return -1;
+	}
+
+	function getStepDurationAtTime(time:Float):Float
+	{
+	    var bpm:Int = getBPMAtStep(getStepAtTime(time));
+	
+	    return 60000 / (bpm * 4);
+	}
+
 	private var paused:Bool = false;
 	var startedCountdown:Bool = false;
 	var canPause:Bool = true;
@@ -1008,19 +1108,21 @@ class PlayState extends MusicBeatState
 			// Conductor.lastSongPos = FlxG.sound.music.time;
 		}
 
-		if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
+		var sectionIndex:Int = getSectionIndexAtStep(curStep);
+
+		if (generatedMusic && sectionIndex >= 0)
 		{
-			var mustHit:Bool = PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection;
-			var wanted:Int = mustHit ? 1 : 0;
-
-			if (wanted != camTarget)
-			{
-				camTarget = wanted;
-
-				var camP = getCamTarget(mustHit);
-				camFollow.setPosition(camP.x, camP.y);
-				camP.put();
-			}
+		    var mustHit:Bool = SONG.notes[sectionIndex].mustHitSection;
+		    var wanted:Int = mustHit ? 1 : 0;
+		
+		    if (wanted != camTarget)
+		    {
+		        camTarget = wanted;
+			
+		        var camP = getCamTarget(mustHit);
+		        camFollow.setPosition(camP.x, camP.y);
+		        camP.put();
+		    }
 		}
 
 		if (camZooming)
@@ -1097,11 +1199,10 @@ class PlayState extends MusicBeatState
 
 					var altAnim:String = "";
 
-					if (SONG.notes[Math.floor(curStep / 16)] != null)
-					{
-						if (SONG.notes[Math.floor(curStep / 16)].altAnim)
-							altAnim = '-alt';
-					}
+					var sectionIndex:Int = getSectionIndexAtStep(curStep);
+
+					if (sectionIndex >= 0 && SONG.notes[sectionIndex].altAnim)
+					    altAnim = '-alt';
 
 					switch (Math.abs(daNote.noteData))
 					{
@@ -1404,8 +1505,6 @@ class PlayState extends MusicBeatState
 			},
 			startDelay: Conductor.crochet * 0.001
 		});
-
-		curSection += 1;
 	}
 
 	public static function getStrumX(lane:Int, player:Int):Float
@@ -1720,18 +1819,8 @@ class PlayState extends MusicBeatState
 			notes.sort(FlxSort.byY, FlxSort.DESCENDING);
 		}
 
-		if (SONG.notes[Math.floor(curStep / 16)] != null)
-		{
-			if (SONG.notes[Math.floor(curStep / 16)].changeBPM)
-			{
-				Conductor.changeBPM(SONG.notes[Math.floor(curStep / 16)].bpm);
-				FlxG.log.add('CHANGED BPM!');
-			}
-			else
-				Conductor.changeBPM(SONG.bpm);
-
-			dad.dance();
-		}
+		if (getSectionIndexAtStep(curStep) >= 0)
+		    dad.dance();
 		// FlxG.log.add('change bpm' + SONG.notes[Std.int(curStep / 16)].changeBPM);
 
 
