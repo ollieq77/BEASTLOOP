@@ -30,7 +30,7 @@ So... what does this engine feature, you may ask? *Well.* Quite a few things, ac
 - Softcoding: SOFTCODING? IN AN FNF ENGINE THATS NOT PSYCH? Yes! This supports `.hxc` files for soft coding events. As of now, only stage scripts are supported.
 
 ## Compiling
-I've found a way to only have to install about 4GB of crap, instead of the 22GB that the Week 6 Engine uses. You can read about how to actually compile this engine (INSERT LINK HERE- I NEED TO WRITE THIS GUIDE)
+I've found a way to only have to install about 4GB of crap, instead of the 22GB that the Week 6 Engine uses. You can read about how to actually compile this engine [here.](./docs/Compiling.md)
 
 ## Modding
 Mod support is massive for an engine like this, since the original Week 6 Engine barely had any support. It was originally going to use Polymod, which was never actually usable.
