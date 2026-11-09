@@ -50,7 +50,28 @@ class TitleState extends MusicBeatState
 		FlxG.drawFramerate = 144;
 		trace('update=' + FlxG.updateFramerate + ' draw=' + FlxG.drawFramerate + ' stage=' + openfl.Lib.current.stage.frameRate);
 
-		Polymod.init({modRoot: "mods", dirs: ['introMod']});
+		var modDirs:Array<String> = [];
+			
+		if (sys.FileSystem.exists("mods/modList.txt"))
+		{
+		    var modList:String = sys.io.File.getContent("mods/modList.txt");
+		
+		    for (line in modList.split("\n"))
+		    {
+		        var mod:String = StringTools.trim(line);
+			
+		        if (mod.length == 0 || mod.startsWith("#"))
+		            continue;
+			
+		        modDirs.push(mod);
+		    }
+		}
+		
+		Polymod.init({
+		    modRoot: "mods",
+		    dirs: modDirs
+		});
+		
 		Assets.cache.clear();
 
 		#if (!web)
