@@ -95,7 +95,7 @@ jobs:
       # Compile BEASTLOOP
       - name: Build BEASTLOOP
         run: |
-          haxelib run lime build windows -debug
+          haxelib run lime build windows
 
           if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
@@ -106,6 +106,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: BEASTLOOP-Windows-Debug
-          path: export/debug/windows/bin/
+          path: export/release/windows/bin/
           if-no-files-found: error
           retention-days: 14
