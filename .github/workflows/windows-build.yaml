@@ -54,6 +54,7 @@ jobs:
             @{ Name = 'newgrounds';    Version = '1.1.5' },
             @{ Name = 'haxeui-core';   Version = '1.7.0' },
             @{ Name = 'haxeui-flixel'; Version = '1.7.0' }
+            @{ Name = 'polymod';       Version = '3204f48' }
           )
 
           $Total = $Libraries.Count
@@ -63,29 +64,52 @@ jobs:
           Write-Host "Installing $Total Haxelibs..."
           Write-Host ""
 
-          foreach ($Library in $Libraries) {
-            $Current++
-            $Name = $Library.Name
-            $Version = $Library.Version
-            $Percentage = [math]::Round(($Current / $Total) * 100)
+            foreach ($Library in $Libraries) {
+                $Current++
+                $Name = $Library.Name
+                $Version = $Library.Version
+                $Percentage = [math]::Round(($Current / $Total) * 100)
+                $InstallLog = Join-Path $env:TEMP "haxelib-$Name.log"
 
-            Write-Host "[$Current/$Total] ($Percentage%) Installing $Name $Version..."
+                Write-Host "[$Current/$Total] ($Percentage%) Installing $Name $Version..."
 
-            haxelib install $Name $Version --quiet
-            if ($LASTEXITCODE -ne 0) {
-              throw "Failed to install $Name."
+                if ($Name -eq 'polymod') {
+                    haxelib git polymod https://github.com/larsiusprime/polymod.git $Version *> $InstallLog
+                }
+                else {
+                    haxelib install $Name $Version --quiet *> $InstallLog
+                }
+            
+                if ($LASTEXITCODE -ne 0) {
+                    Get-Content $InstallLog -Tail 40
+                    throw "Failed to install $Name."
+                }
+            
+                if ($Name -ne 'polymod') {
+                    haxelib set $Name $Version *> $null
+            
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Failed to activate $Name."
+                    }
+                }
+            
+                Write-Host "[$Current/$Total] $Name installed successfully." -ForegroundColor Green
             }
 
-            haxelib set $Name $Version
-            if ($LASTEXITCODE -ne 0) {
-              throw "Failed to activate $Name."
-            }
-
-            Write-Host "[$Current/$Total] $Name $Version installed successfully."
             Write-Host ""
-          }
+            Write-Host "Successfully installed all $Total Haxelibs!" -ForegroundColor Green
 
-          Write-Host "Successfully installed all $Total Haxelibs!" -ForegroundColor Green
+            foreach ($Library in $Libraries) {
+                if ($Library.Name -eq 'polymod') {
+                    continue
+                }
+            
+                haxelib set $Library.Name $Library.Version *> $null
+            
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Failed to activate $($Library.Name)."
+                }
+            }
 
       # Compile BEASTLOOP
       - name: Build BEASTLOOP
