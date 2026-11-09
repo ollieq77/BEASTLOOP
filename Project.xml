@@ -73,8 +73,6 @@
 
 	<assets path="example_mods" rename="mods" embed="false" />
 
-	<assets path="CHANGELOG.md" />
-
 	<assets
     	path=".haxelib/haxeui-flixel/1,7,0/haxe/ui/backend/flixel/_module/styles"
     	rename="haxeui-flixel/styles"
