@@ -1,0 +1,4 @@
+function onCreatePost()
+{
+    api.loadDialogue("senpaiDialogue.txt");
+}

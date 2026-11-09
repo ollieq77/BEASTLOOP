@@ -79,6 +79,54 @@ class PlayState extends MusicBeatState
 			songScript.setVariable(name, value);
 	}
 
+	function configureScript(script:StageScript):Void
+	{
+	    script.api.state = this;
+	    script.api.startCountdownFn = startCountdown;
+	    script.api.setCutsceneFn = function(value:Bool)
+	    {
+	        inCutscene = value;
+	    };
+
+	    script.api.setGfSpeedFn = function(value:Int)
+	    {
+	        gfSpeed = value;
+	    };
+
+	    script.api.setVocalsVolumeFn = function(value:Float)
+	    {
+	        if (vocals != null)
+	            vocals.volume = value;
+	    };
+
+	    script.api.setMusicVolumeFn = function(value:Float)
+	    {
+	        if (FlxG.sound.music != null)
+	            FlxG.sound.music.volume = value;
+	    };
+
+	    script.api.setCamZoomingFn = function(value:Bool)
+	    {
+	        camZooming = value;
+	    };
+
+		script.api.getCamZoomingFn = function()
+		{
+		    return camZooming;
+		};
+
+	    script.api.addCameraZoomFn = function(game:Float, hud:Float)
+	    {
+	        camGame.zoom += game;
+	        camHUD.zoom += hud;
+	    };
+
+		script.api.loadDialogueFn = function(file:String)
+		{
+		    dialogue = CoolUtil.coolTextFile(Paths.song(SONG.song.toLowerCase()) + file);
+		};
+	}
+
 	private var vocals:FlxSound;
 
 	private var dad:Character;
@@ -162,12 +210,6 @@ class PlayState extends MusicBeatState
 		Conductor.changeBPM(SONG.bpm);
 
 		// store song name temporarily
-		var songName = SONG.song.toLowerCase();
-		switch (songName)
-		{
-		    case 'senpai', 'roses', 'thorns':
-		        dialogue = CoolUtil.coolTextFile(Paths.song(songName) + '${songName}Dialogue.txt');
-		}
 
 		var song = SONG.song.toLowerCase();
 
@@ -188,10 +230,8 @@ class PlayState extends MusicBeatState
 		    Paths.stageScript(curStage)
 		);
 		
-		stageScript.api.state = this;
-		stageScript.api.startCountdownFn = startCountdown;
-		stageScript.api.setCutsceneFn = function(value:Bool) { inCutscene = value; };
-
+		configureScript(stageScript);
+		
 		if (stageScript.load())
 		{
 		    stageScript.api.setCameras(camGame, camHUD);
@@ -201,19 +241,21 @@ class PlayState extends MusicBeatState
 		// Most songs won't have one, so only create it when the file exists.
 		if (Assets.exists(Paths.songScript(SONG.song)))
 		{
-			songScript = new StageScript(stage, Paths.songScript(SONG.song), "SongScript");
-
-			songScript.api.state = this;
-			songScript.api.startCountdownFn = startCountdown;
-			songScript.api.setCutsceneFn = function(value:Bool) { inCutscene = value; };
-
-			if (songScript.load())
-			{
-				songScript.api.setCameras(camGame, camHUD);
-				songScript.call("onCreate");
-			}
+		    songScript = new StageScript(
+		        stage,
+		        Paths.songScript(SONG.song),
+		        "SongScript"
+		    );
+			
+		    configureScript(songScript);
+			
+		    if (songScript.load())
+		    {
+		        songScript.api.setCameras(camGame, camHUD);
+		        songScript.call("onCreate");
+		    }
 		}
-		
+
 		var gfVersion = SONG.gfVersion != null && SONG.gfVersion.length > 0 ? SONG.gfVersion : stage.gfVersion;
 
 		gf = new Character(400, 130, gfVersion);
@@ -978,12 +1020,6 @@ class PlayState extends MusicBeatState
 				var camP = getCamTarget(mustHit);
 				camFollow.setPosition(camP.x, camP.y);
 				camP.put();
-
-				if (!mustHit)
-				{
-					if (dad.curCharacter == 'mom')
-						vocals.volume = 1;
-				}
 			}
 		}
 
@@ -996,35 +1032,6 @@ class PlayState extends MusicBeatState
 
 		FlxG.watch.addQuick("beatShit", totalBeats);
 
-		if (curSong == 'Fresh')
-		{
-			switch (totalBeats)
-			{
-				case 16:
-					camZooming = true;
-					gfSpeed = 2;
-				case 48:
-					gfSpeed = 1;
-				case 80:
-					gfSpeed = 2;
-				case 112:
-					gfSpeed = 1;
-				case 163:
-					// FlxG.sound.music.stop();
-					// FlxG.switchState(new TitleState());
-			}
-		}
-
-		if (curSong == 'Bopeebo')
-		{
-			switch (totalBeats)
-			{
-				case 128, 129, 130:
-					vocals.volume = 0;
-					// FlxG.sound.music.stop();
-					// FlxG.switchState(new PlayState());
-			}
-		}
 		// better streaming of shit
 
 		// RESET = Quick Game Over Screen
@@ -1723,18 +1730,10 @@ class PlayState extends MusicBeatState
 			else
 				Conductor.changeBPM(SONG.bpm);
 
-			// Dad doesnt interupt his own notes
-			if (SONG.notes[Math.floor(curStep / 16)].mustHitSection)
-				dad.dance();
+			dad.dance();
 		}
 		// FlxG.log.add('change bpm' + SONG.notes[Std.int(curStep / 16)].changeBPM);
 
-		// HARDCODING FOR MILF ZOOMS!
-		if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat <= 200 && camZooming && FlxG.camera.zoom < 1.35)
-		{
-			FlxG.camera.zoom += 0.015;
-			camHUD.zoom += 0.03;
-		}
 
 		if (camZooming && FlxG.camera.zoom < 1.35 && totalBeats % 4 == 0)
 		{
@@ -1758,11 +1757,7 @@ class PlayState extends MusicBeatState
 		    boyfriend.dance();
 		}
 
-		if (totalBeats % 8 == 7 && curSong == 'Bopeebo')
-		{
-			boyfriend.playAnim('hey', true);
-			gf.playAnim('cheer', true);
-		}
+		callScripts("onBeatHitPost");
 
 		opponentStrums.forEachAlive(function(spr:FlxSprite)
     	{

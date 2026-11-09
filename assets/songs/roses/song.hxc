@@ -1,0 +1,4 @@
+function onCreatePost()
+{
+    api.loadDialogue("rosesDialogue.txt");
+}

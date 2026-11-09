@@ -1,0 +1,18 @@
+function onBeatHit()
+{
+    switch (curBeat)
+    {
+        case 16:
+            api.setCamZooming(true);
+            api.setGfSpeed(2);
+
+        case 48:
+            api.setGfSpeed(1);
+
+        case 80:
+            api.setGfSpeed(2);
+
+        case 112:
+            api.setGfSpeed(1);
+    }
+}

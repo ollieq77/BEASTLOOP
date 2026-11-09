@@ -1,18 +1,17 @@
-
 var evilTrail:Dynamic;
 
 function onCreatePost():Void
 {
-    // Trail behind the opponent. The stage is drawn behind the characters,
-    // so this still sits right behind them like before.
+    // Load Thorns dialogue.
+    api.loadDialogue("thornsDialogue.txt");
+
+    // Trail behind the opponent.
     var dad = api.getCharacter("dad");
 
     evilTrail = Type.createInstance(FlxTrail, [dad, null, 4, 24, 0.3, 0.069]);
 
     api.addObject(evilTrail, "evilTrail");
 }
-
-// ---- Story mode intro (thorns) ----
 
 function onIntro(dialogueBox):Bool
 {
@@ -29,7 +28,6 @@ function onIntro(dialogueBox):Bool
     senpaiEvil.updateHitbox();
     senpaiEvil.screenCenter();
 
-    // Same 7 fade ticks the school intro waits through, just without the black overlay.
     var fade = 1.0;
 
     api.timer(0.3, function(tmr)

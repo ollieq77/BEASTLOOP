@@ -1,0 +1,17 @@
+function onBeatHit()
+{
+    switch (curBeat)
+    {
+        case 128, 129, 130:
+            api.setVocalsVolume(0);
+    }
+}
+
+function onBeatHitPost()
+{
+    if (curBeat % 8 == 7)
+    {
+        api.getCharacter("boyfriend").playAnim("hey", true);
+        api.getCharacter("gf").playAnim("cheer", true);
+    }
+}
