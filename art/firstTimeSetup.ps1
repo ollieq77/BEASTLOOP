@@ -109,20 +109,9 @@ function Initialize-Project {
     }
 
     $Source = Join-Path $ProjectRoot 'source'
-    $ApiFile = Join-Path $Source 'APIStuff.hx'
-    $RootApiFile = Join-Path $ProjectRoot 'APIStuff.hx'
 
     if (-not (Test-Path $Source)) {
         New-Item -ItemType Directory -Path $Source | Out-Null
-    }
-
-    if (-not (Test-Path $ApiFile)) {
-        if (-not (Test-Path $RootApiFile)) {
-            throw 'APIStuff.hx is missing from the repository.'
-        }
-
-        Write-Info 'Copying APIStuff.hx...'
-        Copy-Item $RootApiFile $ApiFile -Force
     }
 
     Write-OK 'Project files verified.'

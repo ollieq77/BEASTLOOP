@@ -71,27 +71,6 @@ jobs:
             }
           }
 
-      # Install the pinned Polymod revision
-      - name: Install Polymod
-        run: haxelib git polymod https://github.com/larsiusprime/polymod.git 3204f48
-
-      # Ensure APIStuff.hx is in the source directory
-      - name: Prepare source files
-        shell: pwsh
-        run: |
-          $Source = Join-Path $env:GITHUB_WORKSPACE 'source'
-          $ApiFile = Join-Path $Source 'APIStuff.hx'
-          $RootApiFile = Join-Path $env:GITHUB_WORKSPACE 'APIStuff.hx'
-
-          if (!(Test-Path $ApiFile)) {
-            if (!(Test-Path $RootApiFile)) {
-              throw 'APIStuff.hx was not found.'
-            }
-
-            New-Item -ItemType Directory -Force -Path $Source | Out-Null
-            Copy-Item $RootApiFile $ApiFile
-          }
-
       # Compile BEASTLOOP
       - name: Build BEASTLOOP
         run: |
