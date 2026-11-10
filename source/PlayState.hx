@@ -39,6 +39,7 @@ import openfl.display.BlendMode;
 import openfl.display.StageQuality;
 import openfl.filters.ShaderFilter;
 import openfl.media.Sound;
+import polymod.backends.PolymodAssets;
 
 import Stage;
 import StageLoader;
@@ -261,7 +262,7 @@ class PlayState extends MusicBeatState
 		}
 
 		// Most songs won't have one, so only create it when the file exists.
-		if (Assets.exists(Paths.songScript(SONG.song)))
+		if (PolymodAssets.exists(Paths.songScript(SONG.song)))
 		{
 		    songScript = new StageScript(
 		        stage,

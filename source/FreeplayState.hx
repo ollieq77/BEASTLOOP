@@ -130,7 +130,7 @@ class FreeplayState extends MusicBeatState
 
 		// JUST DOIN THIS SHIT FOR TESTING!!!
 		/* 
-			var md:String = Markdown.markdownToHtml(Assets.getText('CHANGELOG.md'));
+			var md:String = Markdown.markdownToHtml(PolymodAssets.getText('CHANGELOG.md'));
 
 			var texFel:TextField = new TextField();
 			texFel.width = FlxG.width;

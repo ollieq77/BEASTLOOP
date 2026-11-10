@@ -71,8 +71,6 @@ class TitleState extends MusicBeatState
 		    modRoot: "mods",
 		    dirs: modDirs
 		});
-		
-		Assets.cache.clear();
 
 		#if (!web)
 		TitleState.soundExt = '.ogg';
@@ -225,7 +223,7 @@ class TitleState extends MusicBeatState
 
 	function getIntroTextShit():Array<Array<String>>
 	{
-		var fullText:String = Assets.getText(Paths.data('introText.txt'));
+		var fullText:String = PolymodAssets.getText(Paths.data('introText.txt'));
 
 		var firstArray:Array<String> = fullText.split('\n');
 		var swagGoodArray:Array<Array<String>> = [];

@@ -13,6 +13,7 @@ import flixel.util.FlxTimer;
 import lime.net.curl.CURLCode;
 
 import openfl.utils.Assets;
+import polymod.backends.PolymodAssets;
 import haxe.Json;
 
 using StringTools;
@@ -42,45 +43,55 @@ class StoryMenuState extends MusicBeatState
 	var rightArrow:FlxSprite;
 
 	public static function loadWeeks():Void
-	{
-	    weeks = [];
+    {
+        weeks = [];
 
-	    var weekDirectory:String = Paths.data('weeks/');
+        var modFiles:Array<String> = PolymodAssets.list();
 
-	    for (asset in Assets.list())
-	    {
-	        if (!asset.startsWith(weekDirectory) || !asset.endsWith('.json'))
-	            continue;
+        for (asset in modFiles)
+        {
+            // Check if the asset is inside a weeks directory and is a JSON file
+            if (asset.contains("weeks/") && asset.endsWith('.json'))
+            {
+                var rawData:String = PolymodAssets.getText(asset);
 
-	        var fileName:String = asset.substr(weekDirectory.length);
-	        var weekID:String = fileName.substr(0, fileName.length - 5);
+                if (rawData == null || rawData.length == 0)
+                    continue;
 
-	        var rawData:String = Assets.getText(Paths.week(weekID));
+                try
+                {
+                    var week:WeekData = cast Json.parse(rawData);
+                    if (week != null)
+                    {
+                        weeks.push(week);
+                    }
+                }
+                catch (e:Dynamic)
+                {
+                    trace('Error parsing week JSON ($asset): $e');
+                }
+            }
+        }
 
-	        if (rawData == null)
-	            continue;
+        // Sort weeks by their order property
+        weeks.sort(function(a:WeekData, b:WeekData):Int
+        {
+            if (a.order == b.order)
+                return Reflect.compare(a.id, b.id);
 
-	        var week:WeekData = cast Json.parse(rawData);
-	        weeks.push(week);
-	    }
+            return Reflect.compare(a.order, b.order);
+        });
 
-	    weeks.sort(function(a:WeekData, b:WeekData):Int
-	    {
-	        if (a.order == b.order)
-	            return Reflect.compare(a.id, b.id);
-
-	        return Reflect.compare(a.order, b.order);
-	    });
-
-		if (FlxG.save.data.weekUnlocks != null)
-		{
-		    for (week in weeks)
-		    {
-		        if (Reflect.field(FlxG.save.data.weekUnlocks, week.id) == true)
-		            week.unlocked = true;
-		    }
-		}
-	}
+        // Apply save data unlocks
+        if (FlxG.save.data.weekUnlocks != null)
+        {
+            for (week in weeks)
+            {
+                if (Reflect.field(FlxG.save.data.weekUnlocks, week.id) == true)
+                    week.unlocked = true;
+            }
+        }
+    }
 
 	override function create()
 	{

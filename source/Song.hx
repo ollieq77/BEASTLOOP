@@ -4,6 +4,7 @@ import Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
 import openfl.utils.Assets;
+import polymod.backends.PolymodAssets;
 
 using StringTools;
 
@@ -55,7 +56,7 @@ class Song
 
 	public static function loadFromJson(difficulty:String, song:String):SwagSong
 	{
-	    var rawJson = Assets.getText(Paths.songChart(song, difficulty)).trim();
+	    var rawJson = PolymodAssets.getText(Paths.songChart(song, difficulty)).trim();
 
 	    while (!rawJson.endsWith("}"))
 	    {

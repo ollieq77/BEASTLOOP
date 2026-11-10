@@ -1,13 +1,14 @@
 package;
 
 import flixel.graphics.frames.FlxAtlasFrames;
+import polymod.backends.PolymodAssets;
 
 class CharacterLoader
 {
     public static function load(character:Character, id:String):Void
     {
         var path = Paths.character(id);
-        var rawData:String = openfl.utils.Assets.getText(path);
+        var rawData:String = PolymodAssets.getText(path);
         var data:Dynamic = haxe.Json.parse(rawData);
 
         if (data.atlas.xml != null)

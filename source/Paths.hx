@@ -8,7 +8,7 @@ import polymod.backends.PolymodAssets;
  *
  * What these return are asset KEYS ('assets/images/foo.png'). Polymod overlays mod files on top of
  * those keys, so anything loaded through the asset library (FlxSprite.loadGraphic, FlxG.sound.play,
- * openfl.utils.Assets.getText, ...) picks mods up automatically.
+ * openfl.utils.PolymodAssets.getText, ...) picks mods up automatically.
  *
  * APIs that read straight from disk and skip the asset library (Sound.fromFile, File.*) need a real
  * file path instead. Wrap the key in Paths.resolve(...) for those.
