@@ -46,32 +46,36 @@ class StoryMenuState extends MusicBeatState
     {
         weeks = [];
 
-        var modFiles:Array<String> = PolymodAssets.list();
+		var modFiles:Array<String> = PolymodAssets.list();
 
-        for (asset in modFiles)
-        {
-            // Check if the asset is inside a weeks directory and is a JSON file
-            if (asset.contains("weeks/") && asset.endsWith('.json'))
-            {
-                var rawData:String = PolymodAssets.getText(asset);
-
-                if (rawData == null || rawData.length == 0)
-                    continue;
-
-                try
-                {
-                    var week:WeekData = cast Json.parse(rawData);
-                    if (week != null)
-                    {
-                        weeks.push(week);
-                    }
-                }
-                catch (e:Dynamic)
-                {
-                    trace('Error parsing week JSON ($asset): $e');
-                }
-            }
-        }
+		for (asset in modFiles)
+		{
+		    if (asset.contains("weeks/") && asset.endsWith(".json"))
+		    {
+		        var rawData:String = PolymodAssets.getText(asset);
+			
+		        if (rawData == null || rawData.length == 0)
+		            continue;
+			
+		        try
+		        {
+		            var week:WeekData = cast Json.parse(rawData);
+				
+		            if (week == null)
+		                continue;
+				
+		            // Skip weeks that already exist
+					if (Lambda.exists(weeks, w -> w.id == week.id))
+					    continue;
+				
+		            weeks.push(week);
+		        }
+		        catch (e:Dynamic)
+		        {
+		            trace('Error parsing week JSON ($asset): $e');
+		        }
+		    }
+		}
 
         // Sort weeks by their order property
         weeks.sort(function(a:WeekData, b:WeekData):Int
