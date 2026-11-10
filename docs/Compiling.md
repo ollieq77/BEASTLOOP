@@ -21,7 +21,7 @@ haxelib run lime test windows -debug
 ```
 This will take a while to complete on the first time you run this.
 
-## "But I don't use windows!"
+## "But I don't like using scripts! I like making my life harder!"
 Okay, this may be harder, but still possible.
 
 ## Dependencies
@@ -62,7 +62,7 @@ BEASTLOOP uses the following Haxelibs. Make sure you're using the specified vers
 
 These versions are pinned to the ones currently used by BEASTLOOP.
 
-## "But I don't like using scripts! I like making my life harder!"
+## "But I don't use windows!"
 
 Okay, this may be a little harder, but it's still possible!
 
