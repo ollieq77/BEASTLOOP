@@ -13,6 +13,19 @@ function onCreatePost():Void
     api.addObject(evilTrail, "evilTrail");
 }
 
+function onDialogueCreate(dialogueBox)
+{
+    api.playMusic('LunchboxScary', 0.8, 1);
+    dialogueBox.fadeOutMusicOnEnd = true;
+
+    dialogueBox.setBox('weeb/pixelUI/dialogueBox-evil', 'Spirit Textbox spawn', 11);
+    dialogueBox.setColors(0xFF000000, 0xFFFFFFFF, 0xFF000000);
+
+    var face = api.makeImage(320, 170, 'weeb/spiritFaceForward');
+    face.setGraphicSize(Std.int(face.width * 6));
+    dialogueBox.addBehindBox(face);
+}
+
 function onIntro(dialogueBox):Bool
 {
     if (!isStoryMode)

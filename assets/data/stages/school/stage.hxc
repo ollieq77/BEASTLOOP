@@ -18,69 +18,10 @@ function onCreate():Void
 
     // Register and add to the stage.
     api.addObject(bgGirls, "bgGirls");
-
-    // Roses uses the scared animation.
-    if (SONG.song.toLowerCase() == "roses")
-        bgGirls.getScared();
 }
 
 function onBeatHit():Void
 {
     if (bgGirls != null)
         bgGirls.dance();
-}
-
-// ---- Story mode intro (senpai + roses) ----
-
-function onIntro(dialogueBox):Bool
-{
-    if (!isStoryMode)
-        return false;
-
-    var song = SONG.song.toLowerCase();
-
-    if (song == "roses")
-        api.playSound('ANGRY');
-
-    var black = api.makeSolid(-100, -100, FlxG.width * 2, FlxG.height * 2, 0xFF000000);
-    black.scrollFactor.set();
-
-    // Roses skips the black overlay but still waits out the same fade ticks.
-    if (song != "roses")
-        api.addToState(black);
-
-    api.timer(0.3, function(tmr)
-    {
-        black.alpha -= 0.15;
-
-        if (black.alpha > 0)
-        {
-            tmr.reset(0.3);
-        }
-        else
-        {
-            if (dialogueBox != null)
-            {
-                api.setInCutscene(true);
-                api.addToState(dialogueBox);
-            }
-            else
-                api.startCountdown();
-
-            api.removeFromState(black);
-        }
-    });
-
-    return true;
-}
-
-// ---- Senpai -> Roses plays without a screen transition and keeps the camera ----
-
-function onSongEnd(nextSong):Void
-{
-    if (nextSong != null && SONG.song.toLowerCase() == "senpai")
-    {
-        api.skipNextTransition = true;
-        api.carryCamera = true;
-    }
 }
