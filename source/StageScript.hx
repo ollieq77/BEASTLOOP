@@ -6,6 +6,7 @@ import hscript.Interp;
 import openfl.utils.Assets;
 import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
+import polymod.backends.PolymodAssets;
 
 class StageScript
 {
@@ -51,7 +52,7 @@ class StageScript
 
     public function load():Bool
     {
-        if (!Assets.exists(scriptPath))
+        if (!PolymodAssets.exists(scriptPath))
         {
             trace('[$label] Script not found: $scriptPath');
             return false;
@@ -59,7 +60,7 @@ class StageScript
 
         try
         {
-            var source = Assets.getText(scriptPath);
+            var source = PolymodAssets.getText(scriptPath);
             var program = parser.parseString(source, scriptPath);
 
             interp.execute(program);

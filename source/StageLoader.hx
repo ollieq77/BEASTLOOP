@@ -4,6 +4,7 @@ import flixel.FlxSprite;
 import openfl.utils.Assets;
 import haxe.Json;
 import flixel.graphics.frames.FlxAtlasFrames;
+import polymod.backends.PolymodAssets;
 
 class StageLoader
 {
@@ -14,13 +15,13 @@ class StageLoader
 
         var jsonPath = Paths.stageData(stageName);
 
-        if (!Assets.exists(jsonPath))
+        if (!PolymodAssets.exists(jsonPath))
         {
             stageName = 'stage';
             jsonPath = Paths.stageData('stage');
         }
 
-        var data:Dynamic = Json.parse(Assets.getText(jsonPath));
+        var data:Dynamic = Json.parse(PolymodAssets.getText(jsonPath));
         var stage = new Stage(stageName);
 
         // Stage settings

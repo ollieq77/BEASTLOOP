@@ -16,6 +16,7 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.media.Sound;
 import openfl.net.FileReference;
+import polymod.backends.PolymodAssets;
 
 import haxe.ui.Toolkit;
 import haxe.ui.containers.VBox;
@@ -235,7 +236,7 @@ class ChartingState extends MusicBeatState
 	    var characters:Array<Dynamic> = [];
 	    var charDir:String = Paths.characterDir();
 
-	    for (path in Assets.list())
+	    for (path in PolymodAssets.list())
 	    {
 	        if (!StringTools.startsWith(path, charDir))
 	            continue;
@@ -250,7 +251,7 @@ class ChartingState extends MusicBeatState
 
 	        try
 	        {
-	            var data:Dynamic = Json.parse(Assets.getText(path));
+	            var data:Dynamic = Json.parse(PolymodAssets.getText(path));
 
 	            characters.push({
 	                text: data.name,
@@ -279,7 +280,7 @@ class ChartingState extends MusicBeatState
 	    var stages:Array<Dynamic> = [];
 	    var stageDir:String = "assets/data/stages/";
 
-	    for (path in Assets.list())
+	    for (path in PolymodAssets.list())
 	    {
 	        if (!StringTools.startsWith(path, stageDir))
 	            continue;
@@ -1464,11 +1465,11 @@ class ChartingState extends MusicBeatState
 	{
 	    var difficulty:String = "hard";
 	
-	    if (!Assets.exists(Paths.songChart(song, difficulty)))
+	    if (!PolymodAssets.exists(Paths.songChart(song, difficulty)))
 	    {
 	        difficulty = "normal";
 		
-	        if (!Assets.exists(Paths.songChart(song, difficulty)))
+	        if (!PolymodAssets.exists(Paths.songChart(song, difficulty)))
 	        {
 	            difficulty = "easy";
 	        }
