@@ -151,6 +151,15 @@ class StageAPI
         FlxG.sound.play(soundPath(key), volume, false, null, true, done);
     }
 
+    // Starts a music track (key like 'Lunchbox', resolved through Paths.music) and fades it in.
+    public function playMusic(key:String, volume:Float = 1, fadeInSeconds:Float = 0):Void
+    {
+        FlxG.sound.playMusic(Paths.music(key), fadeInSeconds > 0 ? 0 : volume);
+
+        if (fadeInSeconds > 0)
+            FlxG.sound.music.fadeIn(fadeInSeconds, 0, volume);
+    }
+
     // Path for a sound key, for scripts that need to load one themselves (FlxG.sound.load...).
     public function soundPath(key:String):String
     {
@@ -197,6 +206,12 @@ class StageAPI
     public function makeSolid(x:Float, y:Float, width:Int, height:Int, color:Int):FlxSprite
     {
         return new FlxSprite(x, y).makeGraphic(width, height, color);
+    }
+
+    // Sprite with a single image loaded. key is the image name under assets/images, e.g. 'weeb/spiritFaceForward'.
+    public function makeImage(x:Float, y:Float, key:String):FlxSprite
+    {
+        return new FlxSprite(x, y).loadGraphic(Paths.image(key));
     }
 
     // Sprite with a Sparrow atlas loaded (add animations on the result).

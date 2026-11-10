@@ -320,6 +320,7 @@ class PlayState extends MusicBeatState
 		// doof.y = FlxG.height * 0.5;
 		doof.scrollFactor.set();
 		doof.finishThing = startCountdown;
+		callScripts("onDialogueCreate", [doof]);
 
 		Conductor.songPosition = -5000;
 

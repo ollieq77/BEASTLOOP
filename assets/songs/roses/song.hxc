@@ -1,4 +1,51 @@
+// The stage script has already made the background girls by the time this runs.
+function onCreate()
+{
+    api.getObject("bgGirls").getScared();
+}
+
 function onCreatePost()
 {
     api.loadDialogue("rosesDialogue.txt");
+}
+
+function onDialogueCreate(dialogueBox)
+{
+    api.playSound('ANGRY_TEXT_BOX');
+
+    dialogueBox.setBox('weeb/pixelUI/dialogueBox-senpaiMad', 'SENPAI ANGRY IMPACT SPEECH', 4);
+    dialogueBox.hideLeftPortrait = true;
+}
+
+// Story mode: angry sting, then the same fade ticks as senpai (without the black overlay), then the dialogue.
+function onIntro(dialogueBox):Bool
+{
+    if (!isStoryMode)
+        return false;
+
+    api.playSound('ANGRY');
+
+    var fade = 1.0;
+
+    api.timer(0.3, function(tmr)
+    {
+        fade -= 0.15;
+
+        if (fade > 0)
+        {
+            tmr.reset(0.3);
+        }
+        else
+        {
+            if (dialogueBox != null)
+            {
+                api.setInCutscene(true);
+                api.addToState(dialogueBox);
+            }
+            else
+                api.startCountdown();
+        }
+    });
+
+    return true;
 }
