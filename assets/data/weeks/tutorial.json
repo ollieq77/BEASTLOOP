@@ -1,0 +1,14 @@
+{
+    "id": "tutorial",
+    "order": 0,
+    "name": "How To Funk",
+    "songs": [
+        "Tutorial"
+    ],
+    "characters": [
+        "gf",
+        "bf",
+        "gf"
+    ],
+    "unlocked": true
+}

@@ -1,0 +1,8 @@
+{
+    "id": "week5",
+    "order": 5,
+    "name": "RED SNOW",
+    "songs": ["Cocoa", "Eggnog", "Winter-Horrorland"],
+    "characters": ["parents-christmas", "bf", "gf"],
+    "unlocked": true
+}

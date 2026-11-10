@@ -1,0 +1,95 @@
+
+{
+    "name": "School",
+    "defaultCamZoom": 0.9,
+    "gfVersion": "gf-pixel",
+    "pixel": true,
+
+    "characters": {
+        "boyfriend": {
+            "x": 970,
+            "y": 320
+        },
+        "dad": {
+            "x": 100,
+            "y": 100
+        },
+        "gf": {
+            "x": 580,
+            "y": 430
+        }
+    },
+
+    "camera": {
+        "boyfriend": [-100, -100],
+        "opponent": [0, 0]
+    },
+
+    "sprites": [
+        {
+            "name": "bgSky",
+            "image": "weebSky.png",
+            "position": [0, 0],
+            "scale": [6, 6],
+            "scrollFactor": [0.1, 0.1]
+        },
+        {
+            "name": "bgSchool",
+            "image": "weebSchool.png",
+            "position": [-200, 0],
+            "matchWidth": "bgSky",
+            "scrollFactor": [0.6, 0.9]
+        },
+        {
+            "name": "bgStreet",
+            "image": "weebStreet.png",
+            "position": [-200, 0],
+            "matchWidth": "bgSky",
+            "scrollFactor": [0.95, 0.95]
+        },
+        {
+            "name": "fgTrees",
+            "image": "weebTreesBack.png",
+            "position": [-30, 130],
+            "matchWidth": "bgSky",
+            "matchWidthScale": 0.8,
+            "scrollFactor": [0.9, 0.9]
+        },
+        {
+            "name": "bgTrees",
+            "type": "packer",
+            "image": "weebTrees.png",
+            "xml": "weebTrees.txt",
+            "position": [-580, -800],
+            "matchWidth": "bgSky",
+            "matchWidthScale": 1.4,
+            "scrollFactor": [0.85, 0.85],
+            "animations": [
+                {
+                    "name": "treeLoop",
+                    "frames": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+                    "fps": 12
+                }
+            ],
+            "initialAnimation": "treeLoop"
+        },
+        {
+            "name": "treeLeaves",
+            "type": "sparrow",
+            "image": "petals.png",
+            "xml": "petals.xml",
+            "position": [-200, -40],
+            "matchWidth": "bgSky",
+            "scrollFactor": [0.85, 0.85],
+            "animations": [
+                {
+                    "name": "leaves",
+                    "prefix": "PETALS ALL",
+                    "fps": 24,
+                    "loop": true
+                }
+            ],
+            "initialAnimation": "leaves"
+        }
+    ]
+}

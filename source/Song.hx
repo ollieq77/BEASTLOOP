@@ -3,23 +3,27 @@ package;
 import Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
-import lime.utils.Assets;
+import openfl.utils.Assets;
+import polymod.backends.PolymodAssets;
 
 using StringTools;
 
 typedef SwagSong =
 {
-	var song:String;
-	var notes:Array<SwagSection>;
-	var bpm:Int;
-	var sections:Int;
-	var sectionLengths:Array<Dynamic>;
-	var needsVoices:Bool;
-	var speed:Float;
+    var song:String;
+    var notes:Array<SwagSection>;
+    var bpm:Int;
+    var sections:Int;
+    var sectionLengths:Array<Dynamic>;
+    var needsVoices:Bool;
+    var speed:Float;
 
-	var player1:String;
-	var player2:String;
-	var validScore:Bool;
+    @:optional var stage:String;
+	@:optional var gfVersion:String;
+
+    var player1:String;
+    var player2:String;
+    var validScore:Bool;
 }
 
 class Song
@@ -31,9 +35,11 @@ class Song
 	public var sectionLengths:Array<Dynamic> = [];
 	public var needsVoices:Bool = true;
 	public var speed:Float = 1;
+	public var stage:String = 'stage';
 
 	public var player1:String = 'bf';
 	public var player2:String = 'dad';
+	public var gfVersion:String = 'gf';
 
 	public function new(song, notes, bpm, sections)
 	{
@@ -48,41 +54,25 @@ class Song
 		}
 	}
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	public static function loadFromJson(difficulty:String, song:String):SwagSong
 	{
-		var rawJson = Assets.getText('assets/data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
+	    var rawJson = PolymodAssets.getText(Paths.songChart(song, difficulty)).trim();
 
-		while (!rawJson.endsWith("}"))
-		{
-			rawJson = rawJson.substr(0, rawJson.length - 1);
-			// LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
-		}
+	    while (!rawJson.endsWith("}"))
+	    {
+	        rawJson = rawJson.substr(0, rawJson.length - 1);
+	    }
 
-		// FIX THE CASTING ON WINDOWS/NATIVE
-		// Windows???
-		// trace(songData);
-
-		// trace('LOADED FROM JSON: ' + songData.notes);
-		/* 
-			for (i in 0...songData.notes.length)
-			{
-				trace('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
-				// songData.notes[i].sectionNotes = songData.notes[i].sectionNotes
-			}
-
-				daNotes = songData.notes;
-				daSong = songData.song;
-				daSections = songData.sections;
-				daBpm = songData.bpm;
-				daSectionLengths = songData.sectionLengths; */
-
-		return parseJSONshit(rawJson);
+	    return parseJSONshit(rawJson);
 	}
 
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
 		var swagShit:SwagSong = cast Json.parse(rawJson).song;
 		swagShit.validScore = true;
+
+		if (swagShit.stage == null || swagShit.stage.length == 0)
+    		swagShit.stage = 'stage';
 		return swagShit;
 	}
 }

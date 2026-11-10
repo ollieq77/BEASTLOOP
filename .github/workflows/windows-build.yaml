@@ -1,0 +1,176 @@
+
+name: BEASTLOOP Windows Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Compile for Windows
+    runs-on: windows-latest
+
+    steps:
+      # Get the repository
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # Install Haxe
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: 4.2.5
+
+      # Verify the environment
+      - name: Check Haxe installation
+        run: |
+          haxe --version
+          haxelib version
+          git --version
+
+      # Create a project-local Haxelib repository
+      - name: Setup Haxelib
+        shell: pwsh
+        run: |
+          $Repo = "$env:GITHUB_WORKSPACE\.haxelib"
+
+          New-Item -ItemType Directory -Force -Path $Repo | Out-Null
+          haxelib setup $Repo
+
+      # Restore installed Haxelibs
+      - name: Cache Haxelib dependencies
+        id: haxelib-cache
+        uses: actions/cache@v6
+        with:
+          path: .haxelib/
+          key: windows-haxe-4.2.5-haxelib-${{ hashFiles('Project.xml', '.github/workflows/**') }}
+
+      # Install Haxelibs if the cache missed
+      - name: Install Haxelibs
+        if: steps.haxelib-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $Libraries = @(
+            @{ Name = 'lime';          Version = '7.9.0' },
+            @{ Name = 'openfl';        Version = '9.1.0' },
+            @{ Name = 'hxcpp';         Version = '4.2.1' },
+            @{ Name = 'flixel';        Version = '4.11.0' },
+            @{ Name = 'flixel-addons'; Version = '2.11.0' },
+            @{ Name = 'flixel-ui';     Version = '2.3.3' },
+            @{ Name = 'hscript';       Version = '2.4.0' },
+            @{ Name = 'newgrounds';    Version = '1.1.5' },
+            @{ Name = 'haxeui-core';   Version = '1.7.0' },
+            @{ Name = 'haxeui-flixel'; Version = '1.7.0' },
+            @{ Name = 'polymod';       Version = '3204f48' }
+          )
+
+          $Total = $Libraries.Count
+          $Current = 0
+
+          Write-Host ""
+          Write-Host "Installing $Total Haxelibs..."
+          Write-Host ""
+
+          foreach ($Library in $Libraries) {
+            $Current++
+            $Name = $Library.Name
+            $Version = $Library.Version
+            $Percentage = [math]::Round(($Current / $Total) * 100)
+            $InstallLog = Join-Path $env:TEMP "haxelib-$Name.log"
+
+            Write-Host "[$Current/$Total] ($Percentage%) Installing $Name $Version..."
+
+            if ($Name -eq 'polymod') {
+              haxelib git polymod https://github.com/larsiusprime/polymod.git $Version *> $InstallLog
+            }
+            else {
+              haxelib install $Name $Version --quiet *> $InstallLog
+            }
+
+            if ($LASTEXITCODE -ne 0) {
+              Get-Content $InstallLog -Tail 40
+              throw "Failed to install $Name."
+            }
+
+            if ($Name -ne 'polymod') {
+              haxelib set $Name $Version *> $null
+
+              if ($LASTEXITCODE -ne 0) {
+                throw "Failed to activate $Name."
+              }
+            }
+
+            Write-Host "[$Current/$Total] $Name installed successfully." -ForegroundColor Green
+          }
+
+          Write-Host ""
+          Write-Host "Successfully installed all $Total Haxelibs!" -ForegroundColor Green
+
+      # Activate pinned library versions
+      - name: Activate Haxelibs
+        shell: pwsh
+        run: |
+          $Libraries = @(
+            @{ Name = 'lime';          Version = '7.9.0' },
+            @{ Name = 'openfl';        Version = '9.1.0' },
+            @{ Name = 'hxcpp';         Version = '4.2.1' },
+            @{ Name = 'flixel';        Version = '4.11.0' },
+            @{ Name = 'flixel-addons'; Version = '2.11.0' },
+            @{ Name = 'flixel-ui';     Version = '2.3.3' },
+            @{ Name = 'hscript';       Version = '2.4.0' },
+            @{ Name = 'newgrounds';    Version = '1.1.5' },
+            @{ Name = 'haxeui-core';   Version = '1.7.0' },
+            @{ Name = 'haxeui-flixel'; Version = '1.7.0' }
+          )
+
+          foreach ($Library in $Libraries) {
+            haxelib set $Library.Name $Library.Version *> $null
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed to activate $($Library.Name)."
+            }
+          }
+
+          Write-Host "All pinned Haxelibs activated." -ForegroundColor Green
+
+      # Configure hxcpp's compilation cache
+      - name: Configure hxcpp cache
+        shell: pwsh
+        run: |
+          $Cache = Join-Path $env:RUNNER_TEMP 'hxcpp-cache'
+
+          New-Item -ItemType Directory -Force -Path $Cache | Out-Null
+
+          "HXCPP_COMPILE_CACHE=$Cache" >> $env:GITHUB_ENV
+          "HXCPP_CACHE_MB=1000" >> $env:GITHUB_ENV
+
+      # Restore hxcpp compiled objects
+      - name: Cache hxcpp objects
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/hxcpp-cache
+          key: windows-hxcpp-haxe-4.2.5-hxcpp-4.2.1-v1
+          restore-keys: |
+            windows-hxcpp-haxe-4.2.5-hxcpp-4.2.1-
+
+      # Compile BEASTLOOP
+      - name: Build BEASTLOOP
+        run: |
+          haxelib run lime build windows
+
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+      # Upload the compiled game
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v7
+        with:
+          name: BEASTLOOP-Windows-Release
+          path: export/release/windows/bin/
+          if-no-files-found: error
+          retention-days: 14

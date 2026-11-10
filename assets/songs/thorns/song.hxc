@@ -1,0 +1,99 @@
+var evilTrail:Dynamic;
+
+function onCreatePost():Void
+{
+    // Load Thorns dialogue.
+    api.loadDialogue("thornsDialogue.txt");
+
+    // Trail behind the opponent.
+    var dad = api.getCharacter("dad");
+
+    evilTrail = Type.createInstance(FlxTrail, [dad, null, 4, 24, 0.3, 0.069]);
+
+    api.addObject(evilTrail, "evilTrail");
+}
+
+function onDialogueCreate(dialogueBox)
+{
+    api.playMusic('LunchboxScary', 0.8, 1);
+    dialogueBox.fadeOutMusicOnEnd = true;
+
+    dialogueBox.setBox('weeb/pixelUI/dialogueBox-evil', 'Spirit Textbox spawn', 11);
+    dialogueBox.setColors(0xFF000000, 0xFFFFFFFF, 0xFF000000);
+
+    var face = api.makeImage(320, 170, 'weeb/spiritFaceForward');
+    face.setGraphicSize(Std.int(face.width * 6));
+    dialogueBox.addBehindBox(face);
+}
+
+function onIntro(dialogueBox):Bool
+{
+    if (!isStoryMode)
+        return false;
+
+    var red = api.makeSolid(-100, -100, FlxG.width * 2, FlxG.height * 2, 0xFFFF1B31);
+    red.scrollFactor.set();
+    api.addToState(red);
+
+    var senpaiEvil = api.makeSparrow(0, 0, 'weeb/senpaiCrazy');
+    senpaiEvil.animation.addByPrefix('idle', 'Senpai Pre Explosion', 24, false);
+    senpaiEvil.setGraphicSize(Std.int(senpaiEvil.width * daPixelZoom));
+    senpaiEvil.updateHitbox();
+    senpaiEvil.screenCenter();
+
+    var fade = 1.0;
+
+    api.timer(0.3, function(tmr)
+    {
+        fade -= 0.15;
+
+        if (fade > 0)
+        {
+            tmr.reset(0.3);
+            return;
+        }
+
+        if (dialogueBox == null)
+        {
+            api.startCountdown();
+            return;
+        }
+
+        api.setInCutscene(true);
+
+        api.addToState(senpaiEvil);
+        senpaiEvil.alpha = 0;
+
+        api.timer(0.3, function(swagTimer)
+        {
+            senpaiEvil.alpha += 0.15;
+
+            if (senpaiEvil.alpha < 1)
+            {
+                swagTimer.reset();
+            }
+            else
+            {
+                senpaiEvil.animation.play('idle');
+
+                api.playSound('Senpai_Dies', 1, function()
+                {
+                    api.removeFromState(senpaiEvil);
+                    api.removeFromState(red);
+
+                    FlxG.camera.fade(0xFFFFFFFF, 0.01, true, function()
+                    {
+                        api.addToState(dialogueBox);
+                    }, true);
+                });
+
+                api.timer(3.2, function(deadTime)
+                {
+                    FlxG.camera.fade(0xFFFFFFFF, 1.6, false);
+                });
+            }
+        });
+    });
+
+    return true;
+}

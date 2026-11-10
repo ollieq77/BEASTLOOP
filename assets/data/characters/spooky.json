@@ -1,0 +1,67 @@
+
+{
+    "name": "Spooky",
+    "position": [0, 200],
+    "atlas": {
+        "image": "assets/images/characters/spooky_kids_assets.png",
+        "xml": "assets/images/characters/spooky_kids_assets.xml"
+    },
+    "animations": [
+        {
+            "name": "singUP",
+            "prefix": "spooky UP NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [-20, 26]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "spooky DOWN note",
+            "fps": 24,
+            "loop": false,
+            "offset": [-50, -130]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "note sing left",
+            "fps": 24,
+            "loop": false,
+            "offset": [130, -10]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "spooky sing right",
+            "fps": 24,
+            "loop": false,
+            "offset": [-130, -14]
+        },
+        {
+            "name": "danceLeft",
+            "type": "indices",
+            "prefix": "spooky dance idle",
+            "frames": [0, 2, 6],
+            "fps": 12,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "danceRight",
+            "type": "indices",
+            "prefix": "spooky dance idle",
+            "frames": [8, 10, 12, 14],
+            "fps": 12,
+            "loop": false,
+            "offset": [0, 0]
+        }
+    ],
+
+    "display": {
+        "antialiasing": true,
+        "scale": 1.0,
+        "flipX": false
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}

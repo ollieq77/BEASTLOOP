@@ -10,7 +10,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 
 class OptionsMenu extends MusicBeatState
 {
@@ -23,8 +23,8 @@ class OptionsMenu extends MusicBeatState
 
 	override function create()
 	{
-		var menuBG:FlxSprite = new FlxSprite().loadGraphic('assets/images/menuDesat.png');
-		controlsStrings = CoolUtil.coolTextFile('assets/data/controls.txt');
+		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menus/menuDesat'));
+		controlsStrings = CoolUtil.coolTextFile(Paths.data('controls.txt'));
 		menuBG.color = 0xFFea71fd;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
@@ -97,7 +97,7 @@ class OptionsMenu extends MusicBeatState
 		NGio.logEvent('Fresh');
 		#end
 
-		FlxG.sound.play('assets/sounds/scrollMenu' + TitleState.soundExt, 0.4);
+		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
 		curSelected += change;
 

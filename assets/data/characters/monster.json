@@ -1,0 +1,58 @@
+
+{
+    "name": "Monster",
+    "position": [0, 100],
+
+    "atlas": {
+        "image": "assets/images/characters/Monster_Assets.png",
+        "xml": "assets/images/characters/Monster_Assets.xml"
+    },
+
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "monster idle",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "monster up note",
+            "fps": 24,
+            "loop": false,
+            "offset": [-20, 50]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "monster down",
+            "fps": 24,
+            "loop": false,
+            "offset": [-30, -40]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Monster left note",
+            "fps": 24,
+            "loop": false,
+            "offset": [-30, 0]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Monster Right note",
+            "fps": 24,
+            "loop": false,
+            "offset": [-51, 0]
+        }
+    ],
+
+    "display": {
+        "antialiasing": true,
+        "flipX": false,
+        "scale": 1
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}

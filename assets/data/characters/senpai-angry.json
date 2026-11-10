@@ -1,0 +1,59 @@
+
+{
+    "name": "Senpai (Angry)",
+    "position": [150, 360],
+    "cameraPosition": [-250, -330],
+
+    "atlas": {
+        "image": "assets/images/characters/pixel/senpai.png",
+        "xml": "assets/images/characters/pixel/senpai.xml"
+    },
+
+    "animations": [
+        {
+            "name": "idle",
+            "prefix": "Angry Senpai Idle",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singUP",
+            "prefix": "Angry Senpai UP NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [5, 37]
+        },
+        {
+            "name": "singLEFT",
+            "prefix": "Angry Senpai LEFT NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [40, 0]
+        },
+        {
+            "name": "singRIGHT",
+            "prefix": "Angry Senpai RIGHT NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [0, 0]
+        },
+        {
+            "name": "singDOWN",
+            "prefix": "Angry Senpai DOWN NOTE",
+            "fps": 24,
+            "loop": false,
+            "offset": [14, 0]
+        }
+    ],
+
+    "display": {
+        "antialiasing": false,
+        "flipX": false,
+        "scale": 6
+    },
+
+    "behaviour": {
+        "isPlayerCharacter": false
+    }
+}

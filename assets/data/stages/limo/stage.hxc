@@ -1,0 +1,68 @@
+
+var danceDir:Bool = false;
+
+var fastCarCanDrive:Bool = true;
+var fastCarResetTimer:Float = 0;
+
+function onCreate():Void
+{
+    resetFastCar();
+}
+
+function resetFastCar():Void
+{
+    var fastCar = api.getSprite("fastCar");
+
+    fastCar.x = -12600;
+    fastCar.y = api.randomInt(140, 250);
+    fastCar.velocity.x = 0;
+
+    fastCarCanDrive = true;
+    fastCarResetTimer = 0;
+}
+
+function fastCarDrive():Void
+{
+    var fastCar = api.getSprite("fastCar");
+
+    api.playSound('carPass' + api.randomInt(0, 1), 0.7);
+
+    fastCar.velocity.x = (api.randomInt(170, 220) / FlxG.elapsed) * 3;
+
+    fastCarCanDrive = false;
+
+    // Same 2 second window the old FlxTimer used.
+    fastCarResetTimer = 2;
+}
+
+function onUpdate(elapsed:Float):Void
+{
+    if (fastCarResetTimer > 0)
+    {
+        fastCarResetTimer -= elapsed;
+
+        if (fastCarResetTimer <= 0)
+            resetFastCar();
+    }
+}
+
+function onBeatHit():Void
+{
+    danceDir = !danceDir;
+
+    for (i in 0...5)
+    {
+        var dancer = api.getSprite("limoDancer" + i);
+
+        if (dancer != null)
+            dancer.animation.play(danceDir ? "danceRight" : "danceLeft", true);
+    }
+
+    if (api.randomBool(10) && fastCarCanDrive)
+        fastCarDrive();
+}
+
+function onDestroy():Void
+{
+
+}

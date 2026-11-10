@@ -1,0 +1,32 @@
+
+var lightningStrikeBeat:Int = 0;
+var lightningOffset:Int = 8;
+
+function onCreate()
+{
+    
+}
+
+function onBeatHit()
+{
+    if (api.randomBool(10) && curBeat > lightningStrikeBeat + lightningOffset)
+        lightningStrike();
+}
+
+function lightningStrike()
+{
+    api.playSound('thunder_' + api.randomInt(1, 2));
+
+    api.getSprite("halloweenBG").animation.play("lightning");
+
+    lightningStrikeBeat = curBeat;
+    lightningOffset = api.randomInt(8, 24);
+
+    api.getCharacter("boyfriend").playAnim("scared", true);
+    api.getCharacter("gf").playAnim("scared", true);
+}
+
+function onDestroy()
+{
+
+}

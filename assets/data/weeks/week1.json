@@ -1,0 +1,16 @@
+{
+    "id": "week1",
+    "order": 1,
+    "name": "Daddy Dearest",
+    "songs": [
+        "Bopeebo",
+        "Fresh",
+        "Dadbattle"
+    ],
+    "characters": [
+        "dad",
+        "bf",
+        "gf"
+    ],
+    "unlocked": true
+}

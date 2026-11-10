@@ -1,0 +1,8 @@
+{
+    "id": "week2",
+    "order": 2,
+    "name": "Spooky Month",
+    "songs": ["Spookeez", "South"],
+    "characters": ["spooky", "bf", "gf"],
+    "unlocked": true
+}

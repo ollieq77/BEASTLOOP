@@ -28,6 +28,47 @@ class DialogueBox extends FlxSpriteGroup
 
 	public var finishThing:Void->Void;
 
+	// ---- Per-song styling (set these from a song script's onDialogueCreate) ----
+
+	// Fade the music out when the last line is dismissed (senpai / thorns).
+	public var fadeOutMusicOnEnd:Bool = false;
+
+	// Keep the left (opponent) portrait hidden even while they talk (roses).
+	public var hideLeftPortrait:Bool = false;
+
+	// Swap the text box sprite. key is the atlas under assets/images (e.g. 'weeb/pixelUI/dialogueBox-evil'),
+	// prefix is the animation prefix that opens it, idleFrame is the frame it rests on once open.
+	public function setBox(key:String, prefix:String, idleFrame:Int):Void
+	{
+		box.frames = Paths.sparrow(key);
+		box.scale.set(1, 1);
+		box.animation.addByPrefix('normalOpen', prefix, 24, false);
+		box.animation.addByIndices('normal', prefix, [idleFrame], "", 24);
+		box.animation.play('normalOpen');
+		box.setGraphicSize(Std.int(box.frameWidth * PlayState.daPixelZoom * 0.9));
+		box.updateHitbox();
+		box.screenCenter(X);
+	}
+
+	// Colours are 0xAARRGGBB. Leave one out (null) to keep its default.
+	public function setColors(?portrait:Int, ?text:Int, ?shadow:Int):Void
+	{
+		if (portrait != null)
+			portraitLeft.color = portrait;
+
+		if (text != null)
+			swagDialogue.color = text;
+
+		if (shadow != null)
+			dropText.color = shadow;
+	}
+
+	// Adds a sprite just behind the text box (above the portraits).
+	public function addBehindBox(object:FlxSprite):Void
+	{
+		insert(members.indexOf(box), object);
+	}
+
 	var portraitLeft:FlxSprite;
 	var portraitRight:FlxSprite;
 
@@ -37,16 +78,6 @@ class DialogueBox extends FlxSpriteGroup
 	public function new(talkingRight:Bool = true, ?dialogueList:Array<String>)
 	{
 		super();
-
-		switch (PlayState.SONG.song.toLowerCase())
-		{
-			case 'senpai':
-				FlxG.sound.playMusic('assets/music/Lunchbox' + TitleState.soundExt, 0);
-				FlxG.sound.music.fadeIn(1, 0, 0.8);
-			case 'thorns':
-				FlxG.sound.playMusic('assets/music/LunchboxScary' + TitleState.soundExt, 0);
-				FlxG.sound.music.fadeIn(1, 0, 0.8);
-		}
 
 		bgFade = new FlxSprite(-200, -200).makeGraphic(Std.int(FlxG.width * 1.3), Std.int(FlxG.height * 1.3), 0xFFB3DFd8);
 		bgFade.scrollFactor.set();
@@ -61,7 +92,7 @@ class DialogueBox extends FlxSpriteGroup
 		}, 5);
 
 		portraitLeft = new FlxSprite(-20, 40);
-		portraitLeft.frames = FlxAtlasFrames.fromSparrow('assets/images/weeb/senpaiPortrait.png', 'assets/images/weeb/senpaiPortrait.xml');
+		portraitLeft.frames = Paths.sparrow('weeb/senpaiPortrait');
 		portraitLeft.animation.addByPrefix('enter', 'Senpai Portrait Enter', 24, false);
 		portraitLeft.setGraphicSize(Std.int(portraitLeft.width * PlayState.daPixelZoom * 0.9));
 		portraitLeft.updateHitbox();
@@ -70,7 +101,7 @@ class DialogueBox extends FlxSpriteGroup
 		portraitLeft.visible = false;
 
 		portraitRight = new FlxSprite(0, 40);
-		portraitRight.frames = FlxAtlasFrames.fromSparrow('assets/images/weeb/bfPortrait.png', 'assets/images/weeb/bfPortrait.xml');
+		portraitRight.frames = Paths.sparrow('weeb/bfPortrait');
 		portraitRight.animation.addByPrefix('enter', 'Boyfriend portrait enter', 24, false);
 		portraitRight.setGraphicSize(Std.int(portraitRight.width * PlayState.daPixelZoom * 0.9));
 		portraitRight.updateHitbox();
@@ -80,37 +111,17 @@ class DialogueBox extends FlxSpriteGroup
 
 		box = new FlxSprite(-20, 45);
 
-		switch (PlayState.SONG.song.toLowerCase())
-		{
-			case 'senpai':
-				box.frames = FlxAtlasFrames.fromSparrow('assets/images/weeb/pixelUI/dialogueBox-pixel.png',
-					'assets/images/weeb/pixelUI/dialogueBox-pixel.xml');
-				box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
-				box.animation.addByIndices('normal', 'Text Box Appear', [4], "", 24);
-			case 'roses':
-				FlxG.sound.play('assets/sounds/ANGRY_TEXT_BOX' + TitleState.soundExt);
-
-				box.frames = FlxAtlasFrames.fromSparrow('assets/images/weeb/pixelUI/dialogueBox-senpaiMad.png',
-					'assets/images/weeb/pixelUI/dialogueBox-senpaiMad.xml');
-				box.animation.addByPrefix('normalOpen', 'SENPAI ANGRY IMPACT SPEECH', 24, false);
-				box.animation.addByIndices('normal', 'SENPAI ANGRY IMPACT SPEECH', [4], "", 24);
-
-			case 'thorns':
-				box.frames = FlxAtlasFrames.fromSparrow('assets/images/weeb/pixelUI/dialogueBox-evil.png', 'assets/images/weeb/pixelUI/dialogueBox-evil.xml');
-				box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
-				box.animation.addByIndices('normal', 'Spirit Textbox spawn', [11], "", 24);
-
-				var face:FlxSprite = new FlxSprite(320, 170).loadGraphic('assets/images/weeb/spiritFaceForward.png');
-				face.setGraphicSize(Std.int(face.width * 6));
-				add(face);
-		}
+		// Default (senpai-style) box. Song scripts restyle it with setBox() from onDialogueCreate.
+		box.frames = Paths.sparrow('weeb/pixelUI/dialogueBox-pixel');
+		box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
+		box.animation.addByIndices('normal', 'Text Box Appear', [4], "", 24);
 
 		box.animation.play('normalOpen');
 		box.setGraphicSize(Std.int(box.width * PlayState.daPixelZoom * 0.9));
 		box.updateHitbox();
 		add(box);
 
-		handSelect = new FlxSprite(FlxG.width * 0.9, FlxG.height * 0.9).loadGraphic('assets/images/weeb/pixelUI/hand_textbox.png');
+		handSelect = new FlxSprite(FlxG.width * 0.9, FlxG.height * 0.9).loadGraphic(Paths.image('weeb/pixelUI/hand_textbox'));
 		add(handSelect);
 
 		box.screenCenter(X);
@@ -129,7 +140,7 @@ class DialogueBox extends FlxSpriteGroup
 		swagDialogue = new FlxTypeText(240, 500, Std.int(FlxG.width * 0.6), "", 32);
 		swagDialogue.font = 'Pixel Arial 11 Bold';
 		swagDialogue.color = 0xFF3F2021;
-		swagDialogue.sounds = [FlxG.sound.load('assets/sounds/pixelText' + TitleState.soundExt, 0.6)];
+		swagDialogue.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
 		add(swagDialogue);
 
 		dialogue = new Alphabet(0, 80, "", false, true);
@@ -144,15 +155,8 @@ class DialogueBox extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
-		// HARD CODING CUZ IM STUPDI
-		if (PlayState.SONG.song.toLowerCase() == 'roses')
+		if (hideLeftPortrait)
 			portraitLeft.visible = false;
-		if (PlayState.SONG.song.toLowerCase() == 'thorns')
-		{
-			portraitLeft.color = FlxColor.BLACK;
-			swagDialogue.color = FlxColor.WHITE;
-			dropText.color = FlxColor.BLACK;
-		}
 
 		dropText.text = swagDialogue.text;
 
@@ -175,7 +179,7 @@ class DialogueBox extends FlxSpriteGroup
 		{
 			remove(dialogue);
 
-			FlxG.sound.play('assets/sounds/clickText' + TitleState.soundExt, 0.8);
+			FlxG.sound.play(Paths.sound('clickText'), 0.8);
 
 			if (dialogueList[1] == null)
 			{
@@ -183,7 +187,7 @@ class DialogueBox extends FlxSpriteGroup
 				{
 					isEnding = true;
 
-					if (PlayState.SONG.song.toLowerCase() == 'senpai' || PlayState.SONG.song.toLowerCase() == 'thorns')
+					if (fadeOutMusicOnEnd)
 						FlxG.sound.music.fadeOut(2.2, 0);
 
 					new FlxTimer().start(0.2, function(tmr:FlxTimer)
