@@ -189,6 +189,28 @@ class PlayState extends MusicBeatState
 
 	var inCutscene:Bool = false;
 
+	function showCountdownSprite(image:String):Void
+	{
+	    var sprite:FlxSprite = new FlxSprite().loadGraphic(Paths.image(image));
+	    sprite.scrollFactor.set();
+
+	    if (isPixelStage)
+	        sprite.setGraphicSize(Std.int(sprite.width * daPixelZoom));
+
+	    sprite.updateHitbox();
+	    sprite.screenCenter();
+
+	    add(sprite);
+
+	    FlxTween.tween(sprite, {y: sprite.y + 100, alpha: 0}, Conductor.crochet / 1000, {
+	        ease: FlxEase.cubeInOut,
+	        onComplete: function(twn:FlxTween)
+	        {
+	            sprite.destroy();
+	        }
+	    });
+	}
+
 	override public function create()
 	{
 		// var gameCam:FlxCamera = FlxG.camera;
@@ -440,65 +462,29 @@ class PlayState extends MusicBeatState
 			}
 
 			switch (swagCounter)
-
 			{
-				case 0:
-					FlxG.sound.play(Paths.sound('intro3' + altSuffix), 0.6);
-				case 1:
-					var ready:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[0]));
-					ready.scrollFactor.set();
-					ready.updateHitbox();
+			    case 0:
+			        FlxG.sound.play(Paths.sound('intro3' + altSuffix), 0.6);
+			
+			    case 1:
+			        showCountdownSprite(introAlts[0]);
+			        FlxG.sound.play(Paths.sound('intro2' + altSuffix), 0.6);
+			
+			    case 2:
+			        showCountdownSprite(introAlts[1]);
+			        FlxG.sound.play(Paths.sound('intro1' + altSuffix), 0.6);
+			
+			    case 3:
+					if (boyfriend != null && boyfriend.animation.getByName('hey') != null)
+					    boyfriend.playAnim('hey', true);
+					
+					if (gf != null && gf.animation.getByName('cheer') != null)
+					    gf.playAnim('cheer', true);
+				
+			        showCountdownSprite(introAlts[2]);
+			        FlxG.sound.play(Paths.sound('introGo' + altSuffix), 0.6);
 
-					if (isPixelStage)
-						ready.setGraphicSize(Std.int(ready.width * daPixelZoom));
-
-					ready.screenCenter();
-					add(ready);
-					FlxTween.tween(ready, {y: ready.y += 100, alpha: 0}, Conductor.crochet / 1000, {
-						ease: FlxEase.cubeInOut,
-						onComplete: function(twn:FlxTween)
-						{
-							ready.destroy();
-						}
-					});
-					FlxG.sound.play(Paths.sound('intro2' + altSuffix), 0.6);
-				case 2:
-					var set:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[1]));
-					set.scrollFactor.set();
-
-					if (isPixelStage)
-						set.setGraphicSize(Std.int(set.width * daPixelZoom));
-
-					set.screenCenter();
-					add(set);
-					FlxTween.tween(set, {y: set.y += 100, alpha: 0}, Conductor.crochet / 1000, {
-						ease: FlxEase.cubeInOut,
-						onComplete: function(twn:FlxTween)
-						{
-							set.destroy();
-						}
-					});
-					FlxG.sound.play(Paths.sound('intro1' + altSuffix), 0.6);
-				case 3:
-					var go:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAlts[2]));
-					go.scrollFactor.set();
-
-					if (isPixelStage)
-						go.setGraphicSize(Std.int(go.width * daPixelZoom));
-
-					go.updateHitbox();
-
-					go.screenCenter();
-					add(go);
-					FlxTween.tween(go, {y: go.y += 100, alpha: 0}, Conductor.crochet / 1000, {
-						ease: FlxEase.cubeInOut,
-						onComplete: function(twn:FlxTween)
-						{
-							go.destroy();
-						}
-					});
-					FlxG.sound.play(Paths.sound('introGo' + altSuffix), 0.6);
-				case 4:
+			    case 4:
 			}
 
 			swagCounter += 1;
