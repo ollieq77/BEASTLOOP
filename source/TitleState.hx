@@ -104,6 +104,8 @@ class TitleState extends MusicBeatState
 		FlxG.switchState(new FreeplayState());
 		#elseif CHARTING
 		FlxG.switchState(new ChartingState());
+		#elseif CHAREDITOR
+		FlxG.switchState(new CharacterEditorState());
 		#else
 		startIntro();
 		#end
