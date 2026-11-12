@@ -19,6 +19,9 @@ import polymod.backends.PolymodAssets;
 import sys.FileSystem;
 import sys.io.File;
 
+import haxe.ui.components.TextField;
+import haxe.ui.components.CheckBox;
+
 /**
  * Where "Save" writes the character json.
  *
@@ -126,45 +129,115 @@ class CharacterEditorState extends MusicBeatState
 
 	function loadCharacter(id:String):Void
 	{
-		var raw:String = null;
+	    var raw:String;
 
-		try
-		{
-			raw = PolymodAssets.getText(Paths.character(id));
-			data = Json.parse(raw);
-		}
-		catch (e:Dynamic)
-		{
-			setStatus('Failed to load character "$id": $e', FlxColor.RED);
-			return;
-		}
+	    try
+	    {
+	        raw = PolymodAssets.getText(Paths.character(id));
+	        data = Json.parse(raw);
+	    }
+	    catch (e:Dynamic)
+	    {
+	        setStatus('Failed to load character "$id": $e', FlxColor.RED);
+	        return;
+	    }
 
-		charId = id;
+	    if (data == null)
+	    {
+	        setStatus('Character "$id" contains invalid JSON data', FlxColor.RED);
+	        return;
+	    }
 
-		if (char != null)
-		{
-			remove(char, true);
-			char.destroy();
-		}
+	    charId = id;
 
-		// Same isPlayer as the json's isPlayerCharacter, so Character doesn't swap the left/right anims on us.
-		var isPlayerChar:Bool = data.behaviour != null && data.behaviour.isPlayerCharacter == true;
+	    // Ensure optional properties exist before accessing them.
+	    applyCharacterDefaults();
 
-		char = new Character(0, 0, id, isPlayerChar, false);
-		char.debugMode = true;
-		char.screenCenter();
-		char.flipX = false; // same as AnimationDebug. TODO: show json flipX once the properties tab exists
-		add(char);
+	    if (char != null)
+	    {
+	        remove(char, true);
+	        char.destroy();
+	        char = null;
+	    }
 
-		animList = [];
-		var anims:Array<Dynamic> = data.animations;
-		if (anims != null)
-			for (anim in anims)
-				animList.push(anim.name);
+	    var isPlayerChar:Bool = data.behaviour.isPlayerCharacter == true;
 
-		curAnim = 0;
-		playCurAnim();
-		setStatus('Loaded "$id"', FlxColor.WHITE);
+	    // Pass the JSON into CharacterLoader through the constructor.
+	    char = new Character(0, 0, id, isPlayerChar, false, data);
+
+	    char.debugMode = true;
+	    char.screenCenter();
+
+	    add(char);
+
+	    animList = [];
+
+	    for (anim in (cast data.animations:Array<Dynamic>))
+	        animList.push(anim.name);
+
+	    curAnim = 0;
+
+	    playCurAnim();
+	    setStatus('Loaded "$id"', FlxColor.WHITE);
+	}
+
+	function applyCharacterDefaults():Void
+	{
+	    if (data == null)
+	        return;
+
+	    // General
+	    if (data.name == null || data.name == "")
+	        data.name = charId;
+
+	    // Position
+	    if (data.position == null)
+	        data.position = [0, 0];
+
+	    while (data.position.length < 2)
+	        data.position.push(0);
+
+	    // Display
+	    if (data.display == null)
+	        data.display = {};
+
+	    if (data.display.scale == null)
+	        data.display.scale = 1;
+
+	    if (data.display.antialiasing == null)
+	        data.display.antialiasing = true;
+
+	    if (data.display.flipX == null)
+	        data.display.flipX = false;
+
+	    // Behaviour
+	    if (data.behaviour == null)
+	        data.behaviour = {};
+
+	    if (data.behaviour.isPlayerCharacter == null)
+	        data.behaviour.isPlayerCharacter = false;
+
+	    // Animations
+	    if (data.animations == null)
+	        data.animations = [];
+
+	    for (anim in (cast data.animations:Array<Dynamic>))
+	    {
+	        if (anim == null)
+	            continue;
+
+	        if (anim.offset == null)
+	            anim.offset = [0, 0];
+
+	        while (anim.offset.length < 2)
+	            anim.offset.push(0);
+
+	        if (anim.fps == null)
+	            anim.fps = 24;
+
+	        if (anim.loop == null)
+	            anim.loop = true;
+	    }
 	}
 
 	// =========================================================
@@ -173,28 +246,34 @@ class CharacterEditorState extends MusicBeatState
 
 	function createEditorUI():Void
 	{
-		panel = new VBox();
-		panel.x = FlxG.width - 320;
-		panel.y = 40;
-		panel.width = 300;
-		panel.height = 640;
+	    trace("EDITOR UI: Starting");
 
-		tabs = new TabView();
-		tabs.width = 300;
-		tabs.height = 640;
-		tabs.onChange = function(_)
-		{
-			clearUIFocus();
-		};
+	    panel = new VBox();
+	    panel.x = FlxG.width - 320;
+	    panel.y = 40;
+	    panel.width = 300;
+	    panel.height = 640;
 
-		tabs.addComponent(createCharacterTab());
-		tabs.addComponent(createAnimationsTab());
-		tabs.addComponent(createPropertiesTab());
+	    tabs = new TabView();
+	    tabs.width = 300;
+	    tabs.height = 640;
 
-		panel.addComponent(tabs);
-		add(panel);
+	    trace("EDITOR UI: Adding character tab");
+	    tabs.addComponent(createCharacterTab());
 
-		refreshAnimUI();
+	    trace("EDITOR UI: Adding animations tab");
+	    tabs.addComponent(createAnimationsTab());
+
+	    trace("EDITOR UI: Adding properties tab");
+	    tabs.addComponent(createPropertiesTab());
+
+	    trace("EDITOR UI: Adding panel");
+	    panel.addComponent(tabs);
+	    add(panel);
+
+	    trace("EDITOR UI: Finished");
+
+	    refreshAnimUI();
 	}
 
 	function createCharacterTab():VBox
@@ -325,19 +404,176 @@ class CharacterEditorState extends MusicBeatState
 		return tab;
 	}
 
+
 	function createPropertiesTab():VBox
 	{
-		var tab = new VBox();
-		tab.text = "Properties";
-		tab.percentWidth = 100;
-		tab.percentHeight = 100;
-
-		var todo = new Label();
-		todo.text = "TODO: name, position, cameraPosition, atlas image + xml, scale, flipX, antialiasing, isPlayerCharacter";
-		tab.addComponent(todo);
-
-		return tab;
+	    var tab = new VBox();
+	    tab.text = "Properties";
+	    tab.percentWidth = 100;
+	    tab.percentHeight = 100;
+	
+	    addSectionTitle(tab, "General");
+	
+	    addTextProperty(tab, "Name", data.name, function(value)
+	    {
+	        data.name = value;
+	    });
+	
+	    addSectionTitle(tab, "Position");
+	
+	    addNumberProperty(tab, "X", data.position[0], function(value)
+	    {
+	        data.position[0] = value;
+	    });
+	
+	    addNumberProperty(tab, "Y", data.position[1], function(value)
+	    {
+	        data.position[1] = value;
+	    });
+	
+	    addSectionTitle(tab, "Display");
+	
+	    addNumberProperty(tab, "Scale", data.display.scale, function(value)
+	    {
+	        data.display.scale = value;
+	        rebuildCharacter();
+	    });
+	
+	    addBoolProperty(tab, "Antialiasing", data.display.antialiasing, function(value)
+	    {
+	        data.display.antialiasing = value;
+	        rebuildCharacter();
+	    });
+	
+	    addBoolProperty(tab, "Flip X", data.display.flipX, function(value)
+	    {
+	        data.display.flipX = value;
+	        rebuildCharacter();
+	    });
+	
+	    return tab;
 	}
+
+
+	function addSectionTitle(parent:VBox, title:String):Void
+	{
+		var label = new Label();
+		label.text = title;
+		parent.addComponent(label);
+	}
+
+	function addTextProperty(
+		parent:VBox,
+		title:String,
+		value:String,
+		onChange:String->Void
+	):Void
+	{
+		var label = new Label();
+		label.text = title;
+		parent.addComponent(label);
+
+		var field = new TextField();
+		field.width = 250;
+		field.text = value != null ? value : "";
+
+		field.onChange = function(_)
+		{
+			onChange(field.text);
+		};
+
+		parent.addComponent(field);
+	}
+
+	function addNumberProperty(
+		parent:VBox,
+		title:String,
+		value:Float,
+		onChange:Float->Void
+	):Void
+	{
+		var label = new Label();
+		label.text = title;
+		parent.addComponent(label);
+
+		var field = new TextField();
+		field.width = 250;
+		field.text = Std.string(value);
+
+		field.onChange = function(_)
+		{
+			var parsed = Std.parseFloat(field.text);
+
+			if (Math.isNaN(parsed))
+				return;
+
+			onChange(parsed);
+		};
+
+		parent.addComponent(field);
+	}
+
+	function addBoolProperty(
+		parent:VBox,
+		title:String,
+		value:Bool,
+		onChange:Bool->Void
+	):Void
+	{
+		var checkbox = new CheckBox();
+		checkbox.text = title;
+		checkbox.selected = value;
+
+		checkbox.onChange = function(_)
+		{
+			onChange(checkbox.selected);
+		};
+
+		parent.addComponent(checkbox);
+	}
+
+
+	function rebuildCharacter():Void
+	{
+	    if (data == null)
+	        return;
+	
+	    if (char != null)
+	    {
+	        remove(char, true);
+	        char.destroy();
+	        char = null;
+	    }
+	
+		var isPlayerChar:Bool = data.behaviour != null
+		    && data.behaviour.isPlayerCharacter == true;
+
+		char = new Character(0, 0, charId, isPlayerChar, false, data);
+
+
+		char.debugMode = true;
+		char.screenCenter();
+
+		add(char);
+
+		animList = [];
+
+		var anims:Array<Dynamic> = data.animations;
+
+		if (anims != null)
+		{
+		    for (anim in anims)
+		        animList.push(anim.name);
+		}
+
+		if (curAnim >= animList.length)
+		    curAnim = 0;
+
+		refreshAnimUI();
+	
+	    playCurAnim();
+	}
+
 
 	function setupDropdownDataSource(dropdown:DropDown, items:Array<Dynamic>, currentVal:String):Void
 	{

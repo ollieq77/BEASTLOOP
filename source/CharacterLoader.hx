@@ -5,12 +5,15 @@ import polymod.backends.PolymodAssets;
 
 class CharacterLoader
 {
-    public static function load(character:Character, id:String):Void
+    public static function load(character:Character, id:String, ?data:Dynamic):Void
     {
-        var path = Paths.character(id);
-        var rawData:String = PolymodAssets.getText(path);
-        var data:Dynamic = haxe.Json.parse(rawData);
-
+        if (data == null)
+        {
+            var path = Paths.character(id);
+            var rawData:String = PolymodAssets.getText(path);
+            data = haxe.Json.parse(rawData);
+        }
+    
         if (data.atlas.xml != null)
         {
             character.frames = FlxAtlasFrames.fromSparrow(
@@ -28,7 +31,7 @@ class CharacterLoader
 
         // Load animations
         
-        var animations:Array<Dynamic> = cast data.animations;
+        var animations:Array<Dynamic> = cast(data.animations, Array<Dynamic>);
 
         for (anim in animations)
         {
