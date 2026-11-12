@@ -24,7 +24,14 @@ class Character extends FlxSprite
 	public var positionOffset:Array<Float> = [0, 0];
 	public var cameraOffset:Array<Float> = [0, 0];
 
-	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false, ?isDad:Bool = false)
+	public function new(
+    x:Float,
+    y:Float,
+    ?character:String = "bf",
+    ?isPlayer:Bool = false,
+    ?isDad:Bool = false,
+    ?data:Dynamic
+	)
 	{
 		animOffsets = new Map<String, Array<Dynamic>>();
 		super(x, y);
@@ -35,7 +42,7 @@ class Character extends FlxSprite
 		var tex:FlxAtlasFrames;
 		antialiasing = true;
 
-		CharacterLoader.load(this, curCharacter);
+		CharacterLoader.load(this, curCharacter, data);
 		
 		if (isPlayer)
 		    flipX = !flipX;
