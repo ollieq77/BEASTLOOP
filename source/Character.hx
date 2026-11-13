@@ -65,7 +65,7 @@ class Character extends FlxSprite
 	{
 		if (!curCharacter.startsWith('bf'))
 		{
-			if (animation.curAnim.name.startsWith('sing'))
+			if (animation.curAnim != null && animation.curAnim.name.startsWith('sing'))
 			{
 				holdTimer += elapsed;
 			}
@@ -85,7 +85,7 @@ class Character extends FlxSprite
 		switch (curCharacter)
 		{
 			case 'gf':
-				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
+				if (animation.curAnim != null && animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
 					playAnim('danceRight');
 		}
 
@@ -125,6 +125,10 @@ class Character extends FlxSprite
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
+		// an animation that doesn't exist (bad prefix, renamed in the editor...) used to null-crash below
+		if (animation.getByName(AnimName) == null)
+			return;
+
 		animation.play(AnimName, Force, Reversed, Frame);
 
 		var daOffset = animOffsets.get(animation.curAnim.name);
