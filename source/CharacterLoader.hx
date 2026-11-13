@@ -35,18 +35,7 @@ class CharacterLoader
 
         for (anim in animations)
         {
-            if (anim.type == "indices")
-            {
-                var frames:Array<Int> = cast anim.frames;
-            
-                character.animation.addByIndices(anim.name, anim.prefix, frames, "", anim.fps, anim.loop);
-            }
-            else
-            {
-                character.animation.addByPrefix(anim.name, anim.prefix, anim.fps, anim.loop);
-            }
-        
-            character.addOffset(anim.name, anim.offset[0], anim.offset[1]);
+            addAnimation(character, anim);
         }
 
         // Load position offsets
@@ -80,5 +69,33 @@ class CharacterLoader
             if (data.behaviour.isPlayerCharacter != null)
                 character.isPlayerCharacter = data.behaviour.isPlayerCharacter;
         }
+    }
+
+    /**
+     * Registers (or re-registers) one animation entry from the character JSON on `character`.
+     * Used by load() and by the character editor so both go through the exact same code.
+     * Returns false if the prefix/indices matched no frames in the atlas (the old animation
+     * with this name, if any, is left untouched in that case).
+     */
+    public static function addAnimation(character:Character, anim:Dynamic):Bool
+    {
+        var before = character.animation.getByName(anim.name);
+
+        if (anim.type == "indices")
+        {
+            var frames:Array<Int> = cast anim.frames;
+
+            character.animation.addByIndices(anim.name, anim.prefix, frames, "", anim.fps, anim.loop);
+        }
+        else
+        {
+            character.animation.addByPrefix(anim.name, anim.prefix, anim.fps, anim.loop);
+        }
+
+        character.addOffset(anim.name, anim.offset[0], anim.offset[1]);
+
+        // Flixel builds a brand new FlxAnimation on success and does nothing on failure
+        var after = character.animation.getByName(anim.name);
+        return after != null && after != before;
     }
 }
