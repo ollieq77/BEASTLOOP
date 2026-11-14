@@ -28,6 +28,14 @@ class CharacterLoader
                 data.atlas.txt
             );
         }
+        else if (data.atlas.image != null)
+        {
+            // Neither xml nor txt listed: the xml sits next to the png with the same name.
+            var img:String = data.atlas.image;
+            var xmlPath:String = StringTools.endsWith(img, ".png") ? img.substr(0, img.length - 4) + ".xml" : img + ".xml";
+
+            character.frames = FlxAtlasFrames.fromSparrow(img, xmlPath);
+        }
 
         // Load animations
         

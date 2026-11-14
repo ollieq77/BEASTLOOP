@@ -17,6 +17,8 @@ import haxe.ui.containers.TabView;
 import haxe.ui.containers.VBox;
 import haxe.ui.data.ArrayDataSource;
 import haxe.ui.focus.FocusManager;
+import lime.ui.FileDialog;
+import lime.ui.FileDialogType;
 import polymod.backends.PolymodAssets;
 import sys.FileSystem;
 import sys.io.File;
@@ -45,7 +47,8 @@ enum SaveTarget
  * CharacterLoader, so what you see is what the game will load.
  *
  * Tabs:
- *   Character   pick a character, reload, choose where to save
+ *   Character   pick a character, make a new one from a template, pick its PNG (the .xml has to
+ *               sit next to it with the same name), reload, choose where to save
  *   Animations  add / remove / rename, prefix (with a picker built from the atlas), type
  *               (prefix or indices), frames, fps, loop
  *   Properties  name, position, scale, antialiasing, flip X, is player character
@@ -94,6 +97,11 @@ class CharacterEditorState extends MusicBeatState
 	var charDropdown:DropDown;
 	var animDropdown:DropDown;
 	var offsetLabel:Label;
+
+	// character tab
+	var newIdField:TextField;
+	var atlasLabel:Label;
+	var fileDialog:FileDialog;
 
 	// animations tab
 	var animNameField:TextField;
@@ -290,6 +298,29 @@ class CharacterEditorState extends MusicBeatState
 			char = null;
 		}
 
+		// A fresh template has no atlas until a PNG is picked. Nothing to build, but the animation
+		// list still needs to exist so the Animations tab works.
+		if (!hasAtlas())
+		{
+			animList = [];
+
+			var bareAnims:Array<Dynamic> = data.animations;
+
+			if (bareAnims != null)
+			{
+				for (anim in bareAnims)
+					animList.push(anim.name);
+			}
+
+			if (curAnim >= animList.length)
+				curAnim = 0;
+
+			atlasPrefixes = [];
+			refreshPrefixPicker();
+			setStatus('"$charId" has no atlas yet, use Pick PNG... on the Character tab', FlxColor.ORANGE);
+			return;
+		}
+
 		var isPlayerChar:Bool = data.behaviour != null && data.behaviour.isPlayerCharacter == true;
 
 		try
@@ -445,7 +476,13 @@ class CharacterEditorState extends MusicBeatState
 			if (settingUI || charDropdown.selectedItem == null)
 				return;
 
-			loadCharacter(Reflect.field(charDropdown.selectedItem, "id"));
+			var picked:String = Reflect.field(charDropdown.selectedItem, "id");
+
+			// Already showing it (e.g. a late change event from setting the list from code): don't
+			// reload from disk and throw away unsaved edits.
+			if (picked != charId)
+				loadCharacter(picked);
+
 			clearUIFocus();
 		};
 		tab.addComponent(charDropdown);
@@ -458,6 +495,42 @@ class CharacterEditorState extends MusicBeatState
 			clearUIFocus();
 		};
 		tab.addComponent(reloadButton);
+
+		// ---- new character ----
+
+		addSectionTitle(tab, "New character id");
+
+		newIdField = new TextField();
+		newIdField.width = 250;
+		tab.addComponent(newIdField);
+
+		var templateButton = new Button();
+		templateButton.text = "New from template";
+		templateButton.onClick = function(_)
+		{
+			newFromTemplate();
+			clearUIFocus();
+		};
+		tab.addComponent(templateButton);
+
+		// ---- atlas ----
+
+		addSectionTitle(tab, "Atlas");
+
+		atlasLabel = new Label();
+		atlasLabel.text = "-";
+		tab.addComponent(atlasLabel);
+
+		var pngButton = new Button();
+		pngButton.text = "Pick PNG...";
+		pngButton.onClick = function(_)
+		{
+			pickPng();
+			clearUIFocus();
+		};
+		tab.addComponent(pngButton);
+
+		addSectionTitle(tab, "(the .xml goes next to the .png)");
 
 		// ---- save ----
 
@@ -945,6 +1018,7 @@ class CharacterEditorState extends MusicBeatState
 	{
 		refreshPropertiesUI();
 		refreshAnimUI();
+		refreshAtlasLabel();
 	}
 
 	// Properties tab <- data
@@ -1309,6 +1383,365 @@ class CharacterEditorState extends MusicBeatState
 	}
 
 	// =========================================================
+	// NEW CHARACTER + ATLAS
+	// =========================================================
+
+	function hasAtlas():Bool
+	{
+		return data != null && data.atlas != null && data.atlas.image != null && data.atlas.image != "";
+	}
+
+	function fileNameOf(path:String):String
+	{
+		return path.substr(path.lastIndexOf("/") + 1);
+	}
+
+	function refreshAtlasLabel():Void
+	{
+		if (atlasLabel == null)
+			return;
+
+		atlasLabel.text = hasAtlas() ? fileNameOf(data.atlas.image) : "(none yet, pick a PNG)";
+	}
+
+	// Rebuild the character list, making sure the character we're editing is in it even if it
+	// hasn't been saved yet (or was just saved and Polymod's file list hasn't noticed).
+	function syncCharDropdown():Void
+	{
+		if (charDropdown == null)
+			return;
+
+		var items:Array<Dynamic> = getCharacterList();
+		var found:Bool = false;
+
+		for (item in items)
+		{
+			if (item.id == charId)
+				found = true;
+		}
+
+		if (!found && data != null)
+			items.push({text: data.name, id: charId});
+
+		setupDropdownDataSource(charDropdown, items, charId);
+	}
+
+	/**
+	 * Starts a brand new character from a blank template: idle + the four sings, no atlas yet.
+	 * Nothing is written to disk until Save. Next step is "Pick PNG...".
+	 */
+	function newFromTemplate():Void
+	{
+		var id:String = StringTools.trim(newIdField.text);
+
+		if (id == "")
+		{
+			setStatus("Type an id for the new character first (it's the json's file name)", FlxColor.RED);
+			return;
+		}
+
+		var validId = ~/^[A-Za-z0-9_-]+$/;
+
+		if (!validId.match(id))
+		{
+			setStatus("The id can only use letters, numbers, - and _", FlxColor.RED);
+			return;
+		}
+
+		var taken:Bool = modId != "" && FileSystem.exists('mods/$modId/data/characters/$id.json');
+
+		for (item in getCharacterList())
+		{
+			if (item.id == id)
+				taken = true;
+		}
+
+		if (taken)
+		{
+			setStatus('"$id" already exists, pick a different id (or load it from the list)', FlxColor.RED);
+			return;
+		}
+
+		var anims:Array<Dynamic> = [];
+
+		for (animName in ["idle", "singLEFT", "singDOWN", "singUP", "singRIGHT"])
+			anims.push({name: animName, prefix: "", fps: 24, loop: false, offset: [0, 0]});
+
+		data = {
+			name: id,
+			position: [0, 0],
+			atlas: {image: "", xml: ""},
+			display: {antialiasing: true, flipX: false, scale: 1},
+			behaviour: {isPlayerCharacter: false},
+			animations: anims
+		};
+
+		charId = id;
+		curAnim = 0;
+
+		buildCharacter(true); // no atlas yet, so this just sets up the animation list
+		refreshAllUI();
+		syncCharDropdown();
+
+		setStatus('Created "$id" from the template. Next: Pick PNG...', FlxColor.LIME);
+	}
+
+	function pickPng():Void
+	{
+		if (data == null)
+		{
+			setStatus("Load or create a character first", FlxColor.RED);
+			return;
+		}
+
+		// Kept in a field so it can't be garbage collected before the user answers.
+		fileDialog = new FileDialog();
+		fileDialog.onSelect.add(onPngPicked);
+		fileDialog.browse(FileDialogType.OPEN, "png", null, "Pick the character's spritesheet (its .xml must be next to it)");
+	}
+
+	function onPngPicked(rawPath:String):Void
+	{
+		if (data == null || rawPath == null)
+			return;
+
+		var src:String = StringTools.replace(rawPath, "\\", "/");
+
+		if (!StringTools.endsWith(src.toLowerCase(), ".png"))
+		{
+			setStatus("That isn't a .png", FlxColor.RED);
+			return;
+		}
+
+		var noExt:String = src.substr(0, src.length - 4);
+		var baseName:String = fileNameOf(noExt);
+		var atlasExt:String = "";
+
+		if (FileSystem.exists(noExt + ".xml"))
+			atlasExt = "xml";
+		else if (FileSystem.exists(noExt + ".txt"))
+			atlasExt = "txt";
+
+		if (atlasExt == "")
+		{
+			setStatus('No $baseName.xml next to the png. Put the xml in the same folder with the same name, then pick again.', FlxColor.RED);
+			return;
+		}
+
+		var pngKey:String = keyInsideGame(src);
+		var how:String = "already in the game folder";
+
+		if (pngKey == null)
+		{
+			var dir:String = imageDestDir();
+
+			if (dir == null)
+			{
+				setStatus('No mod selected, so there is nowhere to copy the png to (mods/modList.txt is empty or missing)', FlxColor.RED);
+				return;
+			}
+
+			try
+			{
+				var name:String = freeImageName(dir, baseName, atlasExt, src, noExt);
+				var pngDest:String = '$dir/$name.png';
+				var atlasDest:String = '$dir/$name.$atlasExt';
+
+				ensureDir(dir);
+
+				// freeImageName only returns a name where neither file exists yet, or where both
+				// are already byte-for-byte the same as the ones we picked.
+				if (!FileSystem.exists(pngDest))
+				{
+					File.copy(src, pngDest);
+					File.copy(noExt + "." + atlasExt, atlasDest);
+				}
+
+				pngKey = 'assets/images/characters/$name.png';
+				how = 'copied to $dir' + ((name != baseName) ? ' as $name, since a different $baseName was already there' : "");
+			}
+			catch (e:Dynamic)
+			{
+				setStatus('Could not copy the atlas: $e', FlxColor.RED);
+				return;
+			}
+		}
+
+		var atlasKey:String = pngKey.substr(0, pngKey.length - 4) + "." + atlasExt;
+
+		// Drop the old preview first so Flixel's image cache can let go of the file, otherwise
+		// re-picking a re-exported png under the same name would keep showing the old art.
+		if (char != null)
+		{
+			remove(char, true);
+			char.destroy();
+			char = null;
+		}
+
+		FlxG.bitmap.removeByKey(pngKey);
+
+		var atlas:Dynamic = {image: pngKey};
+
+		if (atlasExt == "xml")
+			atlas.xml = atlasKey;
+		else
+			atlas.txt = atlasKey;
+
+		data.atlas = atlas;
+
+		buildCharacter(true);
+		refreshAllUI();
+
+		if (char == null)
+		{
+			if (saveTarget == SaveTarget.Assets)
+				setStatus('Copied into assets/, but the game\'s asset list is made at compile time: rebuild to see it (the Mods target shows up straight away)', FlxColor.ORANGE);
+
+			return;
+		}
+
+		var filled:Int = autoFillPrefixes();
+
+		refreshAnimFields();
+		playCurAnim();
+
+		var msg:String = 'Using $pngKey ($how)';
+
+		if (filled > 0)
+			msg += ", auto-matched " + filled + " prefix(es), check them in the Animations tab";
+
+		setStatus(msg, FlxColor.LIME);
+	}
+
+	// If the png is already somewhere the game loads from, work out its asset key instead of copying it.
+	function keyInsideGame(path:String):String
+	{
+		var cwd:String = StringTools.replace(Sys.getCwd(), "\\", "/");
+
+		if (!StringTools.endsWith(cwd, "/"))
+			cwd += "/";
+
+		if (!StringTools.startsWith(path.toLowerCase(), cwd.toLowerCase()))
+			return null;
+
+		var rel:String = path.substr(cwd.length);
+		var lower:String = rel.toLowerCase();
+
+		if (StringTools.startsWith(lower, "assets/images/"))
+			return rel;
+
+		// mods/<mod>/images/x.png overlays assets/images/x.png
+		if (StringTools.startsWith(lower, "mods/"))
+		{
+			var parts = rel.split("/");
+
+			if (parts.length > 3 && parts[2].toLowerCase() == "images")
+				return "assets/images/" + parts.slice(3).join("/");
+		}
+
+		return null;
+	}
+
+	// Same overlay rule the json uses: assets/... or mods/<mod>/... (null = no mod to put it in).
+	function imageDestDir():String
+	{
+		if (saveTarget == SaveTarget.Assets)
+			return "assets/images/characters";
+
+		if (modId == "")
+			return null;
+
+		return 'mods/$modId/images/characters';
+	}
+
+	// Never overwrite a DIFFERENT file that happens to share the name: try name-2, name-3, ...
+	function freeImageName(dir:String, baseName:String, ext:String, srcPng:String, srcNoExt:String):String
+	{
+		var name:String = baseName;
+
+		for (n in 2...1000)
+		{
+			var pngDest:String = '$dir/$name.png';
+			var atlasDest:String = '$dir/$name.$ext';
+
+			if (!FileSystem.exists(pngDest) && !FileSystem.exists(atlasDest))
+				return name;
+
+			if (FileSystem.exists(pngDest) && FileSystem.exists(atlasDest) && sameFile(srcPng, pngDest) && sameFile(srcNoExt + "." + ext, atlasDest))
+				return name;
+
+			name = baseName + "-" + n;
+		}
+
+		return name;
+	}
+
+	function sameFile(a:String, b:String):Bool
+	{
+		var x = File.getBytes(a);
+		var y = File.getBytes(b);
+
+		return x.length == y.length && x.compare(y) == 0;
+	}
+
+	/**
+	 * For animations that still have no prefix, look through the atlas for ONE obvious match:
+	 * idle -> "...idle...", singLEFT -> "...left...", and so on (whole words only, never anything
+	 * with "miss" in it). Anything ambiguous is left alone for you to pick. Returns how many it filled.
+	 */
+	function autoFillPrefixes():Int
+	{
+		if (char == null)
+			return 0;
+
+		var splitter = ~/[^a-z0-9]+/g;
+		var filled:Int = 0;
+		var anims:Array<Dynamic> = data.animations;
+
+		for (anim in anims)
+		{
+			if (anim.prefix != null && anim.prefix != "")
+				continue;
+
+			var keyword:String = switch (Std.string(anim.name).toLowerCase())
+			{
+				case "idle": "idle";
+				case "singleft": "left";
+				case "singdown": "down";
+				case "singup": "up";
+				case "singright": "right";
+				default: null;
+			};
+
+			if (keyword == null)
+				continue;
+
+			var found:String = null;
+			var count:Int = 0;
+
+			for (p in atlasPrefixes)
+			{
+				var words = splitter.split(p.toLowerCase());
+
+				if (words.indexOf(keyword) == -1 || words.indexOf("miss") != -1)
+					continue;
+
+				found = p;
+				count++;
+			}
+
+			if (count != 1)
+				continue;
+
+			anim.prefix = disambiguatePrefix(found, anim);
+			CharacterLoader.addAnimation(char, anim);
+			filled++;
+		}
+
+		return filled;
+	}
+
+	// =========================================================
 	// SAVING
 	// =========================================================
 
@@ -1316,6 +1749,12 @@ class CharacterEditorState extends MusicBeatState
 	{
 		if (data == null)
 			return;
+
+		if (!hasAtlas())
+		{
+			setStatus("Pick a PNG first, a character with no atlas would crash the game when it loads", FlxColor.RED);
+			return;
+		}
 
 		var path:String;
 
@@ -1337,7 +1776,21 @@ class CharacterEditorState extends MusicBeatState
 		{
 			ensureDir(path.substr(0, path.lastIndexOf("/")));
 			File.saveContent(path, Json.stringify(data, null, "    "));
-			setStatus('Saved $path', FlxColor.LIME);
+			var noPrefix:Int = 0;
+			var savedAnims:Array<Dynamic> = data.animations;
+
+			for (anim in savedAnims)
+			{
+				if (anim.prefix == null || anim.prefix == "")
+					noPrefix++;
+			}
+
+			if (noPrefix > 0)
+				setStatus('Saved $path ($noPrefix animation(s) still have no prefix!)', FlxColor.ORANGE);
+			else
+				setStatus('Saved $path', FlxColor.LIME);
+
+			syncCharDropdown();
 		}
 		catch (e:Dynamic)
 		{
