@@ -18,6 +18,7 @@ class Character extends FlxSprite
 	public var isDad:Bool = false;
 
 	public var holdTimer:Float = 0;
+	public var lastNoteHitTime:Float = 0;
 
 	// Set from the character JSON ("position" / "cameraPosition").
 	// positionOffset is added to the stage slot, cameraOffset to the camera target.
@@ -63,35 +64,28 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if (!curCharacter.startsWith('bf'))
-		{
-			if (animation.curAnim != null && animation.curAnim.name.startsWith('sing'))
-			{
-				holdTimer += elapsed;
-			}
+	    if (animation.curAnim != null && animation.curAnim.name.startsWith('sing'))
+	    {
+	        holdTimer += elapsed;
+	    }
 
-			var dadVar:Float = 4;
+	    var dadVar:Float = 8;
 
-			if (curCharacter == 'dad')
-				dadVar = 6.1;
-			
-			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
-			{
-				dance();
-				holdTimer = 0;
-			}
-		}
+	    if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001 && canDance())
+	    {
+	        dance();
+	        holdTimer = 0;
+	    }
 
-		switch (curCharacter)
-		{
-			case 'gf':
-				if (animation.curAnim != null && animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
-					playAnim('danceRight');
-		}
+	    switch (curCharacter)
+	    {
+	        case 'gf':
+	            if (animation.curAnim != null && animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
+	                playAnim('danceRight');
+	    }
 
-		super.update(elapsed);
+	    super.update(elapsed);
 	}
-
 	private function swapAnimations(first:String, second:String):Void
 	{
     	var firstAnim = animation.getByName(first);
@@ -104,10 +98,17 @@ class Character extends FlxSprite
     	secondAnim.frames = oldFrames;
 	}
 
+
+	public function canDance():Bool
+	{
+	    return Conductor.songPosition - lastNoteHitTime > Conductor.stepCrochet * 8;
+	}
+
 	private var danced:Bool = false;
+
 	public function dance():Void
 	{
-	    if (debugMode) return;
+	    if (debugMode || !canDance()) return;
 
 	    var hasDanceLeft = animation.getByName('danceLeft') != null;
 	    var hasDanceRight = animation.getByName('danceRight') != null;
@@ -116,7 +117,6 @@ class Character extends FlxSprite
 	    {
 	        danced = !danced;
 	        playAnim(danced ? 'danceRight' : 'danceLeft');
-
 	        return;
 	    }
 

@@ -28,4 +28,20 @@ class CoolUtil
 		}
 		return dumbArray;
 	}
+
+	public static function formatNumber(number:Float):String
+	{
+    	var parts = Std.string(Math.round(number)).split('');
+    	var result:String = '';
+		
+    	for (i in 0...parts.length)
+    	{
+    	    if (i > 0 && (parts.length - i) % 3 == 0)
+    	        result += ',';
+		
+    	    result += parts[i];
+    	}
+	
+    	return result;
+	}
 }

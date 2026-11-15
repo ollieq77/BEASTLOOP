@@ -7,7 +7,7 @@
 		file="BeastLoop"
 		packageName="com.ninjamuffin99.funkin"
 		main="Main"
-		version="0.2.7"
+		version="0.2.0"
 		company="ninjamuffin99"
 		preloader="flixel.system.FlxPreloader"
 	/>
@@ -49,6 +49,9 @@
 		height="0"
 		resizable="true"
 	/>
+
+	<haxedef name="HXCPP_CHECK_POINTER" if="cpp" />
+	<haxedef name="HXCPP_STACK_LINE" if="cpp" />
 
 	<!-- Build paths -->
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
