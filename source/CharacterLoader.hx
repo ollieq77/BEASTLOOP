@@ -80,6 +80,43 @@ class CharacterLoader
     }
 
     /**
+     * Every character id the game can load: the assets folder plus every enabled mod.
+     *
+     * PolymodAssets.list() is inconsistent about prefixes: files that exist in assets/ come back as
+     * 'assets/data/characters/bf.json', but files that only exist in a mod come back relative to the
+     * mod folder as 'data/characters/foo.json' (no 'assets/'). Filtering for the assets/ prefix alone
+     * hides every mod-only character, so accept both. Loading by id is fine either way because
+     * PolymodAssets.getText(Paths.character(id)) strips the prefix itself.
+     */
+    public static function listIds():Array<String>
+    {
+        var ids:Array<String> = [];
+        var withPrefix:String = Paths.characterDir();
+        var noPrefix:String = withPrefix.substr("assets/".length);
+
+        for (path in PolymodAssets.list())
+        {
+            var dir:String = null;
+
+            if (StringTools.startsWith(path, withPrefix))
+                dir = withPrefix;
+            else if (StringTools.startsWith(path, noPrefix))
+                dir = noPrefix;
+
+            if (dir == null || !StringTools.endsWith(path, ".json"))
+                continue;
+
+            var id:String = path.substr(dir.length, path.length - dir.length - 5);
+
+            // An id can show up twice (assets copy + a mod's overlay of it), list it once.
+            if (id != "" && ids.indexOf(id) == -1)
+                ids.push(id);
+        }
+
+        return ids;
+    }
+
+    /**
      * Registers (or re-registers) one animation entry from the character JSON on `character`.
      * Used by load() and by the character editor so both go through the exact same code.
      * Returns false if the prefix/indices matched no frames in the atlas (the old animation

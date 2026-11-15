@@ -234,27 +234,15 @@ class ChartingState extends MusicBeatState
 	function getCharacterList():Array<Dynamic>
 	{
 	    var characters:Array<Dynamic> = [];
-	    var charDir:String = Paths.characterDir();
 
-	    for (path in PolymodAssets.list())
+	    for (id in CharacterLoader.listIds())
 	    {
-	        if (!StringTools.startsWith(path, charDir))
-	            continue;
-
-	        if (!StringTools.endsWith(path, ".json"))
-	            continue;
-
-	        var id:String = path.substr(
-	            charDir.length,
-	            path.length - charDir.length - 5
-	        );
-
 	        try
 	        {
-	            var data:Dynamic = Json.parse(PolymodAssets.getText(path));
+	            var data:Dynamic = Json.parse(PolymodAssets.getText(Paths.character(id)));
 
 	            characters.push({
-	                text: data.name,
+	                text: data.name != null ? data.name : id,
 	                id: id
 	            });
 	        }

@@ -1837,23 +1837,16 @@ class CharacterEditorState extends MusicBeatState
 		return mods;
 	}
 
-	// TODO: ChartingState has its own copy of this, move it somewhere shared.
 	function getCharacterList():Array<Dynamic>
 	{
 		var characters:Array<Dynamic> = [];
-		var charDir:String = Paths.characterDir();
 
-		for (path in PolymodAssets.list())
+		for (id in CharacterLoader.listIds())
 		{
-			if (!StringTools.startsWith(path, charDir) || !StringTools.endsWith(path, ".json"))
-				continue;
-
-			var id:String = path.substr(charDir.length, path.length - charDir.length - 5);
-
 			try
 			{
-				var json:Dynamic = Json.parse(PolymodAssets.getText(path));
-				characters.push({text: json.name, id: id});
+				var json:Dynamic = Json.parse(PolymodAssets.getText(Paths.character(id)));
+				characters.push({text: json.name != null ? json.name : id, id: id});
 			}
 			catch (e:Dynamic)
 			{
