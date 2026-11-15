@@ -36,6 +36,10 @@ class Paths
     public static inline function xml(key:String):String
         return 'assets/images/$key.xml';
 
+    // Health bar icon: images/icons/icon-<name>.png, two 150px frames side by side (normal, losing), like Psych.
+    public static inline function icon(name:String):String
+        return image('icons/icon-$name');
+
     // Sparrow atlas where the png and xml share a key ('alphabet' -> alphabet.png + alphabet.xml).
     public static function sparrow(key:String):FlxAtlasFrames
         return sparrowFrom(image(key), xml(key));
@@ -63,7 +67,18 @@ class Paths
 
         // Mod-only file: decode it the same way Polymod's own library does, and cache it under the asset key so
         // later FlxG.bitmap.add(key) / loadGraphic(key) calls for it hit the cache.
-        var bytes:Bytes = PolymodAssets.getBytes(key);
+        // getBytes can THROW for a key that exists nowhere (the base library tries to read a null path), so a
+        // missing file has to come out as null here, not as an exception.
+        var bytes:Bytes = null;
+
+        try
+        {
+            bytes = PolymodAssets.getBytes(key);
+        }
+        catch (e:Dynamic)
+        {
+            bytes = null;
+        }
 
         if (bytes == null)
             return null;

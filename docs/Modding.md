@@ -47,6 +47,7 @@ The data folder. This is where configurations, characters, stages, etc go. Lets 
 ### `images`
 The visuals hub. If you're adding custom characters, stage backgrounds, user interface elements, or health icons, they all go in here. To keep things clean, you'll usually want to structure it like this:
 - `characters` - Spritesheets (`.png`) and coordinate atlases (`.xml`) for your playable characters, opponents, and girlfriends.
+- `icons` - Health bar icons. One png per icon, named `icon-<name>.png`: two 150x150 frames side by side (normal on the left, losing on the right), so a 300x150 image. The icon `<name>` is the character's id, or whatever you put in the `healthicon` field of the character json. A missing icon falls back to `icon-face.png`.
 - `stages` - Background art and layer graphics for your custom stages.
 - `gameplay` - Assets used in game.
 - `menus` - Assets used in the menus.

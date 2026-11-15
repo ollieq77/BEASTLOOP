@@ -988,10 +988,10 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.keys.justPressed.NINE)
 		{
-			if (iconP1.animation.curAnim.name == 'bf-old')
-				iconP1.animation.play(SONG.player1);
+			if (iconP1.iconName == 'bf-old')
+				iconP1.changeIcon(SONG.player1);
 			else
-				iconP1.animation.play('bf-old');
+				iconP1.changeIcon('bf-old');
 		}
 
 		// config camera follow lerp to be framerate independent
