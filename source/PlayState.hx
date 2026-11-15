@@ -1534,8 +1534,30 @@ class PlayState extends MusicBeatState
 		// A miss never blocks input either (the old stun check used to swallow the next
 		// ~83ms of presses, which wipes out whole streams on dense charts).
 
+		var botPlay:Bool = true;
+
+		if (botPlay && generatedMusic && !boyfriend.stunned)
+		{
+		    notes.forEachAlive(function(daNote:Note)
+		    {
+		        if (!daNote.mustPress || daNote.wasGoodHit)
+		            return;
+			
+		        if (daNote.isSustainNote)
+		        {
+		            if (daNote.canBeHit)
+		                goodNoteHit(daNote);
+				
+		            return;
+		        }
+			
+		        if (daNote.strumTime <= Conductor.songPosition)
+		            goodNoteHit(daNote);
+		    });
+		}
+
 		// be glad i rewrote this JANKY ASS SHIT, it was a mess before and i hate it
-		if ((upP || rightP || downP || leftP) && generatedMusic)
+		if (!botPlay && (upP || rightP || downP || leftP) && generatedMusic)
 		{
 			boyfriend.holdTimer = 0;
 
@@ -1570,7 +1592,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if ((up || right || down || left) && !boyfriend.stunned && generatedMusic)
+		if (!botPlay && (up || right || down || left) && !boyfriend.stunned && generatedMusic)
 		{
 			notes.forEachAlive(function(daNote:Note)
 			{

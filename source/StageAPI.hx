@@ -389,6 +389,10 @@ class StageAPI
             case "sineIn": FlxEase.sineIn;
             case "sineOut": FlxEase.sineOut;
             case "sineInOut": FlxEase.sineInOut;
+            case "expoIn": FlxEase.expoIn;
+            case "expoOut": FlxEase.expoOut;
+            case "expoInOut": FlxEase.expoInOut;
+            case "smootherStep": FlxEase.smootherStepInOut;
             default: FlxEase.linear;
         }
     }

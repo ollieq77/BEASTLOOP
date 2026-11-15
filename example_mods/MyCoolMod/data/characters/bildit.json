@@ -1,71 +1,71 @@
 {
-    "animations": [
-        {
-            "prefix": "Idle",
-            "fps": 24,
-            "loop": false,
-            "name": "idle",
-            "offset": [
-                0,
-                0
-            ]
-        },
-        {
-            "prefix": "Left",
-            "fps": 24,
-            "loop": false,
-            "name": "singLEFT",
-            "offset": [
-                22,
-                5
-            ]
-        },
-        {
-            "prefix": "Down",
-            "fps": 24,
-            "loop": false,
-            "name": "singDOWN",
-            "offset": [
-                0,
-                -1
-            ]
-        },
-        {
-            "prefix": "Up",
-            "fps": 24,
-            "loop": false,
-            "name": "singUP",
-            "offset": [
-                2,
-                8
-            ]
-        },
-        {
-            "prefix": "Right",
-            "fps": 24,
-            "loop": false,
-            "name": "singRIGHT",
-            "offset": [
-                0,
-                0
-            ]
-        }
-    ],
-    "display": {
-        "flipX": true,
-        "antialiasing": true,
-        "scale": 1
-    },
-    "position": [
-        0,
-        0
-    ],
-    "atlas": {
-        "xml": "assets/images/characters/bildit.xml",
-        "image": "assets/images/characters/bildit.png"
-    },
     "behaviour": {
         "isPlayerCharacter": true
     },
-    "name": "bildit"
+    "position": [
+        0,
+        450
+    ],
+    "display": {
+        "scale": 1,
+        "antialiasing": true,
+        "flipX": true
+    },
+    "name": "bildit",
+    "animations": [
+        {
+            "loop": false,
+            "fps": 24,
+            "prefix": "Idle",
+            "offset": [
+                0,
+                0
+            ],
+            "name": "idle"
+        },
+        {
+            "loop": false,
+            "fps": 24,
+            "prefix": "Left",
+            "offset": [
+                22,
+                5
+            ],
+            "name": "singLEFT"
+        },
+        {
+            "loop": false,
+            "fps": 24,
+            "prefix": "Down",
+            "offset": [
+                0,
+                -1
+            ],
+            "name": "singDOWN"
+        },
+        {
+            "loop": false,
+            "fps": 24,
+            "prefix": "Up",
+            "offset": [
+                2,
+                8
+            ],
+            "name": "singUP"
+        },
+        {
+            "loop": false,
+            "fps": 24,
+            "prefix": "Right",
+            "offset": [
+                0,
+                0
+            ],
+            "name": "singRIGHT"
+        }
+    ],
+    "atlas": {
+        "image": "assets/images/characters/bildit.png",
+        "xml": "assets/images/characters/bildit.xml"
+    }
 }

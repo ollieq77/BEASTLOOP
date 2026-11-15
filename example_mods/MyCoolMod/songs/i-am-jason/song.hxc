@@ -1,0 +1,226 @@
+
+var addZoomEvents = [
+    [9948.1865, 0.02],
+    [10414.5078, 0.02],
+    [10880.8290, 0.02],
+    [11502.5907, 0.01],
+    [11968.9119, 0.02],
+    [12435.2332, 0.025],
+    [12901.5544, 0.02],
+    [13367.8756, 0.02],
+    [13989.6373, 0.015],
+    [14455.9585, 0.02],
+    [14922.2798, 0.02],
+    [15388.6010, 0.02],
+    [15854.9223, 0.02],
+    [16476.6839, 0.01],
+    [16943.0052, 0.02],
+    [17409.3264, 0.025],
+    [17875.6477, 0.02],
+    [18341.9689, 0.02],
+    [18963.7306, 0.015],
+    [20518.1347, 0.04],
+    [20984.4559, 0.04],
+    [21450.7772, 0.04],
+    [22072.5389, 0.04],
+    [22538.8601, 0.04],
+    [23005.1813, 0.04],
+    [23471.5026, 0.04],
+    [23937.8238, 0.04],
+    [24559.5855, 0.04],
+    [25025.9067, 0.05],
+    [25181.3472, 0.01],
+    [25492.2280, 0.04],
+    [25958.5492, 0.04],
+    [26424.8705, 0.04],
+    [27046.6321, 0.04],
+    [27512.9534, 0.04],
+    [27979.2746, 0.04],
+    [28445.5959, 0.04],
+    [28911.9171, 0.04],
+    [29533.6788, 0.04],
+    [30466.3212, 0.04],
+    [30932.6425, 0.04],
+    [31398.9637, 0.04],
+    [32020.7254, 0.04],
+    [32487.0466, 0.04],
+    [32953.3679, 0.04],
+    [33419.6891, 0.04],
+    [33886.0104, 0.04],
+    [34507.7720, 0.04],
+    [34974.0933, 0.04],
+    [35129.5337, 0.04],
+    [35440.4145, 0.04],
+    [35906.7358, 0.04],
+    [36373.0569, 0.04],
+    [36994.8186, 0.04],
+    [37461.1398, 0.04],
+    [37927.4611, 0.04],
+    [38393.7823, 0.04],
+    [38860.1036, 0.04],
+    [39481.8652, 0.04]
+];
+
+// [timestamp, tween?, target zoom, duration in steps, easing]
+var cameraZoomEvents = [
+    [40414.5078, false, 1.0, 4, "linear"],
+    [50984.4559, true, 0.85, 7, "sineOut"],
+    [53471.5026, true, 0.95, 12, "cubeOut"],
+    [55958.5492, true, 1.0, 9, "cubeOut"],
+    [57046.6321, true, 0.9, 9, "cubeOut"],
+    [58290.1554, true, 0.8, 9, "cubeOut"],
+    [59533.6787, true, 0.85, 9, "cubeOut"],
+    [60310.8808, true, 1.6, 8, "sineIn"],
+    [60932.6424, true, 0.8, 6, "sineOut"],
+    [80207.2538, true, 1.6, 8, "sineIn"],
+    [80829.0155, true, 0.85, 7, "sineOut"],
+    [90155.4404, true, 1.0, 6, "sineInOut"],
+    [90777.2020, true, 0.8, 6, "sineInOut"],
+    [98549.2227, true, 1.0, 8, "sineIn"],
+    [99170.9844, true, 0.85, 7, "sineOut"]
+];
+
+// [timestamp, modulo, multiplier, type, offset]
+var cameraModuloEvents = [
+    [0, 8, 0.5, "STEP", 0],
+    [9948.1865, 16, 0.5, "STEP", 0],
+    [14922.2798, 16, 0.5, "STEP", 0],
+    [60932.6425, 4, 1.5, "STEP", 0],
+    [79585.4922, 4000, 1.0, "MEASURE", 0],
+    [80829.0155, 4, 1.7, "STEP", 0],
+    [90155.4404, 4000, 1.0, "MEASURE", 0],
+    [90777.2021, 4, 1.8, "STEP", 0],
+    [99170.9845, 4000, 1.0, "MEASURE", 0]
+];
+
+var nextAddZoom = 0;
+var nextCameraZoom = 0;
+
+var BPM = 193;
+var STEPS_PER_BEAT = 4;
+var STEPS_PER_MEASURE = 16;
+
+var STEP_DURATION = 60 / (BPM * STEPS_PER_BEAT);
+var STEP_MS = STEP_DURATION * 1000;
+
+var lastSongTime = -1;
+var lastModuloStep = -1;
+
+function onCreate()
+{
+    nextAddZoom = 0;
+    nextCameraZoom = 0;
+
+    lastSongTime = -1;
+    lastModuloStep = -1;
+
+    trace("[I AM JASON] Song script loaded.");
+}
+
+function onUpdate(elapsed:Float)
+{
+    if (FlxG.sound.music == null)
+        return;
+
+    var songTime = FlxG.sound.music.time;
+
+    // Handle song restarts and backwards seeking.
+    if (lastSongTime >= 0 && songTime < lastSongTime)
+    {
+        nextAddZoom = 0;
+        nextCameraZoom = 0;
+        lastModuloStep = -1;
+    }
+
+    lastSongTime = songTime;
+
+    var currentStep = Math.floor(songTime / STEP_MS);
+    var currentMeasure = Math.floor(currentStep / STEPS_PER_MEASURE);
+
+    // Find the currently active camera modulo event.
+    var activeModulo = cameraModuloEvents[0];
+
+    for (event in cameraModuloEvents)
+    {
+        if (songTime >= event[0])
+            activeModulo = event;
+        else
+            break;
+    }
+
+    // Camera Modulo Change.
+    // Only process once when entering a new global step.
+    if (currentStep != lastModuloStep)
+    {
+        lastModuloStep = currentStep;
+
+        var interval = activeModulo[1];
+        var multiplier = activeModulo[2];
+        var type = activeModulo[3];
+        var offset = activeModulo[4];
+
+        var shouldZoom = false;
+
+        if (type == "STEP")
+        {
+            shouldZoom = ((currentStep - offset) % interval == 0);
+        }
+        else if (type == "MEASURE")
+        {
+            // Only evaluate at the beginning of a measure.
+            if (currentStep % STEPS_PER_MEASURE == 0)
+                shouldZoom = ((currentMeasure - offset) % interval == 0);
+        }
+
+        if (shouldZoom)
+        {
+            api.camera.game.zoom += 0.015 * multiplier;
+            api.camera.hud.zoom += 0.03 * multiplier;
+        }
+    }
+
+    // Incremental camera zoom events.
+    while (nextAddZoom < addZoomEvents.length)
+    {
+        var event = addZoomEvents[nextAddZoom];
+
+        if (songTime < event[0])
+            break;
+
+        api.addCameraZoom(event[1], 0);
+
+        nextAddZoom++;
+    }
+
+    // Target camera zoom events.
+    while (nextCameraZoom < cameraZoomEvents.length)
+    {
+        var event = cameraZoomEvents[nextCameraZoom];
+
+        if (songTime < event[0])
+            break;
+
+        var shouldTween = event[1];
+        var targetZoom = event[2];
+        var durationSteps = event[3];
+        var ease = event[4];
+
+        if (shouldTween)
+        {
+            var durationSeconds = durationSteps * STEP_DURATION;
+
+            api.tween(
+                api.camera.game,
+                {zoom: targetZoom},
+                durationSeconds,
+                ease
+            );
+        }
+        else
+        {
+            api.camera.setZoom(targetZoom, "game");
+        }
+
+        nextCameraZoom++;
+    }
+}
