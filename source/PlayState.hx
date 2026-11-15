@@ -51,6 +51,7 @@ class PlayState extends MusicBeatState
 
 	// SONG SETTINGS
 	var botPlay:Bool = false;
+	var sustainAnimations = false;
 
 	// SONG gameplay variables
 	var songScore:Int = 0;
@@ -175,7 +176,7 @@ class PlayState extends MusicBeatState
 
 	private var iconP1:HealthIcon;
 	private var iconP2:HealthIcon;
-	private var camHUD:FlxCamera;
+	private var camHUD:HudCamera;
 	private var camGame:FlxCamera;
 
 	var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
@@ -224,7 +225,9 @@ class PlayState extends MusicBeatState
 	{
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new FlxCamera();
-		camHUD = new FlxCamera();
+		camHUD = new HudCamera();
+
+		camHUD.downscroll = true;
 		camHUD.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
@@ -518,18 +521,20 @@ class PlayState extends MusicBeatState
 		lastReportedPlayheadPosition = 0;
 
 		if (!paused)
+		{
 		    FlxG.sound.playMusic(
 		        Sound.fromFile(Paths.resolve(Paths.inst(SONG.song))),
 		        1,
 		        false
 		    );
-			
-		FlxG.sound.music.onComplete = endSong;
-		vocals.play();
-
-		// the countdown clock usually overshoots 0 by up to a frame, which would leave the
-		// song clock permanently ahead of the audio, so start the real clock from the audio itself
-		resetSongClock(FlxG.sound.music.time - Conductor.offset);
+		}
+		
+		if (FlxG.sound.music != null)
+		{
+		    FlxG.sound.music.onComplete = endSong;
+		    vocals.play();
+		    resetSongClock(FlxG.sound.music.time - Conductor.offset);
+		}
 
 		callScripts("onSongStart");
 	}
@@ -1007,7 +1012,7 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score: " + CoolUtil.formatNumber(songScore);
+		scoreTxt.text = "Score: " + CoolUtil.formatNumber(songScore) + " / " + "Misses: " + CoolUtil.formatNumber(songMisses);
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
 		{
@@ -1227,16 +1232,19 @@ class PlayState extends MusicBeatState
 
 					dad.lastNoteHitTime = Conductor.songPosition;
 
-					switch (Math.abs(daNote.noteData))
+					var directions:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+					var direction:Int = Std.int(Math.abs(daNote.noteData));
+
+					if (!daNote.isSustainNote || sustainAnimations)
 					{
-						case 2:
-							dad.playAnim('singUP' + altAnim, true);
-						case 3:
-							dad.playAnim('singRIGHT' + altAnim, true);
-						case 1:
-							dad.playAnim('singDOWN' + altAnim, true);
-						case 0:
-							dad.playAnim('singLEFT' + altAnim, true);
+					    if (direction >= 0 && direction < directions.length)
+					    {
+					        dad.playAnim('sing${directions[direction]}$altAnim', true);
+					    }
+					    else if (dad.animation.getByName('hey') != null)
+					    {
+					        dad.playAnim('hey', true);
+					    }
 					}
 
 					opponentStrums.forEach(function(spr:FlxSprite)
@@ -1736,11 +1744,12 @@ class PlayState extends MusicBeatState
 			combo = 0;
 
 			songScore -= 10;
+			songMisses += 1;
 
 			FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), FlxG.random.float(0.1, 0.2));
 			// FlxG.sound.play(Paths.sound('missnote1'), 1, false);
 			// FlxG.log.add('played imss note');
-			
+
 			boyfriend.lastNoteHitTime = Conductor.songPosition;
 
 			switch (direction)
@@ -1803,16 +1812,19 @@ class PlayState extends MusicBeatState
 
 			boyfriend.lastNoteHitTime = Conductor.songPosition;
 
-			switch (note.noteData)
+			
+			if (!note.isSustainNote && !sustainAnimations)
 			{
-				case 2:
-					boyfriend.playAnim('singUP', true);
-				case 3:
-					boyfriend.playAnim('singRIGHT', true);
-				case 1:
-					boyfriend.playAnim('singDOWN', true);
-				case 0:
-					boyfriend.playAnim('singLEFT', true);
+			    var directions:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
+			
+			    if (note.noteData >= 0 && note.noteData < directions.length)
+			    {
+			        boyfriend.playAnim('sing${directions[note.noteData]}', true);
+			    }
+			    else if (boyfriend.animation.getByName('hey') != null)
+			    {
+			        boyfriend.playAnim('hey', true);
+			    }
 			}
 
 			playerStrums.forEach(function(spr:FlxSprite)

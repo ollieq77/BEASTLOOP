@@ -91,19 +91,27 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	function endBullshit():Void
 	{
-		if (!isEnding)
-		{
-			isEnding = true;
-			bf.playAnim('deathConfirm', true);
-			FlxG.sound.music.stop();
-			FlxG.sound.play(Paths.music('gameOverEnd' + stageSuffix));
-			new FlxTimer().start(0.7, function(tmr:FlxTimer)
-			{
-				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
-				{
-					FlxG.switchState(new PlayState());
-				});
-			});
-		}
+	    if (!isEnding)
+	    {
+	        isEnding = true;
+	        bf.playAnim('deathConfirm', true);
+		
+	        if (FlxG.sound.music != null)
+	        {
+	            FlxG.sound.music.stop();
+	        }
+		
+	        FlxG.sound.play(Paths.music('gameOverEnd' + stageSuffix));
+		
+	        new FlxTimer().start(0.7, function(tmr:FlxTimer)
+	        {
+	            FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
+	            {
+	                // Clear the character reference so it doesn't linger in memory
+	                bf = null;
+	                FlxG.switchState(new PlayState());
+	            });
+	        });
+	    }
 	}
 }
