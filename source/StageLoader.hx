@@ -71,7 +71,7 @@ class StageLoader
             if (spriteData.type == "sparrow")
             {
                 var xmlPath = Paths.stageImage(stageName, spriteData.xml);
-                sprite.frames = FlxAtlasFrames.fromSparrow(imagePath, xmlPath);
+                sprite.frames = Paths.sparrowFrom(imagePath, xmlPath);
             
                 if (spriteData.animations != null)
                 {
@@ -110,7 +110,7 @@ class StageLoader
             else if (spriteData.type == "packer")
             {
                 var txtPath = Paths.stageImage(stageName, spriteData.xml);
-                sprite.frames = FlxAtlasFrames.fromSpriteSheetPacker(imagePath, txtPath);
+                sprite.frames = Paths.packerFrom(imagePath, txtPath);
             
                 if (spriteData.animations != null)
                 {
@@ -134,7 +134,7 @@ class StageLoader
             }
             else
             {
-                sprite.loadGraphic(imagePath);
+                sprite.loadGraphic(Paths.graphic(imagePath));
             }
 
             if (spriteData.initialAnimation != null)

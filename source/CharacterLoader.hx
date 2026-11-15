@@ -14,19 +14,15 @@ class CharacterLoader
             data = haxe.Json.parse(rawData);
         }
     
+        // Paths.sparrowFrom / packerFrom, not FlxAtlasFrames directly: they also find images and atlases
+        // that only exist in a mod.
         if (data.atlas.xml != null)
         {
-            character.frames = FlxAtlasFrames.fromSparrow(
-                data.atlas.image,
-                data.atlas.xml
-            );
+            character.frames = Paths.sparrowFrom(data.atlas.image, data.atlas.xml);
         }
         else if (data.atlas.txt != null)
         {
-            character.frames = FlxAtlasFrames.fromSpriteSheetPacker(
-                data.atlas.image,
-                data.atlas.txt
-            );
+            character.frames = Paths.packerFrom(data.atlas.image, data.atlas.txt);
         }
         else if (data.atlas.image != null)
         {
@@ -34,7 +30,7 @@ class CharacterLoader
             var img:String = data.atlas.image;
             var xmlPath:String = StringTools.endsWith(img, ".png") ? img.substr(0, img.length - 4) + ".xml" : img + ".xml";
 
-            character.frames = FlxAtlasFrames.fromSparrow(img, xmlPath);
+            character.frames = Paths.sparrowFrom(img, xmlPath);
         }
 
         // Load animations

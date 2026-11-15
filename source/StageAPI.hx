@@ -321,7 +321,7 @@ class StageAPI
      */
     public function makeImage(x:Float, y:Float, key:String):FlxSprite
     {
-        return new FlxSprite(x, y).loadGraphic(Paths.image(key));
+        return new FlxSprite(x, y).loadGraphic(Paths.graphic(Paths.image(key)));
     }
 
     /**

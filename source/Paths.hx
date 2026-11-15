@@ -1,6 +1,13 @@
 package;
 
+import flixel.FlxG;
+import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import haxe.io.Bytes;
+import lime.graphics.Image;
+import openfl.display.BitmapData;
+import openfl.utils.AssetType;
+import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
 
 /**
@@ -30,8 +37,78 @@ class Paths
         return 'assets/images/$key.xml';
 
     // Sparrow atlas where the png and xml share a key ('alphabet' -> alphabet.png + alphabet.xml).
-    public static inline function sparrow(key:String):FlxAtlasFrames
-        return FlxAtlasFrames.fromSparrow(image(key), xml(key));
+    public static function sparrow(key:String):FlxAtlasFrames
+        return sparrowFrom(image(key), xml(key));
+
+    // ---- mod-safe image / atlas loading ----
+    //
+    // Why these exist: Polymod's TYPED lookup (Assets.exists(key, IMAGE), which FlxG.bitmap.add(key) and
+    // loadGraphic(key) both go through) looks mod files up under the full 'assets/...' id, but it indexes
+    // them without the 'assets/' prefix, so it misses them. A png/xml that exists ONLY in a mod then fails with
+    // "There is no IMAGE asset with an ID of 'assets/images/...'". Mod overlays of files that also exist in
+    // assets/ work by accident, because the assets copy answers the lookup. UNTYPED lookups (getBytes, getText)
+    // find both, so everything below goes through those.
+
+    // Graphic for an image key, mod-only images included. null if it can't be found.
+    public static function graphic(key:String):FlxGraphic
+    {
+        var cached:FlxGraphic = FlxG.bitmap.get(key);
+
+        if (cached != null)
+            return cached;
+
+        // assets/ files and mod overlays of them: the normal route, unchanged.
+        if (Assets.exists(key, AssetType.IMAGE))
+            return FlxG.bitmap.add(key);
+
+        // Mod-only file: decode it the same way Polymod's own library does, and cache it under the asset key so
+        // later FlxG.bitmap.add(key) / loadGraphic(key) calls for it hit the cache.
+        var bytes:Bytes = PolymodAssets.getBytes(key);
+
+        if (bytes == null)
+            return null;
+
+        var img:Image = Image.fromBytes(bytes);
+
+        if (img == null)
+            return null;
+
+        return FlxG.bitmap.add(BitmapData.fromImage(img), false, key);
+    }
+
+    // Sparrow atlas from an image key + an xml key. Either may live only in a mod. Throws (with the key) if one is missing.
+    public static function sparrowFrom(imageKey:String, xmlKey:String):FlxAtlasFrames
+    {
+        var g:FlxGraphic = graphic(imageKey);
+
+        if (g == null)
+            throw 'image not found: $imageKey';
+
+        // Hand flixel the xml TEXT, not the path: it only treats the description as a path if Assets.exists()
+        // says so, which has the same mod-only blind spot as above.
+        var text:String = PolymodAssets.getText(xmlKey);
+
+        if (text == null)
+            throw 'atlas xml not found: $xmlKey';
+
+        return FlxAtlasFrames.fromSparrow(g, text);
+    }
+
+    // Same as sparrowFrom, for SpriteSheetPacker .txt atlases.
+    public static function packerFrom(imageKey:String, txtKey:String):FlxAtlasFrames
+    {
+        var g:FlxGraphic = graphic(imageKey);
+
+        if (g == null)
+            throw 'image not found: $imageKey';
+
+        var text:String = PolymodAssets.getText(txtKey);
+
+        if (text == null)
+            throw 'atlas txt not found: $txtKey';
+
+        return FlxAtlasFrames.fromSpriteSheetPacker(g, text);
+    }
 
     // ---- audio (extension follows TitleState.soundExt: .ogg on native, .mp3 on web) ----
 
