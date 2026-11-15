@@ -142,7 +142,14 @@ class Note extends FlxSprite
 				}
 
 				prevNote.offset.y = -19;
-				prevNote.scale.y *= (2.25 * FlxMath.roundDecimal(PlayState.SONG.speed, 1));
+				// prevNote has to cover the gap down to this piece, and that gap is one step, which is a
+				// different number of ms at every BPM (and changes mid-song with the tempo map). So take it from
+				// the notes themselves: not a constant, and not Conductor.stepCrochet, which is only the tempo
+				// the song happened to be at when the chart was generated.
+				// (gap / 100 * 1.5) * speed is the vanilla formula: it is exactly 2.25 * speed at 100 BPM
+				// (150 ms steps) and leaves ~2.7% overlap so there are no seams between pieces.
+				// Speed is rounded to 2 decimals, same as the scroll in PlayState.update, or they drift apart.
+				prevNote.scale.y *= ((strumTime - prevNote.strumTime) / 100 * 1.5) * FlxMath.roundDecimal(PlayState.SONG.speed, 2);
 				// prevNote.setGraphicSize();
 			}
 		}

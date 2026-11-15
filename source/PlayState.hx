@@ -667,7 +667,10 @@ class PlayState extends MusicBeatState
 				    sustainTime += stepDuration;
 				    remainingSustain -= stepDuration;
 
-				    oldNote = swagNote;
+				    // Chain to the note spawned just before this one (the head for the first piece, the previous
+				    // piece after that). Note's constructor uses prevNote to turn the previous piece into a
+				    // stretched hold piece, so pointing every piece at swagNote leaves them all as unscaled end caps.
+				    oldNote = unspawnNotes[unspawnNotes.length - 1];
 
 				    var sustainNote:Note = new Note(sustainTime, daNoteData, oldNote, true);
 				    sustainNote.scrollFactor.set();
