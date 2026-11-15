@@ -986,14 +986,6 @@ class PlayState extends MusicBeatState
 		setScriptVariable("elapsed", elapsed);
 		callScripts("onUpdate", [elapsed]);
 
-		if (FlxG.keys.justPressed.NINE)
-		{
-			if (iconP1.iconName == 'bf-old')
-				iconP1.changeIcon(SONG.player1);
-			else
-				iconP1.changeIcon('bf-old');
-		}
-
 		// config camera follow lerp to be framerate independent
 		// "honestly to god why is follow not framerate independant in flixel" - me, 2026
 		FlxG.camera.followLerp = 1 - Math.exp(-elapsed * 2.45);
