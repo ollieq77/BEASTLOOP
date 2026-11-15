@@ -268,7 +268,7 @@ class ChartingState extends MusicBeatState
 	    var stages:Array<Dynamic> = [];
 	    var stageDir:String = "assets/data/stages/";
 
-	    for (path in PolymodAssets.list())
+	    for (path in Paths.listDir(stageDir))
 	    {
 	        if (!StringTools.startsWith(path, stageDir))
 	            continue;
@@ -1453,11 +1453,11 @@ class ChartingState extends MusicBeatState
 	{
 	    var difficulty:String = "hard";
 	
-	    if (!PolymodAssets.exists(Paths.songChart(song, difficulty)))
+	    if (!Paths.exists(Paths.songChart(song, difficulty)))
 	    {
 	        difficulty = "normal";
 		
-	        if (!PolymodAssets.exists(Paths.songChart(song, difficulty)))
+	        if (!Paths.exists(Paths.songChart(song, difficulty)))
 	        {
 	            difficulty = "easy";
 	        }

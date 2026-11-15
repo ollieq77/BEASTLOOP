@@ -262,7 +262,7 @@ class PlayState extends MusicBeatState
 		}
 
 		// Most songs won't have one, so only create it when the file exists.
-		if (PolymodAssets.exists(Paths.songScript(SONG.song)))
+		if (Paths.exists(Paths.songScript(SONG.song)))
 		{
 		    songScript = new StageScript(
 		        stage,

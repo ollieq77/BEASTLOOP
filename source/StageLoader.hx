@@ -15,7 +15,7 @@ class StageLoader
 
         var jsonPath = Paths.stageData(stageName);
 
-        if (!PolymodAssets.exists(jsonPath))
+        if (!Paths.exists(jsonPath))
         {
             stageName = 'stage';
             jsonPath = Paths.stageData('stage');

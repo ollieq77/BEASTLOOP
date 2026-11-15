@@ -44,6 +44,57 @@ class Paths
     public static function sparrow(key:String):FlxAtlasFrames
         return sparrowFrom(image(key), xml(key));
 
+    // ---- existence / listing that can see mod-only files ----
+    //
+    // Do NOT use PolymodAssets.exists(key) for 'assets/...' keys. It runs Polymod's typed check, which looks
+    // the file up under the wrong id and says no, then falls back to "is it in the base assets/ folder?". So
+    // it is right for files in assets/ and wrong for any file that exists only in a mod (a mod's stage.json,
+    // stage.hxc, song.hxc, chart...). getPath is untyped and finds both, so existence goes through it.
+
+    public static function exists(key:String):Bool
+    {
+        try
+        {
+            var path:String = PolymodAssets.getPath(key);
+
+            if (path != null && path != "")
+                return true;
+
+            // Assets baked into the exe (embed="true") have no file path.
+            return Assets.exists(key);
+        }
+        catch (e:Dynamic)
+        {
+            return false;
+        }
+    }
+
+    // Every file under an asset directory, as full keys ('assets/data/stages/x/stage.json'), mods included.
+    // PolymodAssets.list() returns files from assets/ WITH the 'assets/' prefix but mod-only files WITHOUT it,
+    // so a plain startsWith('assets/...') filter silently drops everything that only exists in a mod.
+    // Each key comes back once, even when a mod overlays a file that is also in assets/.
+    public static function listDir(dir:String):Array<String>
+    {
+        var prefix:String = 'assets/';
+        var bare:String = StringTools.startsWith(dir, prefix) ? dir.substr(prefix.length) : dir;
+        var out:Array<String> = [];
+
+        for (path in PolymodAssets.list())
+        {
+            var full:String = null;
+
+            if (StringTools.startsWith(path, prefix + bare))
+                full = path;
+            else if (StringTools.startsWith(path, bare))
+                full = prefix + path;
+
+            if (full != null && out.indexOf(full) == -1)
+                out.push(full);
+        }
+
+        return out;
+    }
+
     // ---- mod-safe image / atlas loading ----
     //
     // Why these exist: Polymod's TYPED lookup (Assets.exists(key, IMAGE), which FlxG.bitmap.add(key) and
@@ -177,7 +228,7 @@ class Paths
 
     // Optional per-song script. Same API as a stage script.
     public static inline function songScript(song:String):String
-        return 'songs/${song.toLowerCase()}/song.hxc';
+        return Paths.song(song) + 'song.hxc';
 
     public static inline function week(id:String):String
         return Paths.data('weeks/$id.json');

@@ -52,7 +52,7 @@ class StageScript
 
     public function load():Bool
     {
-        if (!PolymodAssets.exists(scriptPath))
+        if (!Paths.exists(scriptPath))
         {
             trace('[$label] Script not found: $scriptPath');
             return false;
