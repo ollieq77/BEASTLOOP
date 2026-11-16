@@ -3,6 +3,7 @@ package;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 import polymod.format.ParseRules.TargetSignatureElement;
 
@@ -150,9 +151,55 @@ class Note extends FlxSprite
 				// (150 ms steps) and leaves ~2.7% overlap so there are no seams between pieces.
 				// Speed is rounded to 2 decimals, same as the scroll in PlayState.update, or they drift apart.
 				prevNote.scale.y *= ((strumTime - prevNote.strumTime) / 100 * 1.5) * FlxMath.roundDecimal(PlayState.SONG.speed, 2);
+				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
 			}
 		}
+	}
+
+	public function clipToStrumLine(strumLineY:Float, downscroll:Bool = false)
+	{
+	    if (!isSustainNote || frame == null)
+	        return;
+
+	    var center:Float = strumLineY + Note.swagWidth / 2;
+
+	    if (wasGoodHit || (prevNote.wasGoodHit && !canBeHit))
+	    {
+	        var swagRect:FlxRect = clipRect;
+
+	        if (swagRect == null)
+	            swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
+
+	        if (downscroll)
+	        {
+	            if (y - offset.y * scale.y + height >= center)
+	            {
+	                swagRect.width = frameWidth;
+	                swagRect.height = (center - y) / scale.y;
+	                swagRect.y = frameHeight - swagRect.height;
+	            }
+	        }
+	        else if (y + offset.y * scale.y <= center)
+	        {
+	            swagRect.y = (center - y) / scale.y;
+	            swagRect.width = width / scale.x;
+	            swagRect.height = (height / scale.y) - swagRect.y;
+	        }
+
+	        clipRect = swagRect;
+	    }
+	}
+
+	@:noCompletion
+	override function set_clipRect(rect:FlxRect):FlxRect
+	{
+	    clipRect = rect;
+
+	    if (frames != null)
+	        frame = frames.frames[animation.frameIndex];
+
+	    return rect;
 	}
 
 	override function update(elapsed:Float)

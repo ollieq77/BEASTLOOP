@@ -50,10 +50,13 @@ class PlayState extends MusicBeatState
 {
 
 	// SONG SETTINGS
-	var botPlay:Bool = false;
-	var sustainAnimations = false;
-
-	var opponentNoteFlashes = true;
+	public static var botPlay:Bool = false;
+	public static var opponentNoteFlashes:Bool = true;
+	public static var sustainAnimations:Bool = false;
+	public static var downscroll:Bool = false;
+	public static var vanillaStrumOffset:Bool = false;
+	public static var sustainClipping:Bool = true;
+	public static var classicScoreTxt:Bool = false;
 
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
@@ -229,7 +232,7 @@ class PlayState extends MusicBeatState
 
 		scoreSystem = new ScoreSystem();
 
-		camHUD.downscroll = true;
+		camHUD.downscroll = downscroll;
 		camHUD.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
@@ -389,11 +392,15 @@ class PlayState extends MusicBeatState
 		add(healthBar);
 
 		// Original scoreTxt positioning (vanilla FNF)
-		// scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
-		// scoreTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT);
 
-		scoreTxt = new FlxText(0, healthBarBG.y + 30, FlxG.width, "", 24);
-		scoreTxt.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		if (classicScoreTxt) {
+			scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
+			scoreTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT);
+		} else {
+			scoreTxt = new FlxText(0, healthBarBG.y + 30, FlxG.width, "", 24);
+			scoreTxt.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		}
+
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
 
@@ -697,7 +704,7 @@ class PlayState extends MusicBeatState
 
 				    sustainNote.mustPress = gottaHitNote;
 				    sustainNote.x = getStrumX(daNoteData, sustainNote.mustPress ? 1 : 0)
-				        + sustainNote.width
+						+ sustainNote.width
 				        + sustainNote.offset.x / 4;
 				}
 			}
@@ -1274,7 +1281,8 @@ class PlayState extends MusicBeatState
 				}
 
 				daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(PlayState.SONG.speed, 2)));
-
+				if (sustainClipping)
+					daNote.clipToStrumLine(strumLine.y, downscroll);
 				// WIP interpolation shit? Need to fix the pause issue
 				// daNote.y = (strumLine.y - (songTime - daNote.strumTime) * (0.45 * PlayState.SONG.speed));
 
@@ -1398,10 +1406,14 @@ class PlayState extends MusicBeatState
 
 	function updateScoreText():Void
 	{
+		if (!classicScoreTxt) {
 	    scoreTxt.text =
 	        'Score: ${CoolUtil.formatNumber(scoreSystem.songScore)}'
 			+ ' / Misses: ${scoreSystem.misses}'
 	        + ' / Accuracy: ${FlxMath.roundDecimal(scoreSystem.ratingPercent * 100, 2)}%';
+		} else {
+			scoreTxt.text = 'Score:${scoreSystem.songScore}';
+		}
 	}
 
 	var endingSong:Bool = false;
@@ -1550,11 +1562,17 @@ class PlayState extends MusicBeatState
 
 	public static function getStrumX(lane:Int, player:Int):Float
 	{
-    	var halfScreen = FlxG.width / 2;
-    	var groupWidth = Note.swagWidth * 4;
-    	var startX = (halfScreen - groupWidth) / 2;
+	    var halfScreen = FlxG.width / 2;
+	    var groupWidth = Note.swagWidth * 4;
+	    var startX = (halfScreen - groupWidth) / 2;
 
-    	return startX + (Note.swagWidth * lane) + (halfScreen * player);
+		var offset = 0;
+
+		if (vanillaStrumOffset) {
+			offset = -50;
+		}
+	
+	    return startX + (Note.swagWidth * lane) + (halfScreen * player) + offset;
 	}
 
 	private function keyShit():Void
@@ -1813,18 +1831,14 @@ class PlayState extends MusicBeatState
 			boyfriend.lastNoteHitTime = Conductor.songPosition;
 
 			
-			if (!note.isSustainNote && !sustainAnimations)
+			if (!note.isSustainNote || sustainAnimations)
 			{
 			    var directions:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 			
 			    if (note.noteData >= 0 && note.noteData < directions.length)
-			    {
 			        boyfriend.playAnim('sing${directions[note.noteData]}', true);
-			    }
 			    else if (boyfriend.animation.getByName('hey') != null)
-			    {
 			        boyfriend.playAnim('hey', true);
-			    }
 			}
 
 			playerStrums.forEach(function(spr:FlxSprite)
