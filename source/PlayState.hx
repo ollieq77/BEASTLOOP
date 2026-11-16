@@ -51,12 +51,13 @@ class PlayState extends MusicBeatState
 
 	// SONG SETTINGS
 	public static var botPlay:Bool = false;
-	public static var opponentNoteFlashes:Bool = true;
+	public static var opponentNoteFlashes:Bool = false;
 	public static var sustainAnimations:Bool = false;
 	public static var downscroll:Bool = false;
-	public static var vanillaStrumOffset:Bool = false;
-	public static var sustainClipping:Bool = true;
-	public static var classicScoreTxt:Bool = false;
+	public static var vanillaStrumOffset:Bool = true;
+	public static var sustainClipping:Bool = false;
+	public static var classicScoreTxt:Bool = true;
+	public static var ghostTapping:Bool = false;
 
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
@@ -447,12 +448,6 @@ class PlayState extends MusicBeatState
 
 	var startTimer:FlxTimer;
 	var perfectMode:Bool = false;
-
-	/**
-	 * false = vanilla rules (pressing a lane with no note in its window is a miss)
-	 * true  = pressing with nothing to hit is free
-	 */
-	public static var ghostTapping:Bool = false;
 
 	function startCountdown():Void
 	{
