@@ -46,6 +46,23 @@ class CrashHandler
         report += details;
         report += "\n";
 
+        // HXCPP throws null refs as plain Strings (not haxe.Exception), so details()
+        // never has a stack - grab it separately
+        var stack:String = "";
+
+        try
+        {
+            stack = haxe.CallStack.toString(haxe.CallStack.exceptionStack(true));
+        }
+        catch (e:Dynamic) {}
+
+        if (stack != null && stack.length > 0)
+        {
+            report += "\nSTACK TRACE";
+            report += stack;
+            report += "\n";
+        }
+
         var reportPath:String = "";
 
         try

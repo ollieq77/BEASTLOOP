@@ -53,10 +53,7 @@ class PlayState extends MusicBeatState
 	var botPlay:Bool = false;
 	var sustainAnimations = false;
 
-	// SONG gameplay variables
-	var songScore:Int = 0;
-	var songMisses:Int = 0;
-	var songAccuracy:Int = 0;
+	var opponentNoteFlashes = true;
 
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
@@ -64,6 +61,8 @@ class PlayState extends MusicBeatState
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 1;
+
+	public var scoreSystem:ScoreSystem;
 
 	var stage:Stage;
 	var stageScript:StageScript;
@@ -186,6 +185,7 @@ class PlayState extends MusicBeatState
 
 	var talking:Bool = true;
 	var scoreTxt:FlxText;
+	var scoreTxtScale:Float = 1;
 
 	public static var campaignScore:Int = 0;
 
@@ -226,6 +226,8 @@ class PlayState extends MusicBeatState
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new FlxCamera();
 		camHUD = new HudCamera();
+
+		scoreSystem = new ScoreSystem();
 
 		camHUD.downscroll = true;
 		camHUD.bgColor.alpha = 0;
@@ -1012,7 +1014,7 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score: " + CoolUtil.formatNumber(songScore) + " / " + "Misses: " + CoolUtil.formatNumber(songMisses);
+		updateScoreText();
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
 		{
@@ -1249,7 +1251,7 @@ class PlayState extends MusicBeatState
 
 					opponentStrums.forEach(function(spr:FlxSprite)
 					{
-					    if (daNote.noteData == spr.ID)
+					    if (daNote.noteData == spr.ID && opponentNoteFlashes)
 					    {
 					        spr.animation.play('confirm', true);
 						
@@ -1317,13 +1319,13 @@ class PlayState extends MusicBeatState
 		if (SONG.validScore)
 		{
 			#if !switch
-			Highscore.saveScore(SONG.song, songScore, storyDifficulty);
+			Highscore.saveScore(SONG.song, scoreSystem.songScore, storyDifficulty);
 			#end
 		}
 
 		if (isStoryMode)
 		{
-		    campaignScore += songScore;
+		    campaignScore += scoreSystem.songScore;
 		
 		    storyPlaylist.remove(storyPlaylist[0]);
 		
@@ -1394,6 +1396,14 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	function updateScoreText():Void
+	{
+	    scoreTxt.text =
+	        'Score: ${CoolUtil.formatNumber(scoreSystem.songScore)}'
+			+ ' / Misses: ${scoreSystem.misses}'
+	        + ' / Accuracy: ${FlxMath.roundDecimal(scoreSystem.ratingPercent * 100, 2)}%';
+	}
+
 	var endingSong:Bool = false;
 
 	private function popUpScore(strumtime:Float):Void
@@ -1410,27 +1420,17 @@ class PlayState extends MusicBeatState
 		//
 
 		var rating:FlxSprite = new FlxSprite();
-		var score:Int = 350;
-
 		var daRating:String = "sick";
-
+			
 		if (noteDiff > Conductor.safeZoneOffset * 0.9)
-		{
-			daRating = 'shit';
-			score = 50;
-		}
+		    daRating = "shit";
 		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
-		{
-			daRating = 'bad';
-			score = 100;
-		}
+		    daRating = "bad";
 		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
-		{
-			daRating = 'good';
-			score = 200;
-		}
-
-		songScore += score;
+		    daRating = "good";
+		
+		scoreSystem.addRating(daRating);
+		updateScoreText();
 
 		/* if (combo > 60)
 				daRating = 'sick';
@@ -1743,8 +1743,8 @@ class PlayState extends MusicBeatState
 			}
 			combo = 0;
 
-			songScore -= 10;
-			songMisses += 1;
+			scoreSystem.songScore -= 10;
+			scoreSystem.addMiss();
 
 			FlxG.sound.play(Paths.sound('missnote' + FlxG.random.int(1, 3)), FlxG.random.float(0.1, 0.2));
 			// FlxG.sound.play(Paths.sound('missnote1'), 1, false);

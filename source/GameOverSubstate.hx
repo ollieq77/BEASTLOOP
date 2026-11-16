@@ -64,12 +64,12 @@ class GameOverSubstate extends MusicBeatSubstate
 				FlxG.switchState(new FreeplayState());
 		}
 
-		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
+		if (bf != null && bf.animation.curAnim != null && bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
 		{
 			FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		}
 
-		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
+		if (bf != null && bf.animation.curAnim != null && bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
 		{
 			FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix));
 		}
@@ -107,8 +107,6 @@ class GameOverSubstate extends MusicBeatSubstate
 	        {
 	            FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 	            {
-	                // Clear the character reference so it doesn't linger in memory
-	                bf = null;
 	                FlxG.switchState(new PlayState());
 	            });
 	        });
