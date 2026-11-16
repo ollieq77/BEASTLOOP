@@ -5,10 +5,10 @@
 	<app
 		title="FNF': BeastLoop"
 		file="BeastLoop"
-		packageName="com.ninjamuffin99.funkin"
+		packageName="com.ollz.beastloop"
 		main="Main"
 		version="0.2.0"
-		company="ninjamuffin99"
+		company="ollz"
 		preloader="flixel.system.FlxPreloader"
 	/>
 
