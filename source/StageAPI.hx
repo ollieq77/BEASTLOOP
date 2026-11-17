@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxG;
+import flixel.system.FlxAssets.FlxSoundAsset;
 import flixel.FlxBasic;
 import flixel.FlxSprite;
 import flixel.FlxCamera;
@@ -238,12 +239,13 @@ class StageAPI
     }
 
     /**
-     * Resolves the full path for a sound key, for scripts that need to load one themselves.
+     * Resolves a sound key to something FlxG.sound can play, for scripts that need to load one themselves.
+     * Mod-only sounds come back as a ready-made Sound, everything else as the asset key.
      * @param key The sound name or full asset path.
      */
-    public function soundPath(key:String):String
+    public function soundPath(key:String):FlxSoundAsset
     {
-        return StringTools.startsWith(key, 'assets/') ? key : Paths.sound(key);
+        return StringTools.startsWith(key, 'assets/') ? Paths.audio(key) : Paths.sound(key);
     }
 
     /**

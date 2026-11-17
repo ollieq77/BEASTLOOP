@@ -181,7 +181,7 @@ class TitleState extends MusicBeatState
 		// titleText.screenCenter(X);
 		add(titleText);
 
-		var logo:FlxSprite = new FlxSprite().loadGraphic(Paths.image('title/logo'));
+		var logo:FlxSprite = new FlxSprite().loadGraphic(Paths.graphic(Paths.image('title/logo')));
 		logo.screenCenter();
 		logo.antialiasing = true;
 		// add(logo);
@@ -203,7 +203,7 @@ class TitleState extends MusicBeatState
 
 		credTextShit.visible = false;
 
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('title/newgrounds_logo'));
+		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.graphic(Paths.image('title/newgrounds_logo')));
 		add(ngSpr);
 		ngSpr.visible = false;
 		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));

@@ -89,7 +89,7 @@ class ChartingState extends MusicBeatState
 		curSection = lastSection;
 
 		menuBG = new FlxSprite().loadGraphic(
-    		Paths.image('menus/menuBGblacknwhite')
+    		Paths.graphic(Paths.image('menus/menuBGblacknwhite'))
 		);
 
 		menuBG.setGraphicSize(FlxG.width, FlxG.height);

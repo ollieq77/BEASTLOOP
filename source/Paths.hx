@@ -3,9 +3,11 @@ package;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.system.FlxAssets.FlxSoundAsset;
 import haxe.io.Bytes;
 import lime.graphics.Image;
 import openfl.display.BitmapData;
+import openfl.media.Sound;
 import openfl.utils.AssetType;
 import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
@@ -177,12 +179,58 @@ class Paths
     }
 
     // ---- audio (extension follows TitleState.soundExt: .ogg on native, .mp3 on web) ----
+    //
+    // Same story as images: FlxG.sound.play(key) goes through Assets.getSound, which is a TYPED lookup, so a
+    // sound that exists ONLY in a mod fails. These return a FlxSoundAsset instead of a bare String: the key
+    // itself for anything the normal route can find (assets/ files and mod overlays of them, unchanged), or a
+    // ready-made Sound for a mod-only file. Every FlxG.sound.play / playMusic / load / loadEmbedded accepts
+    // either, so call sites don't change.
 
-    public static inline function sound(key:String):String
-        return 'assets/sounds/$key${TitleState.soundExt}';
+    // Mod-only sounds already decoded, so a sound that plays over and over (missnote, scrollMenu) is only read once.
+    static var modSounds:Map<String, Sound> = new Map();
 
-    public static inline function music(key:String):String
-        return 'assets/music/$key${TitleState.soundExt}';
+    public static function sound(key:String):FlxSoundAsset
+        return audio('assets/sounds/$key${TitleState.soundExt}');
+
+    public static function music(key:String):FlxSoundAsset
+        return audio('assets/music/$key${TitleState.soundExt}');
+
+    // Audio for a full asset key ('assets/sounds/foo.ogg'), mod-only files included.
+    public static function audio(key:String):FlxSoundAsset
+    {
+        // assets/ files and mod overlays of them: the normal route.
+        if (Assets.exists(key, AssetType.SOUND))
+            return key;
+
+        var cached:Sound = modSounds.get(key);
+
+        if (cached != null)
+            return cached;
+
+        // getPath is untyped, so it finds mod-only files. Can throw for odd keys, so a miss has to come out as "".
+        var path:String = null;
+
+        try
+        {
+            path = PolymodAssets.getPath(key);
+        }
+        catch (e:Dynamic)
+        {
+            path = null;
+        }
+
+        // Not found anywhere: hand flixel the key like before, so it reports the missing file the same way.
+        if (path == null || path == "")
+            return key;
+
+        var snd:Sound = Sound.fromFile(path);
+
+        if (snd == null)
+            return key;
+
+        modSounds.set(key, snd);
+        return snd;
+    }
 
     // ---- fonts / data ----
 

@@ -51,12 +51,12 @@ class PlayState extends MusicBeatState
 
 	// SONG SETTINGS
 	public static var botPlay:Bool = false;
-	public static var opponentNoteFlashes:Bool = false;
+	public static var opponentNoteFlashes:Bool = true;
 	public static var sustainAnimations:Bool = false;
 	public static var downscroll:Bool = false;
-	public static var vanillaStrumOffset:Bool = true;
-	public static var sustainClipping:Bool = false;
-	public static var classicScoreTxt:Bool = true;
+	public static var vanillaStrumOffset:Bool = false;
+	public static var sustainClipping:Bool = true;
+	public static var classicScoreTxt:Bool = false;
 	public static var ghostTapping:Bool = false;
 
 	public static var curStage:String = '';
@@ -205,7 +205,7 @@ class PlayState extends MusicBeatState
 
 	function showCountdownSprite(image:String):Void
 	{
-	    var sprite:FlxSprite = new FlxSprite().loadGraphic(Paths.image(image));
+	    var sprite:FlxSprite = new FlxSprite().loadGraphic(Paths.graphic(Paths.image(image)));
 	    sprite.scrollFactor.set();
 
 	    if (isPixelStage)
@@ -380,7 +380,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.fixedTimestep = false;
 
-		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.image('gameplay/healthBar'));
+		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.graphic(Paths.image('gameplay/healthBar')));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -759,7 +759,7 @@ class PlayState extends MusicBeatState
 
 	private function setupPixelArrow(arrow:FlxSprite, direction:Int):Void
 	{
-	    arrow.loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
+	    arrow.loadGraphic(Paths.graphic(Paths.image('weeb/pixelUI/arrows-pixels')), true, 17, 17);
 
 	    arrow.animation.add('green', [6]);
 	    arrow.animation.add('red', [7]);
@@ -1456,7 +1456,7 @@ class PlayState extends MusicBeatState
 			pixelShitPart2 = '-pixel';
 		}
 
-		rating.loadGraphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2));
+		rating.loadGraphic(Paths.graphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2)));
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
 		rating.y -= 60;
@@ -1464,7 +1464,7 @@ class PlayState extends MusicBeatState
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.graphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2)));
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = 600;
@@ -1498,7 +1498,7 @@ class PlayState extends MusicBeatState
 		var daLoop:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.graphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2)));
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y += 80;
@@ -1603,14 +1603,6 @@ class PlayState extends MusicBeatState
 		    {
 		        if (!daNote.mustPress || daNote.wasGoodHit)
 		            return;
-			
-		        if (daNote.isSustainNote)
-		        {
-		            if (daNote.canBeHit)
-		                goodNoteHit(daNote);
-				
-		            return;
-		        }
 			
 		        if (daNote.strumTime <= Conductor.songPosition)
 		            goodNoteHit(daNote);
