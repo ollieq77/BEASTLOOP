@@ -234,8 +234,38 @@ class Paths
 
     // ---- fonts / data ----
 
-    public static inline function font(key:String):String
-        return 'assets/fonts/$key';
+    // Font for FlxText.setFormat / .font ('vcr.ttf').
+    //
+    // FlxText only runs Assets.getFont (a TYPED lookup, same mod-only blind spot as images and sounds) when
+    // Assets.exists(font, FONT) says yes. Otherwise it uses the string as a literal font NAME, and openfl's
+    // TextEngine.findFont (native) falls back to Font.fromFile(name), i.e. it treats the name as a file path on
+    // disk, loads it and keeps it registered. So a mod-only font just needs its REAL file path handed over.
+    public static function font(key:String):String
+    {
+        var full:String = 'assets/fonts/$key';
+
+        // assets/ fonts and mod overlays of them: the normal route, unchanged.
+        if (Assets.exists(full, AssetType.FONT))
+            return full;
+
+        // getPath is untyped, so it finds mod-only files. Can throw for odd keys, so a miss has to come out as "".
+        var path:String = null;
+
+        try
+        {
+            path = PolymodAssets.getPath(full);
+        }
+        catch (e:Dynamic)
+        {
+            path = null;
+        }
+
+        // Not found anywhere: same string as before, so it fails the same way it always did.
+        if (path == null || path == "")
+            return full;
+
+        return path;
+    }
 
     public static inline function data(key:String):String
         return 'assets/data/$key';

@@ -50,7 +50,7 @@ class PlayState extends MusicBeatState
 {
 
 	// SONG SETTINGS
-	public static var botPlay:Bool = false;
+	public static var botPlay:Bool = true;
 	public static var opponentNoteFlashes:Bool = true;
 	public static var sustainAnimations:Bool = false;
 	public static var downscroll:Bool = false;
