@@ -11,6 +11,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
+import flixel.system.FlxSound;
 
 class StageAPI
 {
@@ -38,6 +39,8 @@ class StageAPI
     public var addCameraZoomFn:Float->Float->Void;
     public var getCamZoomingFn:Void->Bool;
     public var loadDialogueFn:String->Void;
+
+    public var inst:FlxSound;
 
     var boyfriend:Boyfriend;
     var dad:Character;

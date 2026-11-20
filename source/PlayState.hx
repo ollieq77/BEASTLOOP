@@ -97,6 +97,7 @@ class PlayState extends MusicBeatState
 	{
 	    script.api.state = this;
 	    script.api.startCountdownFn = startCountdown;
+		script.api.inst = inst;
 	    script.api.setCutsceneFn = function(value:Bool)
 	    {
 	        inCutscene = value;
@@ -115,8 +116,8 @@ class PlayState extends MusicBeatState
 
 	    script.api.setMusicVolumeFn = function(value:Float)
 	    {
-	        if (FlxG.sound.music != null)
-	            FlxG.sound.music.volume = value;
+	        if (inst != null)
+    			inst.volume = value;
 	    };
 
 	    script.api.setCamZoomingFn = function(value:Bool)
@@ -142,6 +143,7 @@ class PlayState extends MusicBeatState
 	}
 
 	private var vocals:FlxSound;
+	private var inst:FlxSound;
 
 	private var dad:Character;
 	private var gf:Character;
@@ -524,20 +526,13 @@ class PlayState extends MusicBeatState
 		previousFrameTime = FlxG.game.ticks;
 		lastReportedPlayheadPosition = 0;
 
-		if (!paused)
+		if (inst != null)
 		{
-		    FlxG.sound.playMusic(
-		        Sound.fromFile(Paths.resolve(Paths.inst(SONG.song))),
-		        1,
-		        false
-		    );
-		}
+		    inst.onComplete = endSong;
+		    inst.play();
 		
-		if (FlxG.sound.music != null)
-		{
-		    FlxG.sound.music.onComplete = endSong;
 		    vocals.play();
-		    resetSongClock(FlxG.sound.music.time - Conductor.offset);
+		    resetSongClock(inst.time - Conductor.offset);
 		}
 
 		callScripts("onSongStart");
@@ -577,7 +572,7 @@ class PlayState extends MusicBeatState
 	{
 		clockRaw += elapsed * 1000;
 
-		var music = FlxG.sound.music;
+		var music = inst;
 		if (music != null && music.playing)
 		{
 			var audioTime:Float = music.time - Conductor.offset;
@@ -633,6 +628,19 @@ class PlayState extends MusicBeatState
 		    vocals = new FlxSound();
 
 		FlxG.sound.list.add(vocals);
+
+		inst = new FlxSound().loadEmbedded(
+		    Sound.fromFile(Paths.resolve(Paths.inst(SONG.song))),
+		    false,
+		    false
+		);
+				
+		FlxG.sound.list.add(inst);
+		if (stageScript != null)
+		    stageScript.api.inst = inst;
+
+		if (songScript != null)
+		    songScript.api.inst = inst;
 
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
@@ -864,14 +872,14 @@ class PlayState extends MusicBeatState
 	{
 		if (paused)
 		{
-			if (FlxG.sound.music != null)
-			{
-				FlxG.sound.music.pause();
-				vocals.pause();
-			}
-
-			if (!startTimer.finished)
-				startTimer.active = false;
+		    if (inst != null)
+		    {
+		        inst.pause();
+		        vocals.pause();
+		    }
+		
+		    if (!startTimer.finished)
+		        startTimer.active = false;
 		}
 
 		super.openSubState(SubState);
@@ -881,7 +889,7 @@ class PlayState extends MusicBeatState
 	{
 		if (paused)
 		{
-			if (FlxG.sound.music != null && !startingSong)
+			if (inst != null && !startingSong)
 			{
 				resyncVocals();
 			}
@@ -896,14 +904,19 @@ class PlayState extends MusicBeatState
 
 	function resyncVocals():Void
 	{
-		vocals.pause();
+	    if (inst == null || vocals == null)
+	        return;
 
-		FlxG.sound.music.play();
-		resetSongClock(FlxG.sound.music.time - Conductor.offset);
-		vocals.time = FlxG.sound.music.time;
-		vocals.play();
+	    inst.play();
+
+	    var musicTime:Float = inst.time;
+
+	    vocals.pause();
+	    vocals.time = musicTime;
+	    vocals.play();
+
+	    resetSongClock(musicTime - Conductor.offset);
 	}
-
 	override public function usesTempoMap():Bool
 	{
 	    return true;
@@ -1189,23 +1202,26 @@ class PlayState extends MusicBeatState
 			paused = true;
 
 			vocals.stop();
-			FlxG.sound.music.stop();
+
+			if (inst != null)
+			    inst.stop();
 
 			openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 
 			// FlxG.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 		}
 
-		if (unspawnNotes[0] != null)
-		{
-			if (unspawnNotes[0].strumTime - Conductor.songPosition < 1500)
-			{
-				var dunceNote:Note = unspawnNotes[0];
-				notes.add(dunceNote);
+		var NOTE_SPAWN_TIME:Float = 1500 / PlayState.SONG.speed;
 
-				var index:Int = unspawnNotes.indexOf(dunceNote);
-				unspawnNotes.splice(index, 1);
-			}
+		while (unspawnNotes.length > 0)
+		{
+		    var targetNote:Note = unspawnNotes[0];
+		
+		    if (targetNote.strumTime - Conductor.songPosition >= NOTE_SPAWN_TIME)
+		        break;
+		
+		    notes.add(targetNote);
+		    unspawnNotes.splice(0, 1);
 		}
 
 		if (generatedMusic)
@@ -1311,7 +1327,9 @@ class PlayState extends MusicBeatState
 	function endSong():Void
 	{
 		canPause = false;
-		FlxG.sound.music.volume = 0;
+		if (inst != null)
+		    inst.volume = 0;
+
 		vocals.volume = 0;
 
 		// nextSong is the next story-mode song, or null if this is the last one (or freeplay).
@@ -1384,7 +1402,8 @@ class PlayState extends MusicBeatState
 		            prevCamFollow = camFollow;
 			
 		        PlayState.SONG = Song.loadFromJson(difficulty, PlayState.storyPlaylist[0]);
-		        FlxG.sound.music.stop();
+		        if (inst != null)
+    				inst.stop();
 
 		        FlxG.switchState(new PlayState());
 
@@ -1857,9 +1876,9 @@ class PlayState extends MusicBeatState
 		if (SONG.needsVoices)
 		{
 			// the song clock follows the music, so vocals just have to stay glued to the music
-			if (Math.abs(vocals.time - FlxG.sound.music.time) > 30)
+			if (Math.abs(vocals.time - inst.time) > 30)
 			{
-				vocals.time = FlxG.sound.music.time;
+				vocals.time = inst.time;
 			}
 		}
 

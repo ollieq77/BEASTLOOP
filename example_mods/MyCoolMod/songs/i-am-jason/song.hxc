@@ -119,10 +119,10 @@ function onCreate()
 
 function onUpdate(elapsed:Float)
 {
-    if (FlxG.sound.music == null)
+    if (api.inst == null)
         return;
 
-    var songTime = FlxG.sound.music.time;
+    var songTime = api.inst.time;
 
     // Handle song restarts and backwards seeking.
     if (lastSongTime >= 0 && songTime < lastSongTime)
