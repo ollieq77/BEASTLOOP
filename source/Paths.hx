@@ -24,6 +24,8 @@ import polymod.backends.PolymodAssets;
  */
 class Paths
 {
+
+    static var sparrowCache:Map<String, FlxAtlasFrames> = new Map();
     // ---- raw access ----
 
     // Real file path for a key, mod override included. Only for APIs that bypass the asset library.
@@ -147,19 +149,29 @@ class Paths
     // Sparrow atlas from an image key + an xml key. Either may live only in a mod. Throws (with the key) if one is missing.
     public static function sparrowFrom(imageKey:String, xmlKey:String):FlxAtlasFrames
     {
+        var cacheKey:String = imageKey + "|" + xmlKey;
+    
+        if (sparrowCache.exists(cacheKey))
+            return sparrowCache.get(cacheKey);
+    
         var g:FlxGraphic = graphic(imageKey);
-
+    
         if (g == null)
             throw 'image not found: $imageKey';
 
-        // Hand flixel the xml TEXT, not the path: it only treats the description as a path if Assets.exists()
-        // says so, which has the same mod-only blind spot as above.
+        g.persist = true;
+    
+        // Hand flixel the xml TEXT, not the path.
         var text:String = PolymodAssets.getText(xmlKey);
-
+    
         if (text == null)
             throw 'atlas xml not found: $xmlKey';
-
-        return FlxAtlasFrames.fromSparrow(g, text);
+    
+        var frames:FlxAtlasFrames = FlxAtlasFrames.fromSparrow(g, text);
+    
+        sparrowCache.set(cacheKey, frames);
+    
+        return frames;
     }
 
     // Same as sparrowFrom, for SpriteSheetPacker .txt atlases.
