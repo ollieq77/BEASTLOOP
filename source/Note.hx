@@ -150,7 +150,7 @@ class Note extends FlxSprite
 				// (gap / 100 * 1.5) * speed is the vanilla formula: it is exactly 2.25 * speed at 100 BPM
 				// (150 ms steps) and leaves ~2.7% overlap so there are no seams between pieces.
 				// Speed is rounded to 2 decimals, same as the scroll in PlayState.update, or they drift apart.
-				prevNote.scale.y *= ((strumTime - prevNote.strumTime) / 100 * 1.5) * FlxMath.roundDecimal(PlayState.SONG.speed, 2);
+				prevNote.scale.y *= ((strumTime - prevNote.strumTime) / 100 * 0.75) * FlxMath.roundDecimal(PlayState.SONG.speed, 2);
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
 			}
