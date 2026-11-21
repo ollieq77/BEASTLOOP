@@ -58,6 +58,7 @@ class PlayState extends MusicBeatState
 	public static var sustainClipping:Bool = true;
 	public static var classicScoreTxt:Bool = false;
 	public static var ghostTapping:Bool = false;
+	public static var noteSplashes:Bool = false;
 
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
@@ -164,6 +165,8 @@ class PlayState extends MusicBeatState
 	var strumLineNotes:FlxTypedGroup<FlxSprite>;
 	var playerStrums:FlxTypedGroup<FlxSprite>;
 	var opponentStrums:FlxTypedGroup<FlxSprite>;
+
+	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
 	private var camZooming:Bool = true;
 	var camTarget:Int = -1; // -1 = unset, 0 = dad, 1 = bf
@@ -424,6 +427,10 @@ class PlayState extends MusicBeatState
 		scoreTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
 
+		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
+		grpNoteSplashes.cameras = [camHUD];
+    	add(grpNoteSplashes);
+
 		// if (SONG.song == 'South')
 		// FlxG.camera.alpha = 0.7;
 		// UI_camera.zoom = 1;
@@ -610,6 +617,22 @@ class PlayState extends MusicBeatState
 	}
 
 	var debugNum:Int = 0;
+
+	private function createNoteSplash(note:Note):Void
+	{
+		if (!noteSplashes)
+			return;
+		
+	    var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
+
+	    splash.setupNoteSplash(
+	        note.x,
+	        note.y,
+	        note.noteData
+	    );
+
+	    grpNoteSplashes.add(splash);
+	}
 
 	private function generateSong(dataPath:String):Void
 	{
@@ -1432,7 +1455,7 @@ class PlayState extends MusicBeatState
 
 	var endingSong:Bool = false;
 
-	private function popUpScore(strumtime:Float):Void
+	private function popUpScore(strumtime:Float, note:Note):Void
 	{
 		var noteDiff:Float = Math.abs(strumtime - Conductor.songPosition);
 		// boyfriend.playAnim('hey');
@@ -1457,6 +1480,9 @@ class PlayState extends MusicBeatState
 		
 		scoreSystem.addRating(daRating);
 		updateScoreText();
+
+		if (daRating == 'sick')
+    		createNoteSplash(note);
 
 		/* if (combo > 60)
 				daRating = 'sick';
@@ -1825,7 +1851,7 @@ class PlayState extends MusicBeatState
 		{
 			if (!note.isSustainNote)
 			{
-				popUpScore(note.strumTime);
+				popUpScore(note.strumTime, note);
 				combo += 1;
 			}
 
