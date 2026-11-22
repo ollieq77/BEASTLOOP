@@ -15,6 +15,7 @@ import lime.net.curl.CURLCode;
 import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
 import haxe.Json;
+import funkin.chart.Song;
 
 using StringTools;
 

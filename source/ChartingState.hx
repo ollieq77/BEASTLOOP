@@ -1,7 +1,7 @@
 package;
 
-import Section.SwagSection;
-import Song.SwagSong;
+import funkin.chart.Section.SwagSection;
+import funkin.chart.Song.SwagSong;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxGridOverlay;
@@ -28,6 +28,9 @@ import haxe.ui.components.TextField;
 import haxe.ui.focus.FocusManager;
 
 import StringTools;
+import funkin.chart.Conductor;
+import funkin.chart.Section;
+import funkin.chart.Song;
 
 class ChartingState extends MusicBeatState
 {

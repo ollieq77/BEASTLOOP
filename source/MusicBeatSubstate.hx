@@ -2,6 +2,7 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSubState;
+import funkin.chart.Conductor;
 
 class MusicBeatSubstate extends FlxSubState
 {

@@ -1,7 +1,7 @@
 package;
 
-import Section.SwagSection;
-import Song.SwagSong;
+import funkin.chart.Section.SwagSection;
+import funkin.chart.Song.SwagSong;
 import funkin.shaders.WiggleEffect.WiggleEffectType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -44,6 +44,8 @@ import polymod.backends.PolymodAssets;
 import Stage;
 import StageLoader;
 import funkin.shaders.WiggleEffect;
+import funkin.chart.Conductor;
+import funkin.chart.Song;
 
 using StringTools;
 

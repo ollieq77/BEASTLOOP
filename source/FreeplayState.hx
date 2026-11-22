@@ -12,6 +12,7 @@ import flixel.util.FlxColor;
 import polymod.backends.PolymodAssets;
 import openfl.media.Sound;
 import funkin.ui.Alphabet;
+import funkin.chart.Song;
 
 using StringTools;
 

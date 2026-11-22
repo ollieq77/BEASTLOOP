@@ -1,10 +1,11 @@
-package;
+package funkin.chart;
 
-import Section.SwagSection;
+import funkin.chart.Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
 import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
+import Paths;
 
 using StringTools;
 

@@ -26,6 +26,7 @@ import openfl.Assets;
 import polymod.Polymod;
 import polymod.backends.PolymodAssets;
 import funkin.ui.Alphabet;
+import funkin.chart.Conductor;
 
 using StringTools;
 
