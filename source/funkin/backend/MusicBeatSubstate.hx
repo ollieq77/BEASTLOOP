@@ -7,11 +7,6 @@ import funkin.menus.TitleState;
 
 class MusicBeatSubstate extends FlxSubState
 {
-	public function new()
-	{
-		super();
-	}
-
 	private var lastBeat:Float = 0;
 	private var lastStep:Float = 0;
 
@@ -24,6 +19,11 @@ class MusicBeatSubstate extends FlxSubState
 
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
+
+	public function new()
+	{
+		super();
+	}
 
 	override function create()
 	{
@@ -44,6 +44,21 @@ class MusicBeatSubstate extends FlxSubState
 		super.update(elapsed);
 	}
 
+	public function stepHit():Void
+	{
+		totalSteps += 1;
+		lastStep += Conductor.stepCrochet;
+
+		if (totalSteps % 4 == 0)
+			beatHit();
+	}
+
+	public function beatHit():Void
+	{
+		lastBeat += Conductor.crochet;
+		totalBeats += 1;
+	}
+
 	/**
 	 * CHECKS EVERY FRAME
 	 */
@@ -62,20 +77,5 @@ class MusicBeatSubstate extends FlxSubState
 	private function updateCurStep():Void
 	{
 		curStep = Math.floor(Conductor.songPosition / Conductor.stepCrochet);
-	}
-
-	public function stepHit():Void
-	{
-		totalSteps += 1;
-		lastStep += Conductor.stepCrochet;
-
-		if (totalSteps % 4 == 0)
-			beatHit();
-	}
-
-	public function beatHit():Void
-	{
-		lastBeat += Conductor.crochet;
-		totalBeats += 1;
 	}
 }
