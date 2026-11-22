@@ -16,6 +16,7 @@ import funkin.backend.Paths;
 import funkin.menus.TitleState;
 import funkin.game.Boyfriend;
 import funkin.game.Character;
+import funkin.game.HealthIcon;
 
 class StageAPI
 {
@@ -49,6 +50,9 @@ class StageAPI
     var boyfriend:Boyfriend;
     var dad:Character;
     var gf:Character;
+
+    public var iconP1:HealthIcon;
+    public var iconP2:HealthIcon;
 
     /**
      * Initializes the StageAPI instance with the active stage reference.
@@ -182,6 +186,12 @@ class StageAPI
     {
         if (setCamZoomingFn != null)
             setCamZoomingFn(value);
+    }
+
+    public function setHealthIcons(iconP1:HealthIcon, iconP2:HealthIcon):Void
+    {
+        this.iconP1 = iconP1;
+        this.iconP2 = iconP2;
     }
 
     /**

@@ -235,7 +235,6 @@ class PlayState extends MusicBeatState
 		if (stageScript.load())
 		{
 		    stageScript.api.setCameras(camGame, camHUD);
-		    stageScript.call("onCreate");
 		}
 
 		// Most songs won't have one, so only create it when the file exists.
@@ -252,7 +251,6 @@ class PlayState extends MusicBeatState
 		    if (songScript.load())
 		    {
 		        songScript.api.setCameras(camGame, camHUD);
-		        songScript.call("onCreate");
 		    }
 		}
 
@@ -373,6 +371,18 @@ class PlayState extends MusicBeatState
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
+		if (stageScript != null)
+    		stageScript.api.setHealthIcons(iconP1, iconP2);
+
+		if (songScript != null)
+		    songScript.api.setHealthIcons(iconP1, iconP2);
+
+		if (stageScript.loaded)
+		    stageScript.call("onCreate");
+			
+		if (songScript != null && songScript.loaded)
+		    songScript.call("onCreate");
+
 		strumLineNotes.cameras = [camHUD];
 		notes.cameras = [camHUD];
 		healthBar.cameras = [camHUD];
@@ -457,29 +467,11 @@ class PlayState extends MusicBeatState
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
 
-		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, Math.exp(-elapsed * 15))));
-		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, Math.exp(-elapsed * 15))));
-
-		iconP1.updateHitbox();
-		iconP2.updateHitbox();
-
-		var iconOffset:Int = 26;
-
-		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
-		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
-
 		if (health > 2)
-			health = 2;
+		    health = 2;
 
-		if (healthBar.percent < 20)
-			iconP1.animation.curAnim.curFrame = 1;
-		else
-			iconP1.animation.curAnim.curFrame = 0;
-
-		if (healthBar.percent > 80)
-			iconP2.animation.curAnim.curFrame = 1;
-		else
-			iconP2.animation.curAnim.curFrame = 0;
+		iconP1.updateIcon(elapsed, healthBar.percent, healthBar.x, healthBar.width);
+		iconP2.updateIcon(elapsed, healthBar.percent, healthBar.x, healthBar.width);
 
 		opponentStrums.forEachAlive(function(spr:FlxSprite)
 		{
@@ -770,11 +762,8 @@ class PlayState extends MusicBeatState
 			camHUD.zoom += 0.03;
 		}
 
-		iconP1.setGraphicSize(Std.int(iconP1.width + 30));
-		iconP2.setGraphicSize(Std.int(iconP2.width + 30));
-
-		iconP1.updateHitbox();
-		iconP2.updateHitbox();
+		iconP1.bop();
+		iconP2.bop();
 
 		if (totalBeats % gfSpeed == 0)
 		{

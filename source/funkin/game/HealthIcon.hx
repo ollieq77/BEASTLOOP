@@ -7,6 +7,8 @@ import haxe.Json;
 import polymod.backends.PolymodAssets;
 import funkin.backend.Paths;
 
+import flixel.math.FlxMath;
+
 /**
  * Health bar icon. Every icon is its own png at images/icons/icon-<name>.png: two frames side by side
  * (normal, losing), like Psych Engine. Mods add icons by putting a png in mods/<mod>/images/icons/.
@@ -70,6 +72,38 @@ class HealthIcon extends FlxSprite
 
 		scale.set(sx, sy);
 		updateHitbox();
+	}
+
+	public dynamic function bop():Void
+	{
+	    setGraphicSize(Std.int(width + 30));
+	    updateHitbox();
+	}
+	
+	public dynamic function updateIcon(
+	    elapsed:Float,
+	    healthPercent:Float,
+	    healthBarX:Float,
+	    healthBarWidth:Float
+	):Void
+	{
+	    setGraphicSize(Std.int(FlxMath.lerp(150, width, Math.exp(-elapsed * 15))));
+	    updateHitbox();
+	
+	    var iconOffset:Int = 26;
+	    var barPosition:Float = healthBarWidth * (FlxMath.remapToRange(healthPercent, 0, 100, 100, 0) * 0.01);
+	
+	    x = healthBarX + barPosition;
+	
+	    if (isPlayer)
+	        x -= iconOffset;
+	    else
+	        x -= width - iconOffset;
+	
+	    if (isPlayer)
+	        animation.curAnim.curFrame = healthPercent < 20 ? 1 : 0;
+	    else
+	        animation.curAnim.curFrame = healthPercent > 80 ? 1 : 0;
 	}
 
 	// "healthicon" from the character json if there is one, otherwise the name we were given.
