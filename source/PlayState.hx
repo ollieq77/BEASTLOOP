@@ -152,6 +152,10 @@ class PlayState extends MusicBeatState
 
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
+	// next note in unspawnNotes to spawn. a cursor is O(1); splice(0, 1) shifts the whole array AND allocates, every spawn
+	private var unspawnIdx:Int = 0;
+	// px of headroom past the screen edge before a note spawns, so it can't pop in after a hitch or a zoomed-out hud cam
+	static inline var NOTE_SPAWN_MARGIN:Float = 200;
 
 	var previousStrumAnimations:haxe.ds.ObjectMap<FlxSprite, String> = new haxe.ds.ObjectMap();
 
@@ -1234,17 +1238,24 @@ class PlayState extends MusicBeatState
 			// FlxG.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 		}
 
-		var NOTE_SPAWN_TIME:Float = 1500 / PlayState.SONG.speed;
+		// scroll in px/ms. same formula the note y uses below, so spawn distance and movement can't drift apart
+		var scrollSpeed:Float = 0.45 * FlxMath.roundDecimal(PlayState.SONG.speed, 2);
 
-		while (unspawnNotes.length > 0)
+		// how long a note takes to travel from the strumline to just past the screen edge. spawning exactly then means
+		// notes enter from off screen at ANY scroll speed (a fixed window pops them in mid-screen when the speed is low).
+		// never later than the hit window though, or very fast scroll speeds would spawn notes too late to hit early
+		var spawnTime:Float = Math.max((FlxG.height - strumLine.y + NOTE_SPAWN_MARGIN) / scrollSpeed, Conductor.safeZoneOffset * 2);
+
+		while (unspawnIdx < unspawnNotes.length)
 		{
-		    var targetNote:Note = unspawnNotes[0];
+		    var targetNote:Note = unspawnNotes[unspawnIdx];
 		
-		    if (targetNote.strumTime - Conductor.songPosition >= NOTE_SPAWN_TIME)
+		    if (targetNote.strumTime - Conductor.songPosition >= spawnTime)
 		        break;
 		
 		    notes.add(targetNote);
-		    unspawnNotes.splice(0, 1);
+		    unspawnNotes[unspawnIdx] = null; // let go of it so a killed note can actually be collected
+		    unspawnIdx++;
 		}
 
 		if (generatedMusic)
@@ -1314,7 +1325,7 @@ class PlayState extends MusicBeatState
 					daNote.destroy();
 				}
 
-				daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(PlayState.SONG.speed, 2)));
+				daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * scrollSpeed);
 				if (sustainClipping)
 					daNote.clipToStrumLine(strumLine.y, downscroll);
 				// WIP interpolation shit? Need to fix the pause issue

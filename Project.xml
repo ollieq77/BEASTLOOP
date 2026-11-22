@@ -50,9 +50,11 @@
 		resizable="true"
 	/>
 
-	<haxedef name="HXCPP_CHECK_POINTER" if="cpp" />
-	<haxedef name="HXCPP_STACK_TRACE" if="cpp" />
-	<haxedef name="HXCPP_STACK_LINE" if="cpp" />
+	<!-- crash reports (CrashHandler) need these three. they cost speed everywhere though, so for perf testing:
+	     lime build windows -Dfastbuild  (strips them: null refs become hard crashes with no report) -->
+	<haxedef name="HXCPP_CHECK_POINTER" if="cpp" unless="fastbuild" />
+	<haxedef name="HXCPP_STACK_TRACE" if="cpp" unless="fastbuild" />
+	<haxedef name="HXCPP_STACK_LINE" if="cpp" unless="fastbuild" />
 
 	<!-- Build paths -->
 	<set name="BUILD_DIR" value="export/debug" if="debug" />

@@ -79,31 +79,53 @@ class Note extends FlxSprite
 		{
 			frames = Paths.sparrow('gameplay/NOTE_assets');
 
-			animation.addByPrefix('greenScroll', 'green0');
-			animation.addByPrefix('redScroll', 'red0');
-			animation.addByPrefix('blueScroll', 'blue0');
-			animation.addByPrefix('purpleScroll', 'purple0');
-
-			animation.addByPrefix('purpleholdend', 'pruple end hold');
-			animation.addByPrefix('greenholdend', 'green hold end');
-			animation.addByPrefix('redholdend', 'red hold end');
-			animation.addByPrefix('blueholdend', 'blue hold end');
-
-			animation.addByPrefix('purplehold', 'purple hold piece');
-			animation.addByPrefix('greenhold', 'green hold piece');
-			animation.addByPrefix('redhold', 'red hold piece');
-			animation.addByPrefix('bluehold', 'blue hold piece');
+			// only register the animations THIS note can ever play. every addByPrefix scans the whole atlas, and
+			// a tap note never plays a hold anim (a hold piece never plays a scroll one), so registering all 12
+			// per note was ~10 wasted scans on every one of the thousands of notes in a chart.
+			// (a hold piece needs BOTH hold + holdend: it starts as the end cap and becomes a body piece when the next piece is built)
+			if (isSustainNote)
+			{
+				switch (noteData)
+				{
+					case 0:
+						animation.addByPrefix('purpleholdend', 'pruple end hold');
+						animation.addByPrefix('purplehold', 'purple hold piece');
+					case 1:
+						animation.addByPrefix('blueholdend', 'blue hold end');
+						animation.addByPrefix('bluehold', 'blue hold piece');
+					case 2:
+						animation.addByPrefix('greenholdend', 'green hold end');
+						animation.addByPrefix('greenhold', 'green hold piece');
+					case 3:
+						animation.addByPrefix('redholdend', 'red hold end');
+						animation.addByPrefix('redhold', 'red hold piece');
+				}
+			}
+			else
+			{
+				switch (noteData)
+				{
+					case 0: animation.addByPrefix('purpleScroll', 'purple0');
+					case 1: animation.addByPrefix('blueScroll', 'blue0');
+					case 2: animation.addByPrefix('greenScroll', 'green0');
+					case 3: animation.addByPrefix('redScroll', 'red0');
+				}
+			}
 
 			setGraphicSize(Std.int(width * 0.7));
 			updateHitbox();
 			antialiasing = true;
 		}
 
-		switch(noteData) {
-		    case 0: animation.play('purpleScroll');
-		    case 1: animation.play('blueScroll');
-		    case 2: animation.play('greenScroll');
-		    case 3: animation.play('redScroll');
+		// sustain pieces don't have a scroll anim (they get holdend below)
+		if (!isSustainNote)
+		{
+			switch(noteData) {
+			    case 0: animation.play('purpleScroll');
+			    case 1: animation.play('blueScroll');
+			    case 2: animation.play('greenScroll');
+			    case 3: animation.play('redScroll');
+			}
 		}
 
 		// trace(prevNote);
