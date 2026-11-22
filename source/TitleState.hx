@@ -25,6 +25,7 @@ import lime.app.Application;
 import openfl.Assets;
 import polymod.Polymod;
 import polymod.backends.PolymodAssets;
+import funkin.ui.Alphabet;
 
 using StringTools;
 

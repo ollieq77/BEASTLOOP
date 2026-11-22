@@ -11,6 +11,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import openfl.utils.Assets;
+import funkin.ui.Alphabet;
 
 class OptionsMenu extends MusicBeatState
 {

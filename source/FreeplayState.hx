@@ -11,6 +11,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import polymod.backends.PolymodAssets;
 import openfl.media.Sound;
+import funkin.ui.Alphabet;
 
 using StringTools;
 

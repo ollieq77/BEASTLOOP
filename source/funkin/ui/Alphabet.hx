@@ -1,4 +1,4 @@
-package;
+package funkin.ui;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -6,6 +6,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.util.FlxTimer;
+import Paths;
 
 using StringTools;
 
