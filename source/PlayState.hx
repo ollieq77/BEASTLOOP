@@ -56,6 +56,9 @@ import funkin.menus.StoryMenuState;
 import funkin.menus.WeekData;
 
 import funkin.backend.ClientPrefs;
+import funkin.editors.AnimationDebug;
+import funkin.editors.CharacterEditorState;
+import funkin.editors.ChartingState;
 
 using StringTools;
 

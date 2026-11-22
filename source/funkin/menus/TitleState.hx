@@ -33,8 +33,8 @@ import funkin.backend.MusicBeatState;
 import funkin.backend.NGio;
 import funkin.backend.Paths;
 import funkin.backend.PlayerSettings;
-import CharacterEditorState;
-import ChartingState;
+import funkin.editors.CharacterEditorState;
+import funkin.editors.ChartingState;
 
 using StringTools;
 

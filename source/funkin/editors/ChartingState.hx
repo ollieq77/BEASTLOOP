@@ -1,4 +1,4 @@
-package;
+package funkin.editors;
 
 import funkin.chart.Section.SwagSection;
 import funkin.chart.Song.SwagSong;
@@ -33,6 +33,10 @@ import funkin.chart.Section;
 import funkin.chart.Song;
 import funkin.backend.MusicBeatState;
 import funkin.backend.Paths;
+import CharacterLoader;
+import HealthIcon;
+import Note;
+import PlayState;
 
 class ChartingState extends MusicBeatState
 {

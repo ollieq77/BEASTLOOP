@@ -1,4 +1,4 @@
-package;
+package funkin.editors;
 
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -28,6 +28,8 @@ import haxe.ui.components.CheckBox;
 import funkin.backend.MusicBeatState;
 import funkin.backend.Paths;
 import funkin.menus.MainMenuState;
+import Character;
+import CharacterLoader;
 
 /**
  * Where "Save" writes the character json.
