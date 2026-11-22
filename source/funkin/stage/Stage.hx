@@ -35,6 +35,14 @@ class Stage
         members = new FlxGroup();
     }
 
+    public function destroy():Void
+    {
+        members.destroy();
+
+        spritesByName.clear();
+        objectsByName.clear();
+    }
+
     public function add(sprite:FlxSprite, ?spriteName:String):Void
     {
         members.add(sprite);
@@ -62,13 +70,5 @@ class Stage
     public function getObject(objectName:String):FlxBasic
     {
         return objectsByName.get(objectName);
-    }
-
-    public function destroy():Void
-    {
-        members.destroy();
-
-        spritesByName.clear();
-        objectsByName.clear();
     }
 }

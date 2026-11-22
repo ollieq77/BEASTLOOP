@@ -27,6 +27,8 @@ class OptionsMenu extends MusicBeatState
 
 	private var grpControls:FlxTypedGroup<Alphabet>;
 
+	var isSettingControl:Bool = false;
+
 	override function create()
 	{
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.graphic(Paths.image('menus/menuDesat')));
@@ -86,8 +88,6 @@ class OptionsMenu extends MusicBeatState
 		}
 		// PlayerSettings.player1.controls.replaceBinding(Control)
 	}
-
-	var isSettingControl:Bool = false;
 
 	function changeBinding():Void
 	{

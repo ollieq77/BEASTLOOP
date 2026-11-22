@@ -181,51 +181,6 @@ class Note extends FlxSprite
 		}
 	}
 
-	public function clipToStrumLine(strumLineY:Float, downscroll:Bool = false)
-	{
-	    if (!isSustainNote || frame == null)
-	        return;
-
-	    var center:Float = strumLineY + Note.swagWidth / 2;
-
-	    if (wasGoodHit || (prevNote.wasGoodHit && !canBeHit))
-	    {
-	        var swagRect:FlxRect = clipRect;
-
-	        if (swagRect == null)
-	            swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
-
-	        if (downscroll)
-	        {
-	            if (y - offset.y * scale.y + height >= center)
-	            {
-	                swagRect.width = frameWidth;
-	                swagRect.height = (center - y) / scale.y;
-	                swagRect.y = frameHeight - swagRect.height;
-	            }
-	        }
-	        else if (y + offset.y * scale.y <= center)
-	        {
-	            swagRect.y = (center - y) / scale.y;
-	            swagRect.width = width / scale.x;
-	            swagRect.height = (height / scale.y) - swagRect.y;
-	        }
-
-	        clipRect = swagRect;
-	    }
-	}
-
-	@:noCompletion
-	override function set_clipRect(rect:FlxRect):FlxRect
-	{
-	    clipRect = rect;
-
-	    if (frames != null)
-	        frame = frames.frames[animation.frameIndex];
-
-	    return rect;
-	}
-
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -259,5 +214,50 @@ class Note extends FlxSprite
 			if (alpha > 0.3)
 				alpha = 0.3;
 		}
+	}
+
+	@:noCompletion
+	override function set_clipRect(rect:FlxRect):FlxRect
+	{
+	    clipRect = rect;
+
+	    if (frames != null)
+	        frame = frames.frames[animation.frameIndex];
+
+	    return rect;
+	}
+
+	public function clipToStrumLine(strumLineY:Float, downscroll:Bool = false)
+	{
+	    if (!isSustainNote || frame == null)
+	        return;
+
+	    var center:Float = strumLineY + Note.swagWidth / 2;
+
+	    if (wasGoodHit || (prevNote.wasGoodHit && !canBeHit))
+	    {
+	        var swagRect:FlxRect = clipRect;
+
+	        if (swagRect == null)
+	            swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
+
+	        if (downscroll)
+	        {
+	            if (y - offset.y * scale.y + height >= center)
+	            {
+	                swagRect.width = frameWidth;
+	                swagRect.height = (center - y) / scale.y;
+	                swagRect.y = frameHeight - swagRect.height;
+	            }
+	        }
+	        else if (y + offset.y * scale.y <= center)
+	        {
+	            swagRect.y = (center - y) / scale.y;
+	            swagRect.width = width / scale.x;
+	            swagRect.height = (height / scale.y) - swagRect.y;
+	        }
+
+	        clipRect = swagRect;
+	    }
 	}
 }

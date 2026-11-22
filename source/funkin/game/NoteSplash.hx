@@ -26,6 +26,14 @@ class NoteSplash extends FlxSprite
         animation.addByPrefix('note3-1', 'note impact 2 red', 24, false);
     }
 
+    override public function update(elapsed:Float):Void
+    {
+        super.update(elapsed);
+
+        if (animation.curAnim != null && animation.curAnim.finished)
+            kill();
+    }
+
     public function setupNoteSplash(x:Float, y:Float, noteData:Int = 0):Void
     {
         revive();
@@ -43,13 +51,5 @@ class NoteSplash extends FlxSprite
 
         updateHitbox();
         offset.set(width * 0.3, height * 0.3);
-    }
-
-    override public function update(elapsed:Float):Void
-    {
-        super.update(elapsed);
-
-        if (animation.curAnim != null && animation.curAnim.finished)
-            kill();
     }
 }

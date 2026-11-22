@@ -41,6 +41,8 @@ class Alphabet extends FlxSpriteGroup
 
 	var isBold:Bool = false;
 
+	public var personTalking:String = 'gf';
+
 	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false)
 	{
 		super(x, y);
@@ -60,6 +62,19 @@ class Alphabet extends FlxSpriteGroup
 				addText();
 			}
 		}
+	}
+
+	override function update(elapsed:Float)
+	{
+		if (isMenuItem)
+		{
+			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
+
+			y = FlxMath.lerp(y, (scaledY * 120) + (FlxG.height * 0.48), 0.16);
+			x = FlxMath.lerp(x, (targetY * 20) + 90, 0.16);
+		}
+
+		super.update(elapsed);
 	}
 
 	public function addText()
@@ -110,13 +125,6 @@ class Alphabet extends FlxSpriteGroup
 			// loopNum += 1;
 		}
 	}
-
-	function doSplitWords():Void
-	{
-		splitWords = _finalText.split("");
-	}
-
-	public var personTalking:String = 'gf';
 
 	public function startTypedText():Void
 	{
@@ -219,17 +227,9 @@ class Alphabet extends FlxSpriteGroup
 		}, splitWords.length);
 	}
 
-	override function update(elapsed:Float)
+	function doSplitWords():Void
 	{
-		if (isMenuItem)
-		{
-			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
-
-			y = FlxMath.lerp(y, (scaledY * 120) + (FlxG.height * 0.48), 0.16);
-			x = FlxMath.lerp(x, (targetY * 20) + 90, 0.16);
-		}
-
-		super.update(elapsed);
+		splitWords = _finalText.split("");
 	}
 }
 

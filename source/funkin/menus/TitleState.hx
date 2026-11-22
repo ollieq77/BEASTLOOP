@@ -53,6 +53,15 @@ class TitleState extends MusicBeatState
 
 	var wackyImage:FlxSprite;
 
+	var logoBl:FlxSprite;
+	var gfDance:FlxSprite;
+	var danceLeft:Bool = false;
+	var titleText:FlxSprite;
+
+	var transitioning:Bool = false;
+
+	var skippedIntro:Bool = false;
+
 	override public function create():Void
 	{
 
@@ -121,10 +130,141 @@ class TitleState extends MusicBeatState
 		#end
 	}
 
-	var logoBl:FlxSprite;
-	var gfDance:FlxSprite;
-	var danceLeft:Bool = false;
-	var titleText:FlxSprite;
+	override function update(elapsed:Float)
+	{
+		Conductor.songPosition = FlxG.sound.music.time;
+		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
+
+		if (FlxG.keys.justPressed.F)
+		{
+			FlxG.fullscreen = !FlxG.fullscreen;
+		}
+
+		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER;
+
+		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
+
+		if (gamepad != null)
+		{
+			if (gamepad.justPressed.START)
+				pressedEnter = true;
+
+			#if switch
+			if (gamepad.justPressed.B)
+				pressedEnter = true;
+			#end
+		}
+
+		if (pressedEnter && !transitioning && skippedIntro)
+		{
+			#if !switch
+			NGio.unlockMedal(60960);
+
+			// If it's Friday according to da clock
+			if (Date.now().getDay() == 5)
+				NGio.unlockMedal(61034);
+			#end
+
+			titleText.animation.play('press');
+
+			FlxG.camera.flash(FlxColor.WHITE, 1);
+			FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
+
+			transitioning = true;
+			// FlxG.sound.music.stop();
+
+			new FlxTimer().start(2, function(tmr:FlxTimer)
+			{
+				// Check if version is outdated
+
+				var version:String = "v" + Application.current.meta.get('version');
+
+				if (version.trim() != NGio.GAME_VER.trim() && !OutdatedSubState.leftState)
+				{
+					trace('OLD VERSION!');
+					FlxG.switchState(new OutdatedSubState());
+				}
+				else
+				{
+					FlxG.switchState(new MainMenuState());
+				}
+			});
+			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
+		}
+
+		if (pressedEnter && !skippedIntro)
+		{
+			skipIntro();
+		}
+
+		super.update(elapsed);
+	}
+
+	override function beatHit()
+	{
+		super.beatHit();
+
+		logoBl.animation.play('bump');
+		danceLeft = !danceLeft;
+
+		if (danceLeft)
+			gfDance.animation.play('danceRight');
+		else
+			gfDance.animation.play('danceLeft');
+
+		FlxG.log.add(curBeat);
+
+		switch (curBeat)
+		{
+			case 1:
+				createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
+			// credTextShit.visible = true;
+			case 3:
+				addMoreText('present');
+			// credTextShit.text += '\npresent...';
+			// credTextShit.addText();
+			case 4:
+				deleteCoolText();
+			// credTextShit.visible = false;
+			// credTextShit.text = 'In association \nwith';
+			// credTextShit.screenCenter();
+			case 5:
+				createCoolText(['In association', 'with']);
+			case 7:
+				addMoreText('newgrounds');
+				ngSpr.visible = true;
+			// credTextShit.text += '\nNewgrounds';
+			case 8:
+				deleteCoolText();
+				ngSpr.visible = false;
+			// credTextShit.visible = false;
+
+			// credTextShit.text = 'Shoutouts Tom Fulp';
+			// credTextShit.screenCenter();
+			case 9:
+				createCoolText([curWacky[0]]);
+			// credTextShit.visible = true;
+			case 11:
+				addMoreText(curWacky[1]);
+			// credTextShit.text += '\nlmao';
+			case 12:
+				deleteCoolText();
+			// credTextShit.visible = false;
+			// credTextShit.text = "Friday";
+			// credTextShit.screenCenter();
+			case 13:
+				addMoreText('Friday');
+			// credTextShit.visible = true;
+			case 14:
+				addMoreText('Night');
+			// credTextShit.text += '\nNight';
+			case 15:
+				addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
+
+			case 16:
+				skipIntro();
+		}
+	}
 
 	function startIntro()
 	{
@@ -248,78 +388,6 @@ class TitleState extends MusicBeatState
 		return swagGoodArray;
 	}
 
-	var transitioning:Bool = false;
-
-	override function update(elapsed:Float)
-	{
-		Conductor.songPosition = FlxG.sound.music.time;
-		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
-
-		if (FlxG.keys.justPressed.F)
-		{
-			FlxG.fullscreen = !FlxG.fullscreen;
-		}
-
-		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER;
-
-		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
-
-		if (gamepad != null)
-		{
-			if (gamepad.justPressed.START)
-				pressedEnter = true;
-
-			#if switch
-			if (gamepad.justPressed.B)
-				pressedEnter = true;
-			#end
-		}
-
-		if (pressedEnter && !transitioning && skippedIntro)
-		{
-			#if !switch
-			NGio.unlockMedal(60960);
-
-			// If it's Friday according to da clock
-			if (Date.now().getDay() == 5)
-				NGio.unlockMedal(61034);
-			#end
-
-			titleText.animation.play('press');
-
-			FlxG.camera.flash(FlxColor.WHITE, 1);
-			FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
-
-			transitioning = true;
-			// FlxG.sound.music.stop();
-
-			new FlxTimer().start(2, function(tmr:FlxTimer)
-			{
-				// Check if version is outdated
-
-				var version:String = "v" + Application.current.meta.get('version');
-
-				if (version.trim() != NGio.GAME_VER.trim() && !OutdatedSubState.leftState)
-				{
-					trace('OLD VERSION!');
-					FlxG.switchState(new OutdatedSubState());
-				}
-				else
-				{
-					FlxG.switchState(new MainMenuState());
-				}
-			});
-			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
-		}
-
-		if (pressedEnter && !skippedIntro)
-		{
-			skipIntro();
-		}
-
-		super.update(elapsed);
-	}
-
 	function createCoolText(textArray:Array<String>)
 	{
 		for (i in 0...textArray.length)
@@ -349,74 +417,6 @@ class TitleState extends MusicBeatState
 			textGroup.remove(textGroup.members[0], true);
 		}
 	}
-
-	override function beatHit()
-	{
-		super.beatHit();
-
-		logoBl.animation.play('bump');
-		danceLeft = !danceLeft;
-
-		if (danceLeft)
-			gfDance.animation.play('danceRight');
-		else
-			gfDance.animation.play('danceLeft');
-
-		FlxG.log.add(curBeat);
-
-		switch (curBeat)
-		{
-			case 1:
-				createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
-			// credTextShit.visible = true;
-			case 3:
-				addMoreText('present');
-			// credTextShit.text += '\npresent...';
-			// credTextShit.addText();
-			case 4:
-				deleteCoolText();
-			// credTextShit.visible = false;
-			// credTextShit.text = 'In association \nwith';
-			// credTextShit.screenCenter();
-			case 5:
-				createCoolText(['In association', 'with']);
-			case 7:
-				addMoreText('newgrounds');
-				ngSpr.visible = true;
-			// credTextShit.text += '\nNewgrounds';
-			case 8:
-				deleteCoolText();
-				ngSpr.visible = false;
-			// credTextShit.visible = false;
-
-			// credTextShit.text = 'Shoutouts Tom Fulp';
-			// credTextShit.screenCenter();
-			case 9:
-				createCoolText([curWacky[0]]);
-			// credTextShit.visible = true;
-			case 11:
-				addMoreText(curWacky[1]);
-			// credTextShit.text += '\nlmao';
-			case 12:
-				deleteCoolText();
-			// credTextShit.visible = false;
-			// credTextShit.text = "Friday";
-			// credTextShit.screenCenter();
-			case 13:
-				addMoreText('Friday');
-			// credTextShit.visible = true;
-			case 14:
-				addMoreText('Night');
-			// credTextShit.text += '\nNight';
-			case 15:
-				addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
-
-			case 16:
-				skipIntro();
-		}
-	}
-
-	var skippedIntro:Bool = false;
 
 	function skipIntro():Void
 	{

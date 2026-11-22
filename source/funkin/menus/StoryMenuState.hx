@@ -47,60 +47,12 @@ class StoryMenuState extends MusicBeatState
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
 
-	public static function loadWeeks():Void
-    {
-        weeks = [];
+	var movedBack:Bool = false;
+	var selectedWeek:Bool = false;
+	var stopspamming:Bool = false;
 
-		var modFiles:Array<String> = PolymodAssets.list();
-
-		for (asset in modFiles)
-		{
-		    if (asset.contains("weeks/") && asset.endsWith(".json"))
-		    {
-		        var rawData:String = PolymodAssets.getText(asset);
-			
-		        if (rawData == null || rawData.length == 0)
-		            continue;
-			
-		        try
-		        {
-		            var week:WeekData = cast Json.parse(rawData);
-				
-		            if (week == null)
-		                continue;
-				
-		            // Skip weeks that already exist
-					if (Lambda.exists(weeks, w -> w.id == week.id))
-					    continue;
-				
-		            weeks.push(week);
-		        }
-		        catch (e:Dynamic)
-		        {
-		            trace('Error parsing week JSON ($asset): $e');
-		        }
-		    }
-		}
-
-        // Sort weeks by their order property
-        weeks.sort(function(a:WeekData, b:WeekData):Int
-        {
-            if (a.order == b.order)
-                return Reflect.compare(a.id, b.id);
-
-            return Reflect.compare(a.order, b.order);
-        });
-
-        // Apply save data unlocks
-        if (FlxG.save.data.weekUnlocks != null)
-        {
-            for (week in weeks)
-            {
-                if (Reflect.field(FlxG.save.data.weekUnlocks, week.id) == true)
-                    week.unlocked = true;
-            }
-        }
-    }
+	var lerpScore:Int = 0;
+	var intendedScore:Int = 0;
 
 	override function create()
 	{
@@ -315,9 +267,60 @@ class StoryMenuState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	var movedBack:Bool = false;
-	var selectedWeek:Bool = false;
-	var stopspamming:Bool = false;
+	public static function loadWeeks():Void
+    {
+        weeks = [];
+
+		var modFiles:Array<String> = PolymodAssets.list();
+
+		for (asset in modFiles)
+		{
+		    if (asset.contains("weeks/") && asset.endsWith(".json"))
+		    {
+		        var rawData:String = PolymodAssets.getText(asset);
+			
+		        if (rawData == null || rawData.length == 0)
+		            continue;
+			
+		        try
+		        {
+		            var week:WeekData = cast Json.parse(rawData);
+				
+		            if (week == null)
+		                continue;
+				
+		            // Skip weeks that already exist
+					if (Lambda.exists(weeks, w -> w.id == week.id))
+					    continue;
+				
+		            weeks.push(week);
+		        }
+		        catch (e:Dynamic)
+		        {
+		            trace('Error parsing week JSON ($asset): $e');
+		        }
+		    }
+		}
+
+        // Sort weeks by their order property
+        weeks.sort(function(a:WeekData, b:WeekData):Int
+        {
+            if (a.order == b.order)
+                return Reflect.compare(a.id, b.id);
+
+            return Reflect.compare(a.order, b.order);
+        });
+
+        // Apply save data unlocks
+        if (FlxG.save.data.weekUnlocks != null)
+        {
+            for (week in weeks)
+            {
+                if (Reflect.field(FlxG.save.data.weekUnlocks, week.id) == true)
+                    week.unlocked = true;
+            }
+        }
+    }
 
 	function selectWeek()
 	{
@@ -396,9 +399,6 @@ class StoryMenuState extends MusicBeatState
 
 		FlxTween.tween(sprDifficulty, {y: leftArrow.y + 15, alpha: 1}, 0.07);
 	}
-
-	var lerpScore:Int = 0;
-	var intendedScore:Int = 0;
 
 	function changeWeek(change:Int = 0):Void
 	{

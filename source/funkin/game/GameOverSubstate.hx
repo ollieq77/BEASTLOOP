@@ -19,6 +19,8 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	var stageSuffix:String = "";
 
+	var isEnding:Bool = false;
+
 	public function new(x:Float, y:Float)
 	{
 		var daBf:String = 'bf';
@@ -91,8 +93,6 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		FlxG.log.add('beat');
 	}
-
-	var isEnding:Bool = false;
 
 	function endBullshit():Void
 	{

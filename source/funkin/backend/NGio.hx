@@ -32,29 +32,6 @@ class NGio
 	public static var GAME_VER:String = "";
 	public static var gotOnlineVer:Bool = false;
 
-	public static function noLogin(api:String)
-	{
-		trace('INIT NOLOGIN');
-		GAME_VER = "v" + Application.current.meta.get('version');
-
-		if (api.length != 0)
-		{
-			NG.create(api);
-
-			new FlxTimer().start(2, function(tmr:FlxTimer)
-			{
-				var call = NG.core.calls.app.getCurrentVersion(GAME_VER).addDataHandler(function(response:Response<GetCurrentVersionResult>)
-				{
-					GAME_VER = response.result.data.current_version;
-					trace('CURRENT NG VERSION: ' + GAME_VER);
-					gotOnlineVer = true;
-				});
-
-				call.send();
-			});
-		}
-	}
-
 	public function new(api:String, encKey:String, ?sessionId:String)
 	{
 
@@ -84,6 +61,66 @@ class NGio
 			 * Note: This will cause a new browser window to pop up where they can log in to newgrounds
 			 */
 			NG.core.requestLogin(onNGLogin);
+		}
+	}
+
+	public static function noLogin(api:String)
+	{
+		trace('INIT NOLOGIN');
+		GAME_VER = "v" + Application.current.meta.get('version');
+
+		if (api.length != 0)
+		{
+			NG.create(api);
+
+			new FlxTimer().start(2, function(tmr:FlxTimer)
+			{
+				var call = NG.core.calls.app.getCurrentVersion(GAME_VER).addDataHandler(function(response:Response<GetCurrentVersionResult>)
+				{
+					GAME_VER = response.result.data.current_version;
+					trace('CURRENT NG VERSION: ' + GAME_VER);
+					gotOnlineVer = true;
+				});
+
+				call.send();
+			});
+		}
+	}
+
+	inline static public function postScore(score:Int = 0, song:String)
+	{
+		if (isLoggedIn)
+		{
+			for (id in NG.core.scoreBoards.keys())
+			{
+				var board = NG.core.scoreBoards.get(id);
+
+				if (song == board.name)
+				{
+					board.postScore(score, "Uhh meow?");
+				}
+
+				// trace('loaded scoreboard id:$id, name:${board.name}');
+			}
+		}
+	}
+
+	inline static public function logEvent(event:String):Void
+	{
+		// null check because we should not be calling newgrounds functions
+	    if (NG.core == null) return;
+
+	    NG.core.calls.event.logEvent(event).send();
+	    trace('should have logged: ' + event);
+	}
+
+	inline static public function unlockMedal(id:Int)
+	{
+		if (isLoggedIn)
+		{
+			var medal = NG.core.medals.get(id);
+			if (!medal.unlocked)
+				medal.sendUnlock();
 		}
 	}
 
@@ -145,24 +182,6 @@ class NGio
 		// more info on scores --- http://www.newgrounds.io/help/components/#scoreboard-getscores
 	}
 
-	inline static public function postScore(score:Int = 0, song:String)
-	{
-		if (isLoggedIn)
-		{
-			for (id in NG.core.scoreBoards.keys())
-			{
-				var board = NG.core.scoreBoards.get(id);
-
-				if (song == board.name)
-				{
-					board.postScore(score, "Uhh meow?");
-				}
-
-				// trace('loaded scoreboard id:$id, name:${board.name}');
-			}
-		}
-	}
-
 	function onNGScoresFetch():Void
 	{
 		scoreboardsLoaded = true;
@@ -180,24 +199,5 @@ class NGio
 		// board.postScore(HighScore.score);
 
 		// NGio.scoreboardArray = NG.core.scoreBoards.get(8004).scores;
-	}
-
-	inline static public function logEvent(event:String):Void
-	{
-		// null check because we should not be calling newgrounds functions
-	    if (NG.core == null) return;
-
-	    NG.core.calls.event.logEvent(event).send();
-	    trace('should have logged: ' + event);
-	}
-
-	inline static public function unlockMedal(id:Int)
-	{
-		if (isLoggedIn)
-		{
-			var medal = NG.core.medals.get(id);
-			if (!medal.unlocked)
-				medal.sendUnlock();
-		}
 	}
 }

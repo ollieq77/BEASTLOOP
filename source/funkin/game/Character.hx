@@ -26,6 +26,8 @@ class Character extends FlxSprite
 	public var positionOffset:Array<Float> = [0, 0];
 	public var cameraOffset:Array<Float> = [0, 0];
 
+	private var danced:Bool = false;
+
 	public function new(
     x:Float,
     y:Float,
@@ -87,25 +89,11 @@ class Character extends FlxSprite
 
 	    super.update(elapsed);
 	}
-	private function swapAnimations(first:String, second:String):Void
-	{
-    	var firstAnim = animation.getByName(first);
-    	var secondAnim = animation.getByName(second);
-
-    	if (firstAnim == null || secondAnim == null) return;
-
-    	var oldFrames = firstAnim.frames;
-    	firstAnim.frames = secondAnim.frames;
-    	secondAnim.frames = oldFrames;
-	}
-
 
 	public function canDance():Bool
 	{
 	    return Conductor.songPosition - lastNoteHitTime > Conductor.stepCrochet * 8;
 	}
-
-	private var danced:Bool = false;
 
 	public function dance():Void
 	{
@@ -161,5 +149,17 @@ class Character extends FlxSprite
 	public function addOffset(name:String, x:Float = 0, y:Float = 0)
 	{
 		animOffsets[name] = [x, y];
+	}
+
+	private function swapAnimations(first:String, second:String):Void
+	{
+    	var firstAnim = animation.getByName(first);
+    	var secondAnim = animation.getByName(second);
+
+    	if (firstAnim == null || secondAnim == null) return;
+
+    	var oldFrames = firstAnim.frames;
+    	firstAnim.frames = secondAnim.frames;
+    	secondAnim.frames = oldFrames;
 	}
 }

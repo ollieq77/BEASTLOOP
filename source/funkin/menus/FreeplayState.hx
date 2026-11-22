@@ -37,17 +37,6 @@ class FreeplayState extends MusicBeatState
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
 
-	function getDifficultyName():String
-	{
-    	return switch (curDifficulty)
-    	{
-    	    case 0: "easy";
-    	    case 1: "normal";
-    	    case 2: "hard";
-    	    default: "normal";
-    	}
-	}
-
 	override function create()
 	{
 
@@ -208,6 +197,17 @@ class FreeplayState extends MusicBeatState
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.stop();
 		}
+	}
+
+	function getDifficultyName():String
+	{
+    	return switch (curDifficulty)
+    	{
+    	    case 0: "easy";
+    	    case 1: "normal";
+    	    case 2: "hard";
+    	    default: "normal";
+    	}
 	}
 
 	function changeDiff(change:Int = 0)

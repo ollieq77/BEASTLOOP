@@ -20,10 +20,10 @@ class MusicBeatState extends FlxUIState
 	private var curBeat:Int = 0;
 	private var controls(get, never):Controls;
 
-	private var lastTempoStep:Int = 0;
-
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
+
+	private var lastTempoStep:Int = 0;
 
 	override function create()
 	{
@@ -46,6 +46,47 @@ class MusicBeatState extends FlxUIState
 		updateBeat();
 
 		super.update(elapsed);
+	}
+
+	public function stepHit():Void
+	{
+	    totalSteps += 1;
+
+	    if (!usesTempoMap())
+	    {
+	        lastStep += Conductor.stepCrochet;
+
+	        // If the song is at least 3 steps behind
+	        if (Conductor.songPosition > lastStep + (Conductor.stepCrochet * 3))
+	        {
+	            lastStep = Conductor.songPosition;
+	            totalSteps = Math.ceil(lastStep / Conductor.stepCrochet);
+	        }
+	    }
+
+	    if (totalSteps % 4 == 0)
+	        beatHit();
+	}
+
+	public function beatHit():Void
+	{
+		lastBeat += Conductor.crochet;
+		totalBeats += 1;
+	}
+
+	public function usesTempoMap():Bool
+	{
+	    return false;
+	}
+
+	public function getStepAtTime(time:Float):Int
+	{
+	    return Std.int(Math.floor(time / Conductor.stepCrochet));
+	}
+
+	public function getBPMAtStep(step:Int):Int
+	{
+	    return Conductor.bpm;
 	}
 
 	private function updateBeat():Void
@@ -109,46 +150,5 @@ class MusicBeatState extends FlxUIState
 	    }
 	
 	    curStep = Math.floor(Conductor.songPosition / Conductor.stepCrochet);
-	}
-
-	public function stepHit():Void
-	{
-	    totalSteps += 1;
-
-	    if (!usesTempoMap())
-	    {
-	        lastStep += Conductor.stepCrochet;
-
-	        // If the song is at least 3 steps behind
-	        if (Conductor.songPosition > lastStep + (Conductor.stepCrochet * 3))
-	        {
-	            lastStep = Conductor.songPosition;
-	            totalSteps = Math.ceil(lastStep / Conductor.stepCrochet);
-	        }
-	    }
-
-	    if (totalSteps % 4 == 0)
-	        beatHit();
-	}
-
-	public function beatHit():Void
-	{
-		lastBeat += Conductor.crochet;
-		totalBeats += 1;
-	}
-
-	public function usesTempoMap():Bool
-	{
-	    return false;
-	}
-
-	public function getStepAtTime(time:Float):Int
-	{
-	    return Std.int(Math.floor(time / Conductor.stepCrochet));
-	}
-
-	public function getBPMAtStep(step:Int):Int
-	{
-	    return Conductor.bpm;
 	}
 }

@@ -52,6 +52,18 @@ class StageScript
         interp.variables.set("FlxG", FlxG);
     }
 
+    public function destroy():Void
+    {
+        if (loaded)
+            call("onDestroy");
+
+        loaded = false;
+
+        stage = null;
+        interp = null;
+        parser = null;
+    }
+
     public function load():Bool
     {
         if (!Paths.exists(scriptPath))
@@ -103,20 +115,9 @@ class StageScript
             return null;
         }
     }
+
     public function setVariable(name:String, value:Dynamic):Void
     {
         interp.variables.set(name, value);
-    }
-
-    public function destroy():Void
-    {
-        if (loaded)
-            call("onDestroy");
-
-        loaded = false;
-
-        stage = null;
-        interp = null;
-        parser = null;
     }
 }

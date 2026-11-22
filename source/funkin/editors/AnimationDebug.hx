@@ -84,33 +84,6 @@ class AnimationDebug extends FlxState
 		super.create();
 	}
 
-	function genBoyOffsets(pushList:Bool = true):Void
-	{
-		var daLoop:Int = 0;
-
-		for (anim => offsets in char.animOffsets)
-		{
-			var text:FlxText = new FlxText(10, 20 + (18 * daLoop), 0, anim + ": " + offsets, 15);
-			text.scrollFactor.set();
-			text.color = FlxColor.BLUE;
-			dumbTexts.add(text);
-
-			if (pushList)
-				animList.push(anim);
-
-			daLoop++;
-		}
-	}
-
-	function updateTexts():Void
-	{
-		dumbTexts.forEach(function(text:FlxText)
-		{
-			text.kill();
-			dumbTexts.remove(text, true);
-		});
-	}
-
 	override function update(elapsed:Float)
 	{
 		textAnim.text = char.animation.curAnim.name;
@@ -193,5 +166,32 @@ class AnimationDebug extends FlxState
 		}
 
 		super.update(elapsed);
+	}
+
+	function genBoyOffsets(pushList:Bool = true):Void
+	{
+		var daLoop:Int = 0;
+
+		for (anim => offsets in char.animOffsets)
+		{
+			var text:FlxText = new FlxText(10, 20 + (18 * daLoop), 0, anim + ": " + offsets, 15);
+			text.scrollFactor.set();
+			text.color = FlxColor.BLUE;
+			dumbTexts.add(text);
+
+			if (pushList)
+				animList.push(anim);
+
+			daLoop++;
+		}
+	}
+
+	function updateTexts():Void
+	{
+		dumbTexts.forEach(function(text:FlxText)
+		{
+			text.kill();
+			dumbTexts.remove(text, true);
+		});
 	}
 }

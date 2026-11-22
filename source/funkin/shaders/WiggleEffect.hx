@@ -16,9 +16,37 @@ class WiggleEffect
 {
 	public var shader(default, null):WiggleShader = new WiggleShader();
 	public var effectType(default, set):WiggleEffectType = DREAMY;
+
+	function set_effectType(v:WiggleEffectType):WiggleEffectType
+	{
+		effectType = v;
+		shader.effectType.value = [WiggleEffectType.getConstructors().indexOf(Std.string(v))];
+		return v;
+	}
 	public var waveSpeed(default, set):Float = 0;
+
+	function set_waveSpeed(v:Float):Float
+	{
+		waveSpeed = v;
+		shader.uSpeed.value = [waveSpeed];
+		return v;
+	}
 	public var waveFrequency(default, set):Float = 0;
+
+	function set_waveFrequency(v:Float):Float
+	{
+		waveFrequency = v;
+		shader.uFrequency.value = [waveFrequency];
+		return v;
+	}
 	public var waveAmplitude(default, set):Float = 0;
+
+	function set_waveAmplitude(v:Float):Float
+	{
+		waveAmplitude = v;
+		shader.uWaveAmplitude.value = [waveAmplitude];
+		return v;
+	}
 
 	public function new():Void
 	{
@@ -28,34 +56,6 @@ class WiggleEffect
 	public function update(elapsed:Float):Void
 	{
 		shader.uTime.value[0] += elapsed;
-	}
-
-	function set_effectType(v:WiggleEffectType):WiggleEffectType
-	{
-		effectType = v;
-		shader.effectType.value = [WiggleEffectType.getConstructors().indexOf(Std.string(v))];
-		return v;
-	}
-
-	function set_waveSpeed(v:Float):Float
-	{
-		waveSpeed = v;
-		shader.uSpeed.value = [waveSpeed];
-		return v;
-	}
-
-	function set_waveFrequency(v:Float):Float
-	{
-		waveFrequency = v;
-		shader.uFrequency.value = [waveFrequency];
-		return v;
-	}
-
-	function set_waveAmplitude(v:Float):Float
-	{
-		waveAmplitude = v;
-		shader.uWaveAmplitude.value = [waveAmplitude];
-		return v;
 	}
 }
 

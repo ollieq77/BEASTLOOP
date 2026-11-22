@@ -33,6 +33,8 @@ class MainMenuState extends MusicBeatState
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
 
+	var selectedSomethin:Bool = false;
+
 	override function create()
 	{
 		if (!FlxG.sound.music.playing)
@@ -101,8 +103,6 @@ class MainMenuState extends MusicBeatState
 
 		super.create();
 	}
-
-	var selectedSomethin:Bool = false;
 
 	override function update(elapsed:Float)
 	{
