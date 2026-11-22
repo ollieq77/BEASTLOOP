@@ -5,6 +5,7 @@ import flixel.graphics.FlxGraphic;
 import flixel.util.FlxColor;
 import haxe.Json;
 import polymod.backends.PolymodAssets;
+import funkin.backend.Paths;
 
 /**
  * Health bar icon. Every icon is its own png at images/icons/icon-<name>.png: two frames side by side

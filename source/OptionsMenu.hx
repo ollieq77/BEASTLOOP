@@ -1,6 +1,6 @@
 package;
 
-import Controls.Control;
+import funkin.backend.Controls.Control;
 import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -12,6 +12,11 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import openfl.utils.Assets;
 import funkin.ui.Alphabet;
+import funkin.backend.CoolUtil;
+import funkin.backend.MusicBeatState;
+import funkin.backend.NGio;
+import funkin.backend.Paths;
+import funkin.backend.PlayerSettings;
 
 class OptionsMenu extends MusicBeatState
 {

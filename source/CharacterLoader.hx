@@ -2,6 +2,7 @@ package;
 
 import flixel.graphics.frames.FlxAtlasFrames;
 import polymod.backends.PolymodAssets;
+import funkin.backend.Paths;
 
 class CharacterLoader
 {

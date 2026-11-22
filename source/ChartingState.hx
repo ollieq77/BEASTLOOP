@@ -31,6 +31,8 @@ import StringTools;
 import funkin.chart.Conductor;
 import funkin.chart.Section;
 import funkin.chart.Song;
+import funkin.backend.MusicBeatState;
+import funkin.backend.Paths;
 
 class ChartingState extends MusicBeatState
 {

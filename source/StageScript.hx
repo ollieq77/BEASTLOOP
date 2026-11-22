@@ -7,6 +7,7 @@ import openfl.utils.Assets;
 import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
 import polymod.backends.PolymodAssets;
+import funkin.backend.Paths;
 
 class StageScript
 {

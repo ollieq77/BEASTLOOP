@@ -10,6 +10,7 @@ import openfl.system.System;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import haxe.Timer;
+import funkin.backend.CrashHandler;
 
 class Main extends Sprite
 {

@@ -1,4 +1,4 @@
-package;
+package funkin.backend;
 
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
@@ -11,6 +11,7 @@ import openfl.media.Sound;
 import openfl.utils.AssetType;
 import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
+import TitleState;
 
 /**
  * Every asset path in the game should come from here.

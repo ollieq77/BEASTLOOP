@@ -6,6 +6,8 @@ import flixel.FlxSubState;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.app.Application;
+import funkin.backend.MusicBeatState;
+import funkin.backend.NGio;
 
 class OutdatedSubState extends MusicBeatState
 {

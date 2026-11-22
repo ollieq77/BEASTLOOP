@@ -12,6 +12,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 import flixel.system.FlxSound;
+import funkin.backend.Paths;
 
 class StageAPI
 {

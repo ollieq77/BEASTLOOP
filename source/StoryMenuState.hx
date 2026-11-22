@@ -16,6 +16,9 @@ import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
 import haxe.Json;
 import funkin.chart.Song;
+import funkin.backend.Highscore;
+import funkin.backend.MusicBeatState;
+import funkin.backend.Paths;
 
 using StringTools;
 

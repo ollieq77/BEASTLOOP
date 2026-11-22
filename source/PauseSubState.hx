@@ -1,6 +1,6 @@
 package;
 
-import Controls.Control;
+import funkin.backend.Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
@@ -9,6 +9,8 @@ import flixel.input.keyboard.FlxKey;
 import flixel.system.FlxSound;
 import flixel.util.FlxColor;
 import funkin.ui.Alphabet;
+import funkin.backend.MusicBeatSubstate;
+import funkin.backend.Paths;
 
 class PauseSubState extends MusicBeatSubstate
 {

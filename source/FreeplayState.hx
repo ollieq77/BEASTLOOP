@@ -13,6 +13,10 @@ import polymod.backends.PolymodAssets;
 import openfl.media.Sound;
 import funkin.ui.Alphabet;
 import funkin.chart.Song;
+import funkin.backend.Highscore;
+import funkin.backend.MusicBeatState;
+import funkin.backend.NGio;
+import funkin.backend.Paths;
 
 using StringTools;
 

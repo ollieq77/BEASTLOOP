@@ -1,4 +1,4 @@
-package;
+package funkin.backend;
 
 import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;

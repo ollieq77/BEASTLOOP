@@ -1,5 +1,5 @@
 
-package;
+package funkin.backend;
 
 import haxe.Exception;
 import haxe.CallStack;

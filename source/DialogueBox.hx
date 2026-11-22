@@ -10,6 +10,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import funkin.ui.Alphabet;
+import funkin.backend.Paths;
 
 using StringTools;
 

@@ -5,6 +5,7 @@ import openfl.utils.Assets;
 import haxe.Json;
 import flixel.graphics.frames.FlxAtlasFrames;
 import polymod.backends.PolymodAssets;
+import funkin.backend.Paths;
 
 class StageLoader
 {

@@ -1,8 +1,9 @@
-package;
+package funkin.backend;
 
 import flixel.FlxG;
 import flixel.FlxSubState;
 import funkin.chart.Conductor;
+import TitleState;
 
 class MusicBeatSubstate extends FlxSubState
 {

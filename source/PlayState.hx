@@ -46,6 +46,11 @@ import StageLoader;
 import funkin.shaders.WiggleEffect;
 import funkin.chart.Conductor;
 import funkin.chart.Song;
+import funkin.backend.CoolUtil;
+import funkin.backend.Highscore;
+import funkin.backend.MusicBeatState;
+import funkin.backend.NGio;
+import funkin.backend.Paths;
 
 using StringTools;
 

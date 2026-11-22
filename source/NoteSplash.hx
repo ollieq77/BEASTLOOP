@@ -3,6 +3,7 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
+import funkin.backend.Paths;
 
 class NoteSplash extends FlxSprite
 {

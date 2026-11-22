@@ -7,6 +7,7 @@ import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 import polymod.format.ParseRules.TargetSignatureElement;
 import funkin.chart.Conductor;
+import funkin.backend.Paths;
 
 using StringTools;
 

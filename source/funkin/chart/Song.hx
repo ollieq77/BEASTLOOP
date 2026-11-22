@@ -5,7 +5,7 @@ import haxe.Json;
 import haxe.format.JsonParser;
 import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
-import Paths;
+import funkin.backend.Paths;
 
 using StringTools;
 

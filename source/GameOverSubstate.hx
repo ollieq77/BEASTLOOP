@@ -7,6 +7,8 @@ import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import funkin.chart.Conductor;
+import funkin.backend.MusicBeatSubstate;
+import funkin.backend.Paths;
 
 class GameOverSubstate extends MusicBeatSubstate
 {

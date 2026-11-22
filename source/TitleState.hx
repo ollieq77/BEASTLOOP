@@ -27,6 +27,12 @@ import polymod.Polymod;
 import polymod.backends.PolymodAssets;
 import funkin.ui.Alphabet;
 import funkin.chart.Conductor;
+import funkin.backend.APIStuff;
+import funkin.backend.Highscore;
+import funkin.backend.MusicBeatState;
+import funkin.backend.NGio;
+import funkin.backend.Paths;
+import funkin.backend.PlayerSettings;
 
 using StringTools;
 
