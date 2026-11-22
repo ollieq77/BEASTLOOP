@@ -1,4 +1,4 @@
-package;
+package funkin.stage;
 
 import flixel.FlxSprite;
 import openfl.utils.Assets;

@@ -1,5 +1,5 @@
 
-package;
+package funkin.stage;
 
 import hscript.Parser;
 import hscript.Interp;
@@ -8,6 +8,7 @@ import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
 import polymod.backends.PolymodAssets;
 import funkin.backend.Paths;
+import PlayState;
 
 class StageScript
 {

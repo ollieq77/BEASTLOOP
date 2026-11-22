@@ -41,8 +41,8 @@ import openfl.filters.ShaderFilter;
 import openfl.media.Sound;
 import polymod.backends.PolymodAssets;
 
-import Stage;
-import StageLoader;
+import funkin.stage.Stage;
+import funkin.stage.StageLoader;
 import funkin.shaders.WiggleEffect;
 import funkin.chart.Conductor;
 import funkin.chart.Song;
@@ -59,6 +59,7 @@ import funkin.backend.ClientPrefs;
 import funkin.editors.AnimationDebug;
 import funkin.editors.CharacterEditorState;
 import funkin.editors.ChartingState;
+import funkin.stage.StageScript;
 
 using StringTools;
 
