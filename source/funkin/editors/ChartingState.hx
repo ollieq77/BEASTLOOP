@@ -33,10 +33,10 @@ import funkin.chart.Section;
 import funkin.chart.Song;
 import funkin.backend.MusicBeatState;
 import funkin.backend.Paths;
-import CharacterLoader;
-import HealthIcon;
-import Note;
-import PlayState;
+import funkin.game.CharacterLoader;
+import funkin.game.HealthIcon;
+import funkin.game.Note;
+import funkin.game.PlayState;
 
 class ChartingState extends MusicBeatState
 {

@@ -1,4 +1,4 @@
-﻿package;
+﻿package funkin.game;
 
 import funkin.chart.Section.SwagSection;
 import funkin.chart.Song.SwagSong;

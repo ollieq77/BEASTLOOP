@@ -8,7 +8,7 @@ import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
 import polymod.backends.PolymodAssets;
 import funkin.backend.Paths;
-import PlayState;
+import funkin.game.PlayState;
 
 class StageScript
 {

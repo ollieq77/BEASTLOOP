@@ -1,5 +1,5 @@
 
-package;
+package funkin.game;
 
 import flixel.FlxG;
 import flixel.FlxSprite;

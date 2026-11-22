@@ -17,7 +17,7 @@ import funkin.backend.Highscore;
 import funkin.backend.MusicBeatState;
 import funkin.backend.NGio;
 import funkin.backend.Paths;
-import PlayState;
+import funkin.game.PlayState;
 
 using StringTools;
 

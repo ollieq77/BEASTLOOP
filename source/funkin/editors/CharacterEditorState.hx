@@ -28,8 +28,8 @@ import haxe.ui.components.CheckBox;
 import funkin.backend.MusicBeatState;
 import funkin.backend.Paths;
 import funkin.menus.MainMenuState;
-import Character;
-import CharacterLoader;
+import funkin.game.Character;
+import funkin.game.CharacterLoader;
 
 /**
  * Where "Save" writes the character json.

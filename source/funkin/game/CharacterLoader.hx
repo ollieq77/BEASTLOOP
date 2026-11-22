@@ -1,4 +1,4 @@
-package;
+package funkin.game;
 
 import flixel.graphics.frames.FlxAtlasFrames;
 import polymod.backends.PolymodAssets;

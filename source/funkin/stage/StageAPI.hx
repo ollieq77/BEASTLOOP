@@ -14,8 +14,8 @@ import flixel.util.FlxTimer;
 import flixel.system.FlxSound;
 import funkin.backend.Paths;
 import funkin.menus.TitleState;
-import Boyfriend;
-import Character;
+import funkin.game.Boyfriend;
+import funkin.game.Character;
 
 class StageAPI
 {
