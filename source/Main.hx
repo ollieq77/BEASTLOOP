@@ -13,6 +13,9 @@ import haxe.Timer;
 import funkin.backend.CrashHandler;
 import funkin.menus.TitleState;
 
+import flixel.FlxG;
+import funkin.backend.ClientPrefs;
+
 class Main extends Sprite
 {
     var memoryText:TextField;
@@ -20,6 +23,9 @@ class Main extends Sprite
     public function new()
     {
         super();
+
+        FlxG.save.bind('beastloop', 'ollz');
+        ClientPrefs.loadPrefs();
 
         addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 

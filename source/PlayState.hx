@@ -1,4 +1,4 @@
-package;
+﻿package;
 
 import funkin.chart.Section.SwagSection;
 import funkin.chart.Song.SwagSong;
@@ -55,21 +55,12 @@ import funkin.menus.FreeplayState;
 import funkin.menus.StoryMenuState;
 import funkin.menus.WeekData;
 
+import funkin.backend.ClientPrefs;
+
 using StringTools;
 
 class PlayState extends MusicBeatState
 {
-
-	// SONG SETTINGS
-	public static var botPlay:Bool = false;
-	public static var opponentNoteFlashes:Bool = true;
-	public static var sustainAnimations:Bool = false;
-	public static var downscroll:Bool = false;
-	public static var vanillaStrumOffset:Bool = false;
-	public static var sustainClipping:Bool = true;
-	public static var classicScoreTxt:Bool = false;
-	public static var ghostTapping:Bool = false;
-	public static var noteSplashes:Bool = false;
 
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
@@ -253,7 +244,7 @@ class PlayState extends MusicBeatState
 
 		scoreSystem = new ScoreSystem();
 
-		camHUD.downscroll = downscroll;
+		camHUD.downscroll = ClientPrefs.downscroll;
 		camHUD.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
@@ -414,7 +405,7 @@ class PlayState extends MusicBeatState
 
 		// Original scoreTxt positioning (vanilla FNF)
 
-		if (classicScoreTxt) {
+		if (ClientPrefs.classicScoreTxt) {
 			scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
 			scoreTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT);
 		} else {
@@ -635,7 +626,7 @@ class PlayState extends MusicBeatState
 
 	private function createNoteSplash(note:Note):Void
 	{
-		if (!noteSplashes)
+		if (!ClientPrefs.noteSplashes)
 			return;
 		
 	    var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
@@ -1134,7 +1125,7 @@ class PlayState extends MusicBeatState
 		    }
 		});
 
-		if (botPlay)
+		if (ClientPrefs.botPlay)
 		{
 		    playerStrums.forEachAlive(function(spr:FlxSprite)
 		    {
@@ -1300,7 +1291,7 @@ class PlayState extends MusicBeatState
 					var directions:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 					var direction:Int = Std.int(Math.abs(daNote.noteData));
 
-					if (!daNote.isSustainNote || sustainAnimations)
+					if (!daNote.isSustainNote || ClientPrefs.sustainAnimations)
 					{
 					    if (direction >= 0 && direction < directions.length)
 					    {
@@ -1314,7 +1305,7 @@ class PlayState extends MusicBeatState
 
 					opponentStrums.forEach(function(spr:FlxSprite)
 					{
-					    if (daNote.noteData == spr.ID && opponentNoteFlashes)
+					    if (daNote.noteData == spr.ID && ClientPrefs.opponentNoteFlashes)
 					    {
 					        spr.animation.play('confirm', true);
 						
@@ -1337,8 +1328,8 @@ class PlayState extends MusicBeatState
 				}
 
 				daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * scrollSpeed);
-				if (sustainClipping)
-					daNote.clipToStrumLine(strumLine.y, downscroll);
+				if (ClientPrefs.sustainClipping)
+					daNote.clipToStrumLine(strumLine.y, ClientPrefs.downscroll);
 				// WIP interpolation shit? Need to fix the pause issue
 				// daNote.y = (strumLine.y - (songTime - daNote.strumTime) * (0.45 * PlayState.SONG.speed));
 
@@ -1465,7 +1456,7 @@ class PlayState extends MusicBeatState
 
 	function updateScoreText():Void
 	{
-		if (!classicScoreTxt) {
+		if (!ClientPrefs.classicScoreTxt) {
 	    scoreTxt.text =
 	        'Score: ${CoolUtil.formatNumber(scoreSystem.songScore)}'
 			+ ' / Misses: ${scoreSystem.misses}'
@@ -1630,7 +1621,7 @@ class PlayState extends MusicBeatState
 
 		var offset = 0;
 
-		if (vanillaStrumOffset) {
+		if (ClientPrefs.vanillaStrumOffset) {
 			offset = -50;
 		}
 	
@@ -1664,7 +1655,7 @@ class PlayState extends MusicBeatState
 		// A miss never blocks input either (the old stun check used to swallow the next
 		// ~83ms of presses, which wipes out whole streams on dense charts).
 
-		if (botPlay && generatedMusic && !boyfriend.stunned)
+		if (ClientPrefs.botPlay && generatedMusic && !boyfriend.stunned)
 		{
 		    notes.forEachAlive(function(daNote:Note)
 		    {
@@ -1677,7 +1668,7 @@ class PlayState extends MusicBeatState
 		}
 
 		// be glad i rewrote this JANKY ASS SHIT, it was a mess before and i hate it
-		if (!botPlay && (upP || rightP || downP || leftP) && generatedMusic)
+		if (!ClientPrefs.botPlay && (upP || rightP || downP || leftP) && generatedMusic)
 		{
 			boyfriend.holdTimer = 0;
 
@@ -1707,12 +1698,12 @@ class PlayState extends MusicBeatState
 
 				if (target != null)
 					goodNoteHit(target);
-				else if (!ghostTapping)
+				else if (!ClientPrefs.ghostTapping)
 					noteMiss(lane);
 			}
 		}
 
-		if (!botPlay && (up || right || down || left) && !boyfriend.stunned && generatedMusic)
+		if (!ClientPrefs.botPlay && (up || right || down || left) && !boyfriend.stunned && generatedMusic)
 		{
 			notes.forEachAlive(function(daNote:Note)
 			{
@@ -1885,7 +1876,7 @@ class PlayState extends MusicBeatState
 			boyfriend.lastNoteHitTime = Conductor.songPosition;
 
 			
-			if (!note.isSustainNote || sustainAnimations)
+			if (!note.isSustainNote || ClientPrefs.sustainAnimations)
 			{
 			    var directions:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 			
@@ -1983,3 +1974,4 @@ class PlayState extends MusicBeatState
 
 	var curLight:Int = 0;
 }
+

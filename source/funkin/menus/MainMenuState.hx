@@ -23,11 +23,12 @@ class MainMenuState extends MusicBeatState
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
 
-	#if !switch
-	var optionShit:Array<String> = ['story mode', 'freeplay', 'donate'];
-	#else
-	var optionShit:Array<String> = ['story mode', 'freeplay'];
-	#end
+	var optionShit:Array<String> = [
+    	'story_mode',
+    	'freeplay',
+    	'credits',
+    	'options'
+	];
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
@@ -68,20 +69,23 @@ class MainMenuState extends MusicBeatState
 		menuItems = new FlxTypedGroup<FlxSprite>();
 		add(menuItems);
 
-		var tex = Paths.sparrow('menus/FNF_main_menu_assets');
-
 		for (i in 0...optionShit.length)
 		{
-			var menuItem:FlxSprite = new FlxSprite(0, 60 + (i * 160));
-			menuItem.frames = tex;
-			menuItem.animation.addByPrefix('idle', optionShit[i] + " basic", 24);
-			menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);
-			menuItem.animation.play('idle');
-			menuItem.ID = i;
-			menuItem.screenCenter(X);
-			menuItems.add(menuItem);
-			menuItem.scrollFactor.set();
-			menuItem.antialiasing = true;
+		    var menuItem:FlxSprite = new FlxSprite(0, 60 + (i * 160));
+		
+		    menuItem.frames = Paths.sparrow('menus/mainmenu/menu_' + optionShit[i]);
+		
+		    menuItem.animation.addByPrefix('idle', optionShit[i] + " basic", 24);
+		    menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);
+		
+		    menuItem.animation.play('idle');
+		
+		    menuItem.ID = i;
+		    menuItem.screenCenter(X);
+		    menuItem.scrollFactor.set();
+		    menuItem.antialiasing = true;
+		
+		    menuItems.add(menuItem);
 		}
 
 		FlxG.camera.follow(camFollow, null, 0.06);
@@ -163,16 +167,17 @@ class MainMenuState extends MusicBeatState
 
 								switch (daChoice)
 								{
-									case 'story mode':
-										FlxG.switchState(new StoryMenuState());
-										trace("Story Menu Selected");
-									case 'freeplay':
-										FlxG.switchState(new FreeplayState());
-
-										trace("Freeplay Menu Selected");
-
-									case 'options':
-										FlxG.switchState(new OptionsMenu());
+								    case 'story_mode':
+								        FlxG.switchState(new StoryMenuState());
+								
+								    case 'freeplay':
+								        FlxG.switchState(new FreeplayState());
+								
+								    case 'credits':
+								        trace("dont have a thing for this!!");
+								
+								    case 'options':
+								        FlxG.switchState(new OptionsMenu());
 								}
 							});
 						}
@@ -191,24 +196,25 @@ class MainMenuState extends MusicBeatState
 
 	function changeItem(huh:Int = 0)
 	{
-		curSelected += huh;
+	    curSelected += huh;
 
-		if (curSelected >= menuItems.length)
-			curSelected = 0;
-		if (curSelected < 0)
-			curSelected = menuItems.length - 1;
+	    if (curSelected >= menuItems.length)
+	        curSelected = 0;
 
-		menuItems.forEach(function(spr:FlxSprite)
-		{
-			spr.animation.play('idle');
+	    if (curSelected < 0)
+	        curSelected = menuItems.length - 1;
 
-			if (spr.ID == curSelected)
-			{
-				spr.animation.play('selected');
-				camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y);
-			}
+	    menuItems.forEach(function(spr:FlxSprite)
+	    {
+	        spr.animation.play('idle');
 
-			spr.updateHitbox();
-		});
+	        if (spr.ID == curSelected)
+	        {
+	            spr.animation.play('selected');
+	            camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y);
+	        }
+
+	        spr.updateHitbox();
+	    });
 	}
 }
