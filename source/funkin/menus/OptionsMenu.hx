@@ -1,4 +1,4 @@
-package;
+package funkin.menus;
 
 import funkin.backend.Controls.Control;
 import flash.text.TextField;

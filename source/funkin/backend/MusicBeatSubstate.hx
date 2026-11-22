@@ -3,7 +3,7 @@ package funkin.backend;
 import flixel.FlxG;
 import flixel.FlxSubState;
 import funkin.chart.Conductor;
-import TitleState;
+import funkin.menus.TitleState;
 
 class MusicBeatSubstate extends FlxSubState
 {

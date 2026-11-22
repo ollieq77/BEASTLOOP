@@ -1,4 +1,4 @@
-package;
+package funkin.menus;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -33,6 +33,8 @@ import funkin.backend.MusicBeatState;
 import funkin.backend.NGio;
 import funkin.backend.Paths;
 import funkin.backend.PlayerSettings;
+import CharacterEditorState;
+import ChartingState;
 
 using StringTools;
 

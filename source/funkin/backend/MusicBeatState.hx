@@ -6,7 +6,7 @@ import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
 import flixel.util.FlxTimer;
 import funkin.chart.Conductor;
-import TitleState;
+import funkin.menus.TitleState;
 
 class MusicBeatState extends FlxUIState
 {

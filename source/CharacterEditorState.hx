@@ -27,6 +27,7 @@ import haxe.ui.components.TextField;
 import haxe.ui.components.CheckBox;
 import funkin.backend.MusicBeatState;
 import funkin.backend.Paths;
+import funkin.menus.MainMenuState;
 
 /**
  * Where "Save" writes the character json.

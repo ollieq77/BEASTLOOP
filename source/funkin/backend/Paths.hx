@@ -11,7 +11,7 @@ import openfl.media.Sound;
 import openfl.utils.AssetType;
 import openfl.utils.Assets;
 import polymod.backends.PolymodAssets;
-import TitleState;
+import funkin.menus.TitleState;
 
 /**
  * Every asset path in the game should come from here.

@@ -1,4 +1,4 @@
-package;
+package funkin.menus;
 
 import openfl.utils.Assets;
 import flash.text.TextField;
@@ -17,6 +17,7 @@ import funkin.backend.Highscore;
 import funkin.backend.MusicBeatState;
 import funkin.backend.NGio;
 import funkin.backend.Paths;
+import PlayState;
 
 using StringTools;
 

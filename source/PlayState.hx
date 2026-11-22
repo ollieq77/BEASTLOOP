@@ -51,6 +51,9 @@ import funkin.backend.Highscore;
 import funkin.backend.MusicBeatState;
 import funkin.backend.NGio;
 import funkin.backend.Paths;
+import funkin.menus.FreeplayState;
+import funkin.menus.StoryMenuState;
+import funkin.menus.WeekData;
 
 using StringTools;
 

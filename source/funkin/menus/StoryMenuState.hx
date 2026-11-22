@@ -1,4 +1,4 @@
-package;
+package funkin.menus;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -19,6 +19,7 @@ import funkin.chart.Song;
 import funkin.backend.Highscore;
 import funkin.backend.MusicBeatState;
 import funkin.backend.Paths;
+import PlayState;
 
 using StringTools;
 

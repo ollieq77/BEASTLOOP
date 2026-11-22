@@ -11,6 +11,7 @@ import openfl.text.TextField;
 import openfl.text.TextFormat;
 import haxe.Timer;
 import funkin.backend.CrashHandler;
+import funkin.menus.TitleState;
 
 class Main extends Sprite
 {
