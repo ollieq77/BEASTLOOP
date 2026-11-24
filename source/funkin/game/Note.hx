@@ -1,5 +1,6 @@
 package funkin.game;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
@@ -134,7 +135,6 @@ class Note extends FlxSprite
 
 		if (isSustainNote && prevNote != null)
 		{
-			noteScore * 0.2;
 			alpha = 0.6;
 			
 			switch (noteData)
@@ -178,6 +178,19 @@ class Note extends FlxSprite
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
 			}
+		}
+	}
+
+	public function updateSustainFlip(strumLineY:Float, upY:Float = 50, downY:Float = -1):Void
+	{
+		if (!isSustainNote)
+			return;
+
+		var scrollFactor:Float = getScrollFactor(strumLineY, upY, downY);
+
+		if (animation.curAnim != null && animation.curAnim.name.endsWith('holdend'))
+		{
+			flipY = scrollFactor >= 0.5;
 		}
 	}
 
@@ -227,37 +240,45 @@ class Note extends FlxSprite
 	    return rect;
 	}
 
-	public function clipToStrumLine(strumLineY:Float, downscroll:Bool = false)
+	public function getScrollFactor(strumLineY:Float, upY:Float = 50, downY:Float = -1):Float
 	{
-	    if (!isSustainNote || frame == null)
-	        return;
+		var resolvedDownY:Float = (downY < 0) ? (FlxG.height - 150) : downY;
+		return FlxMath.bound((strumLineY - upY) / (resolvedDownY - upY), 0, 1);
+	}
 
-	    var center:Float = strumLineY + Note.swagWidth / 2;
-
-	    if (wasGoodHit || (prevNote.wasGoodHit && !canBeHit))
-	    {
-	        var swagRect:FlxRect = clipRect;
-
-	        if (swagRect == null)
-	            swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
-
-	        if (downscroll)
-	        {
-	            if (y - offset.y * scale.y + height >= center)
-	            {
-	                swagRect.width = frameWidth;
-	                swagRect.height = (center - y) / scale.y;
-	                swagRect.y = frameHeight - swagRect.height;
-	            }
-	        }
-	        else if (y + offset.y * scale.y <= center)
-	        {
-	            swagRect.y = (center - y) / scale.y;
-	            swagRect.width = width / scale.x;
-	            swagRect.height = (height / scale.y) - swagRect.y;
-	        }
-
-	        clipRect = swagRect;
-	    }
+	public function clipToStrumLine(strumLineY:Float, upY:Float = 50, downY:Float = -1)
+	{
+		if (!isSustainNote || frame == null)
+			return;
+	
+		var scrollFactor:Float = getScrollFactor(strumLineY, upY, downY);
+		updateSustainFlip(strumLineY, upY, downY);
+		var center:Float = strumLineY + Note.swagWidth / 2;
+	
+		if (wasGoodHit || (prevNote.wasGoodHit && !canBeHit))
+		{
+			var upPassed:Bool = y + offset.y * scale.y <= center;
+			var downPassed:Bool = y - offset.y * scale.y + height >= center;
+		
+			if (FlxMath.lerp(upPassed ? 1 : 0, downPassed ? 1 : 0, scrollFactor) > 0)
+			{
+				var swagRect:FlxRect = clipRect;
+			
+				if (swagRect == null)
+					swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
+			
+				var upClipY:Float = (center - y) / scale.y;
+				var upClipHeight:Float = (height / scale.y) - upClipY;
+	
+				var downClipHeight:Float = (center - y) / scale.y;
+				var downClipY:Float = frameHeight - downClipHeight;
+	
+				swagRect.width = FlxMath.lerp(width / scale.x, frameWidth, scrollFactor);
+				swagRect.y = FlxMath.lerp(upClipY, downClipY, scrollFactor);
+				swagRect.height = FlxMath.lerp(upClipHeight, downClipHeight, scrollFactor);
+	
+				clipRect = swagRect;
+			}
+		}
 	}
 }

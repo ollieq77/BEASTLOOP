@@ -146,6 +146,9 @@ class PlayState extends MusicBeatState
 	// Set from the stage's "pixel" key. Notes, countdown and game over read this.
 	public static var isPixelStage:Bool = false;
 
+	public var upY:Float = 50;
+	public var downY:Float = FlxG.height - 150;
+
 	var inCutscene:Bool = false;
 
 	var startTimer:FlxTimer;
@@ -300,7 +303,9 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition = -5000;
 
-		strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
+		var strumLineY:Float = ClientPrefs.downscroll ? downY : upY;
+
+		strumLine = new FlxSprite(0, strumLineY).makeGraphic(FlxG.width, 10);
 		strumLine.scrollFactor.set();
 
 		strumLineNotes = new FlxTypedGroup<FlxSprite>();
@@ -338,7 +343,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.fixedTimestep = false;
 
-		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.graphic(Paths.image('gameplay/healthBar')));
+		healthBarBG = new FlxSprite(0, FlxG.height * (!ClientPrefs.downscroll ? 0.9 : 0.1)).loadGraphic(Paths.graphic(Paths.image('gameplay/healthBar')));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -605,7 +610,7 @@ class PlayState extends MusicBeatState
 		// how long a note takes to travel from the strumline to just past the screen edge. spawning exactly then means
 		// notes enter from off screen at ANY scroll speed (a fixed window pops them in mid-screen when the speed is low).
 		// never later than the hit window though, or very fast scroll speeds would spawn notes too late to hit early
-		var spawnTime:Float = Math.max((FlxG.height - strumLine.y + NOTE_SPAWN_MARGIN) / scrollSpeed, Conductor.safeZoneOffset * 2);
+		var spawnTime:Float = Math.max((FlxG.height - 50 + NOTE_SPAWN_MARGIN) / scrollSpeed, Conductor.safeZoneOffset * 2);
 
 		while (unspawnIdx < unspawnNotes.length)
 		{
@@ -686,26 +691,39 @@ class PlayState extends MusicBeatState
 					daNote.destroy();
 				}
 
-				daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * scrollSpeed);
+				var scrollFactor:Float = daNote.getScrollFactor(strumLine.y, upY, downY);
+							
+				var offset:Float = (Conductor.songPosition - daNote.strumTime) * scrollSpeed;
+				daNote.y = strumLine.y + FlxMath.lerp(-offset, offset, scrollFactor);
+							
 				if (ClientPrefs.sustainClipping)
-					daNote.clipToStrumLine(strumLine.y, ClientPrefs.downscroll);
-				// WIP interpolation shit? Need to fix the pause issue
-				// daNote.y = (strumLine.y - (songTime - daNote.strumTime) * (0.45 * PlayState.SONG.speed));
-
-				if (daNote.y < -daNote.height)
+					daNote.clipToStrumLine(strumLine.y, upY, downY);
+				
+				// Off-screen check flips with scroll direction:
+				// upscroll exits past top (y < -height); downscroll exits past bottom (y > FlxG.height)
+				var passedTop:Bool = daNote.y < -daNote.height;
+				var passedBottom:Bool = daNote.y > FlxG.height;
+				var offScreenExit:Bool = scrollFactor < 0.5 ? passedTop : passedBottom;
+				
+				if (offScreenExit)
 				{
-				    if (daNote.mustPress && (daNote.tooLate || !daNote.wasGoodHit))
-				    {
-				        noteMiss(Std.int(Math.abs(daNote.noteData)));
-				        vocals.volume = 0;
-				    }
+					if (daNote.mustPress && (daNote.tooLate || !daNote.wasGoodHit))
+					{
+						noteMiss(Std.int(Math.abs(daNote.noteData)));
+						vocals.volume = 0;
+					}
 				
-				    daNote.active = false;
-				    daNote.visible = false;
+					daNote.active = false;
+					daNote.visible = false;
 				
-				    daNote.kill();
-				    notes.remove(daNote, true);
-				    daNote.destroy();
+					daNote.kill();
+					notes.remove(daNote, true);
+					daNote.destroy();
+				}
+				else
+				{
+					daNote.active = true;
+					daNote.visible = true;
 				}
 			});
 		}
