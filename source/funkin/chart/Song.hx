@@ -57,14 +57,43 @@ class Song
 
 	public static function loadFromJson(difficulty:String, song:String):SwagSong
 	{
-	    var rawJson = PolymodAssets.getText(Paths.songChart(song, difficulty)).trim();
+		var key:String = Paths.songChart(song, difficulty);
+		var rawJson:String = null;
 
-	    while (!rawJson.endsWith("}"))
-	    {
-	        rawJson = rawJson.substr(0, rawJson.length - 1);
-	    }
+		#if sys
+		var diskPath:String = Paths.resolve(key);
+		if (diskPath != null && diskPath != "" && sys.FileSystem.exists(diskPath))
+		{
+			rawJson = sys.io.File.getContent(diskPath);
+		}
+		#end
 
-	    return parseJSONshit(rawJson);
+		if (rawJson == null)
+		{
+			rawJson = PolymodAssets.getText(key);
+		}
+
+		if (rawJson == null)
+		{
+			throw 'Chart file not found for song "$song" ($difficulty).';
+		}
+
+		// Only slice if there is actually trailing junk after the last '}'
+		var trimmed:String = StringTools.trim(rawJson);
+		if (!StringTools.endsWith(trimmed, "}"))
+		{
+			var lastBrace:Int = trimmed.lastIndexOf("}");
+			if (lastBrace != -1)
+			{
+				rawJson = trimmed.substr(0, lastBrace + 1);
+			}
+		}
+		else
+		{
+			rawJson = trimmed;
+		}
+
+		return parseJSONshit(rawJson);
 	}
 
 	public static function parseJSONshit(rawJson:String):SwagSong
