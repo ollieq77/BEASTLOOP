@@ -24,9 +24,6 @@ class Main extends Sprite
     {
         super();
 
-        FlxG.save.bind('beastloop', 'ollz');
-        ClientPrefs.loadPrefs();
-
         addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 
         addChild(new FlxGame(0, 0, TitleState));
@@ -51,7 +48,10 @@ class Main extends Sprite
     function onAddedToStage(event:Event):Void
     {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-
+    
+        FlxG.save.bind('beastloop', 'ollz');
+        ClientPrefs.loadPrefs();
+    
         loaderInfo.uncaughtErrorEvents.addEventListener(
             UncaughtErrorEvent.UNCAUGHT_ERROR,
             onUncaughtError

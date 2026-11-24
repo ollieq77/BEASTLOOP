@@ -1,50 +1,88 @@
-
 package funkin.menus;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.group.FlxGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.text.FlxText;
 
 import funkin.ui.Alphabet;
 import funkin.backend.MusicBeatState;
 import funkin.backend.Paths;
 import funkin.backend.ClientPrefs;
+import funkin.options.Option;
+import funkin.options.CheckboxIcon;
 
 class OptionsMenu extends MusicBeatState
 {
-    var grpOptions:FlxTypedGroup<Alphabet>;
+    static inline var EXTRA_GAP:Float = 15; // space between label and checkbox / value
+    static inline var CHECK_Y:Float = -15;   // nudge checkbox vertically against the label
+    static inline var HOLD_DELAY:Float = 0.4;
+    static inline var HOLD_RATE:Float = 0.05;
+
+    var grpOptions:FlxTypedGroup<Alphabet>; // the labels (these scroll)
+    var grpExtras:FlxGroup;                 // checkboxes + value labels, follow their label
+
+    var checks:Array<CheckboxIcon> = [];    // index-aligned with grpOptions, null if not a bool
+    var values:Array<Alphabet> = [];        // index-aligned with grpOptions, null if bool / category
+
+    var descBG:FlxSprite;
+    var descText:FlxText;
 
     var curSelected:Int = 0;
     var categorySelection:Int = 0;
 
     var currentCategory:String = "";
-    var currentOptions:Array<String> = [];
-    var currentSettingPrefs:Array<String> = [];
-
+    var curOptions:Array<Option> = [];
     var isInCategory:Bool = false;
 
-	var categories:Array<String> = [
-	    "GAMEPLAY",
-	    "VISUALS"
-	];
+    var holdTime:Float = 0;
+    var holdTick:Float = 0;
 
-    // Settings registry
-	var settings:Array<{name:String, category:String, pref:String}> = [
-	    {name: "Botplay", category: "GAMEPLAY", pref: "botPlay"},
-	    {name: "Ghost Tapping", category: "GAMEPLAY", pref: "ghostTapping"},
-	    {name: "Downscroll", category: "GAMEPLAY", pref: "downscroll"},
+    var categories:Array<String> = [
+        "GAMEPLAY",
+        "VISUALS"
+    ];
 
-	    {name: "Opponent Note Flashes", category: "VISUALS", pref: "opponentNoteFlashes"},
-	    {name: "Vanilla Strum Offset", category: "VISUALS", pref: "vanillaStrumOffset"},
-	    {name: "Sustain Clipping", category: "VISUALS", pref: "sustainClipping"},
-	    {name: "Classic Score Text", category: "VISUALS", pref: "classicScoreTxt"},
-	    {name: "Note Splashes", category: "VISUALS", pref: "noteSplashes"},
-		{name: "Sustain Animations", category: "VISUALS", pref: "sustainAnimations"},
-	];
+    var allOptions:Array<Option> = [];
+    var optionCategory:Map<Option, String> = new Map();
+
+    function register(category:String, option:Option):Void
+    {
+        allOptions.push(option);
+        optionCategory.set(option, category);
+    }
+
+    function registerOptions():Void
+    {
+        register("GAMEPLAY", new Option("Botplay", "botPlay"));
+        register("GAMEPLAY", new Option("Ghost Tapping", "ghostTapping"));
+        register("GAMEPLAY", new Option("Downscroll", "downscroll"));
+
+        register("VISUALS", new Option("Opponent Note Flashes", "opponentNoteFlashes"));
+        register("VISUALS", new Option("Vanilla Strum Offset", "vanillaStrumOffset"));
+        register("VISUALS", new Option("Sustain Clipping", "sustainClipping"));
+        register("VISUALS", new Option("Classic Score Text", "classicScoreTxt"));
+        register("VISUALS", new Option("Note Splashes", "noteSplashes"));
+        register("VISUALS", new Option("Sustain Animations", "sustainAnimations"));
+
+        // Other types (each variable needs a static field in ClientPrefs + load/save lines):
+        //
+        // var fps = new Option("Framerate", "framerate", INT, null, "Higher = smoother");
+        // fps.minValue = 60; fps.maxValue = 240; fps.changeValue = 1;
+        // register("VISUALS", fps);
+        //
+        // var vol = new Option("Hitsound Volume", "hitsoundVolume", PERCENT);
+        // register("GAMEPLAY", vol);
+        //
+        // register("VISUALS", new Option("Note Skin", "noteSkin", STRING, ["Default", "Circles"]));
+    }
 
     override function create()
     {
         super.create();
+
+        registerOptions();
 
         var menuBG:FlxSprite = new FlxSprite().loadGraphic(
             Paths.graphic(Paths.image('menus/menuDesat'))
@@ -60,7 +98,19 @@ class OptionsMenu extends MusicBeatState
         grpOptions = new FlxTypedGroup<Alphabet>();
         add(grpOptions);
 
-        refreshOptions();
+        grpExtras = new FlxGroup();
+        add(grpExtras);
+
+        descBG = new FlxSprite(0, FlxG.height - 70).makeGraphic(FlxG.width, 70, 0xFF000000);
+        descBG.alpha = 0.6;
+        descBG.visible = false;
+        add(descBG);
+
+        descText = new FlxText(20, FlxG.height - 55, FlxG.width - 40, "", 28);
+        descText.alignment = CENTER;
+        add(descText);
+
+        buildRows();
     }
 
     override function update(elapsed:Float)
@@ -73,13 +123,12 @@ class OptionsMenu extends MusicBeatState
             {
                 isInCategory = false;
                 currentCategory = "";
-
                 curSelected = categorySelection;
-
-                refreshOptions();
+                buildRows();
             }
             else
             {
+                ClientPrefs.saveSettings();
                 FlxG.switchState(new MainMenuState());
             }
 
@@ -94,74 +143,118 @@ class OptionsMenu extends MusicBeatState
 
         if (controls.ACCEPT)
             selectOption();
+
+        if (isInCategory)
+            handleValueInput(elapsed);
+
+        placeAllExtras();
     }
 
-    function refreshOptions():Void
+    // Left / right on non-bool options. Press = one step, hold = repeats after a short delay.
+    function handleValueInput(elapsed:Float):Void
     {
-        var previousSelection:Int = curSelected;
+        if (curOptions.length == 0)
+            return;
 
+        var option:Option = curOptions[curSelected];
+        if (option.type == BOOL)
+            return;
+
+        var dir:Int = 0;
+
+        if (controls.LEFT_P)
+            dir = -1;
+        else if (controls.RIGHT_P)
+            dir = 1;
+
+        if (dir != 0)
+        {
+            holdTime = 0;
+            holdTick = 0;
+            changeValue(dir);
+        }
+        else if (controls.LEFT || controls.RIGHT)
+        {
+            holdTime += elapsed;
+
+            if (holdTime > HOLD_DELAY)
+            {
+                holdTick += elapsed;
+
+                if (holdTick >= HOLD_RATE)
+                {
+                    holdTick = 0;
+                    changeValue(controls.LEFT ? -1 : 1);
+                }
+            }
+        }
+        else
+        {
+            holdTime = 0;
+            holdTick = 0;
+        }
+    }
+
+    // Only called when the category changes. Toggling an option never comes through here,
+    // so the list doesn't get torn down and rebuilt (that was the jitter).
+    function buildRows():Void
+    {
         grpOptions.clear();
-        currentOptions = [];
-        currentSettingPrefs = [];
+        grpExtras.clear();
+        checks = [];
+        values = [];
+        curOptions = [];
+
+        var labels:Array<String> = [];
 
         if (!isInCategory)
         {
-            currentOptions = categories.copy();
+            labels = categories.copy();
         }
         else
         {
-            // Get settings belonging to this category
-            for (setting in settings)
+            for (option in allOptions)
             {
-                if (setting.category == currentCategory)
+                if (optionCategory.get(option) == currentCategory)
                 {
-                    currentOptions.push(setting.name);
-                    currentSettingPrefs.push(setting.pref);
+                    curOptions.push(option);
+                    labels.push(option.name);
                 }
             }
 
-            if (currentOptions.length == 0)
+            if (labels.length == 0)
+                labels.push("Coming Soon");
+        }
+
+        curSelected = Std.int(Math.max(0, Math.min(curSelected, labels.length - 1)));
+
+        for (i in 0...labels.length)
+        {
+            var label:Alphabet = new Alphabet(0, (70 * i) + 30, labels[i], true, false);
+            label.isMenuItem = true;
+            label.targetY = i;
+            grpOptions.add(label);
+
+            checks.push(null);
+            values.push(null);
+
+            if (isInCategory && i < curOptions.length)
             {
-                currentOptions.push("Coming Soon");
-                currentSettingPrefs.push("");
+                var option:Option = curOptions[i];
+
+                if (option.type == BOOL)
+                {
+                    var box:CheckboxIcon = new CheckboxIcon(option.getValue() == true);
+                    checks[i] = box;
+                    grpExtras.add(box);
+                }
+                else
+                {
+                    refreshValue(i);
+                }
+
+                placeExtras(i);
             }
-        }
-
-        // Restore previous selection
-        if (currentOptions.length > 0)
-        {
-            curSelected = Std.int(Math.max(
-                0,
-                Math.min(previousSelection, currentOptions.length - 1)
-            ));
-        }
-        else
-        {
-            curSelected = 0;
-        }
-
-        // Create menu items
-        for (i in 0...currentOptions.length)
-        {
-            var label:String = currentOptions[i];
-
-            if (isInCategory && currentSettingPrefs[i] != "")
-            {
-                label += ": " + (getSettingValue(currentSettingPrefs[i]) ? "ON" : "OFF");
-            }
-
-            var option:Alphabet = new Alphabet(
-                0,
-                (70 * i) + 30,
-                label,
-                true,
-                false
-            );
-
-            option.isMenuItem = true;
-            option.targetY = i;
-
-            grpOptions.add(option);
         }
 
         updateSelection();
@@ -169,29 +262,56 @@ class OptionsMenu extends MusicBeatState
 
     function selectOption():Void
     {
-        if (currentOptions.length == 0)
+        if (grpOptions.length == 0)
             return;
-
-        var selected:String = currentOptions[curSelected];
 
         if (!isInCategory)
         {
             categorySelection = curSelected;
-
-            currentCategory = selected;
+            currentCategory = categories[curSelected];
             isInCategory = true;
-
-            refreshOptions();
+            curSelected = 0;
+            buildRows();
             return;
         }
 
-        var pref:String = currentSettingPrefs[curSelected];
-
-        if (pref == "")
+        if (curOptions.length == 0)
             return;
 
-        toggleSetting(pref);
-        refreshOptions();
+        // only bools toggle on enter, the rest use left / right
+        if (curOptions[curSelected].type == BOOL)
+            changeValue(1);
+    }
+
+    function changeValue(dir:Int):Void
+    {
+        var option:Option = curOptions[curSelected];
+        option.step(dir);
+
+        if (option.type == BOOL)
+            checks[curSelected].setChecked(option.getValue() == true);
+        else
+            refreshValue(curSelected);
+
+        ClientPrefs.saveSettings();
+        FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+    }
+
+    // Replaces just the value label of one row. It's positioned right away and every
+    // frame after, so nothing jumps.
+    function refreshValue(i:Int):Void
+    {
+        var old:Alphabet = values[i];
+        if (old != null)
+        {
+            grpExtras.remove(old, true);
+            old.destroy();
+        }
+
+        var v:Alphabet = new Alphabet(0, 0, curOptions[i].getDisplay(), true, false);
+        values[i] = v;
+        grpExtras.add(v);
+        placeExtras(i);
     }
 
     function changeSelection(change:Int = 0):Void
@@ -209,6 +329,9 @@ class OptionsMenu extends MusicBeatState
         if (curSelected >= grpOptions.length)
             curSelected = 0;
 
+        holdTime = 0;
+        holdTick = 0;
+
         updateSelection();
     }
 
@@ -220,24 +343,42 @@ class OptionsMenu extends MusicBeatState
         {
             item.targetY = index - curSelected;
             item.alpha = (index == curSelected) ? 1 : 0.6;
-
             index++;
         }
+
+        var desc:String = "";
+        if (isInCategory && curSelected < curOptions.length)
+            desc = curOptions[curSelected].description;
+
+        descText.text = desc;
+        descBG.visible = desc != "";
     }
 
-    // Read a preference dynamically
-    function getSettingValue(pref:String):Bool
+    function placeAllExtras():Void
     {
-        return Reflect.field(ClientPrefs, pref);
+        for (i in 0...grpOptions.length)
+            placeExtras(i);
     }
 
-    // Toggle a preference dynamically
-    function toggleSetting(pref:String):Void
+    // Checkbox / value follow their label every frame, so scrolling carries them along.
+    function placeExtras(i:Int):Void
     {
-        var currentValue:Bool = getSettingValue(pref);
+        var label:Alphabet = grpOptions.members[i];
+        if (label == null)
+            return;
 
-        Reflect.setField(ClientPrefs, pref, !currentValue);
+        var cx:Float = label.x + label.width + EXTRA_GAP;
 
-        ClientPrefs.saveSettings();
+        if (checks[i] != null)
+        {
+            checks[i].setPosition(cx, label.y + CHECK_Y);
+            checks[i].alpha = label.alpha;
+        }
+
+        if (values[i] != null)
+        {
+            values[i].setPosition(cx, label.y);
+            values[i].alpha = label.alpha;
+        }
     }
 }

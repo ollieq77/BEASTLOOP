@@ -110,8 +110,6 @@ class TitleState extends MusicBeatState
 		trace('NEWGROUNDS LOL');
 		#end
 
-		FlxG.save.bind('funkin', 'ninjamuffin99');
-
 		Highscore.load();
 
 		if (FlxG.save.data.weekUnlocked != null)

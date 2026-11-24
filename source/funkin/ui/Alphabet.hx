@@ -93,8 +93,11 @@ class Alphabet extends FlxSpriteGroup
 				lastWasSpace = true;
 			}
 
-			if (AlphaCharacter.alphabet.indexOf(character.toLowerCase()) != -1)
-				// if (AlphaCharacter.alphabet.contains(character.toLowerCase()))
+			var isLetter:Bool = AlphaCharacter.alphabet.indexOf(character.toLowerCase()) != -1;
+			var isNumber:Bool = AlphaCharacter.numbers.indexOf(character) != -1;
+			var isPeriod:Bool = character == ".";
+
+			if (isLetter || isNumber || isPeriod)
 			{
 				if (lastSprite != null)
 				{
@@ -110,7 +113,11 @@ class Alphabet extends FlxSpriteGroup
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0);
 				var letter:AlphaCharacter = new AlphaCharacter(xPos, 0);
 
-				if (isBold)
+				if (isNumber)
+					letter.createNumber(character);
+				else if (isPeriod)
+					letter.createSymbol(character);
+				else if (isBold)
 					letter.createBold(character);
 				else
 				{
