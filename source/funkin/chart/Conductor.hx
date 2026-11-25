@@ -1,9 +1,5 @@
 package funkin.chart;
 
-/**
- * ...
- * @author
- */
 class Conductor
 {
 	public static var bpm:Int = 100;
@@ -13,8 +9,14 @@ class Conductor
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
 
+	// V-Slice hit windows (in milliseconds)
+	public static var sickWindow:Float = 45.0;
+	public static var goodWindow:Float = 90.0;
+	public static var badWindow:Float = 135.4;
+	public static var shitWindow:Float = 180.0;
+
 	public static var safeFrames:Int = 10;
-	public static var safeZoneOffset:Float = (safeFrames / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
+	public static var safeZoneOffset:Float = shitWindow;
 
 	public function new()
 	{
@@ -22,12 +24,12 @@ class Conductor
 
 	public static function changeBPM(newBpm:Int)
 	{
-	    if (newBpm <= 0)
-	        return;
-	
-	    bpm = newBpm;
-	
-	    crochet = ((60 / bpm) * 1000);
-	    stepCrochet = crochet / 4;
+		if (newBpm <= 0)
+			return;
+
+		bpm = newBpm;
+
+		crochet = ((60 / bpm) * 1000);
+		stepCrochet = crochet / 4;
 	}
 }

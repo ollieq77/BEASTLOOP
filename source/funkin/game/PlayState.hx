@@ -103,7 +103,12 @@ class PlayState extends MusicBeatState
 	// px of headroom past the screen edge before a note spawns, so it can't pop in after a hitch or a zoomed-out hud cam
 	static inline var NOTE_SPAWN_MARGIN:Float = 200;
 
+	private var notePool:Array<Note> = [];
+
 	private var dueOpponentNotes:Array<Note> = [];
+	private var dueBotNotes:Array<Note> = [];
+	private var bestTapNotes:Array<Note> = [null, null, null, null];
+	private static final NOTE_DIRECTIONS:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 
 	var previousStrumAnimations:haxe.ds.ObjectMap<FlxSprite, String> = new haxe.ds.ObjectMap();
 
@@ -638,15 +643,50 @@ class PlayState extends MusicBeatState
 		if (generatedMusic)
 		{
 			dueOpponentNotes.resize(0);
+			var songPos:Float = Conductor.songPosition;
+			var baseStrumY:Float = strumLine.y;
 
-			notes.forEachAlive(function(daNote:Note)
+			var members = notes.members;
+			for (i in 0...members.length)
 			{
-				if (daNote.mustPress || daNote.wasGoodHit)
-					return;
+				var daNote:Note = members[i];
+				if (daNote == null || !daNote.exists || !daNote.alive)
+					continue;
 
-				if (daNote.strumTime <= Conductor.songPosition || daNote.tooLate)
+				if (!daNote.mustPress && !daNote.wasGoodHit && (daNote.strumTime <= songPos || daNote.tooLate))
+				{
 					dueOpponentNotes.push(daNote);
-			});
+				}
+
+				var scrollFactor:Float = daNote.getScrollFactor(baseStrumY, upY, downY);
+				var offset:Float = (songPos - daNote.strumTime) * scrollSpeed;
+				daNote.y = baseStrumY + FlxMath.lerp(-offset, offset, scrollFactor);
+
+				if (ClientPrefs.sustainClipping && daNote.isSustainNote)
+					daNote.clipToStrumLine(baseStrumY, upY, downY);
+
+				// Off-screen check flips with scroll direction:
+				// upscroll exits past top (y < -height); downscroll exits past bottom (y > FlxG.height)
+				var passedTop:Bool = daNote.y < -daNote.height;
+				var passedBottom:Bool = daNote.y > FlxG.height;
+				var offScreenExit:Bool = scrollFactor < 0.5 ? passedTop : passedBottom;
+
+				if (offScreenExit)
+				{
+					if (daNote.mustPress && !daNote.isSustainNote && (daNote.tooLate || !daNote.wasGoodHit))
+					{
+						noteMiss(Std.int(Math.abs(daNote.noteData)));
+						vocals.volume = 0;
+					}
+
+					recycleNote(daNote);
+				}
+				else
+				{
+					if (!daNote.active) daNote.active = true;
+					if (!daNote.visible) daNote.visible = true;
+				}
+			}
 
 			if (dueOpponentNotes.length > 1)
 			{
@@ -658,49 +698,12 @@ class PlayState extends MusicBeatState
 				});
 			}
 
-			for (daNote in dueOpponentNotes)
+			for (i in 0...dueOpponentNotes.length)
 			{
-				if (daNote.alive && !daNote.wasGoodHit)
-					opponentNoteHit(daNote);
+				var oppNote:Note = dueOpponentNotes[i];
+				if (oppNote != null && oppNote.alive && !oppNote.wasGoodHit)
+					opponentNoteHit(oppNote);
 			}
-
-			notes.forEachAlive(function(daNote:Note)
-			{
-				var scrollFactor:Float = daNote.getScrollFactor(strumLine.y, upY, downY);
-
-				var offset:Float = (Conductor.songPosition - daNote.strumTime) * scrollSpeed;
-				daNote.y = strumLine.y + FlxMath.lerp(-offset, offset, scrollFactor);
-
-				if (ClientPrefs.sustainClipping)
-					daNote.clipToStrumLine(strumLine.y, upY, downY);
-
-				// Off-screen check flips with scroll direction:
-				// upscroll exits past top (y < -height); downscroll exits past bottom (y > FlxG.height)
-				var passedTop:Bool = daNote.y < -daNote.height;
-				var passedBottom:Bool = daNote.y > FlxG.height;
-				var offScreenExit:Bool = scrollFactor < 0.5 ? passedTop : passedBottom;
-
-				if (offScreenExit)
-				{
-					if (daNote.mustPress && (daNote.tooLate || !daNote.wasGoodHit))
-					{
-						noteMiss(Std.int(Math.abs(daNote.noteData)));
-						vocals.volume = 0;
-					}
-
-					daNote.active = false;
-					daNote.visible = false;
-
-					daNote.kill();
-					notes.remove(daNote, true);
-					daNote.destroy();
-				}
-				else
-				{
-					daNote.active = true;
-					daNote.visible = true;
-				}
-			});
 		}
 
 		if (!inCutscene)
@@ -738,11 +741,6 @@ class PlayState extends MusicBeatState
 
 		setScriptVariable("curBeat", curBeat);
 		callScripts("onBeatHit");
-
-		if (generatedMusic)
-		{
-			notes.sort(FlxSort.byY, FlxSort.DESCENDING);
-		}
 
 		if (getSectionIndexAtStep(curStep) >= 0)
 		    dad.dance();
@@ -1392,6 +1390,7 @@ class PlayState extends MusicBeatState
 
 	function endSong():Void
 	{
+		clearNotePool();
 		canPause = false;
 		if (inst != null)
 		    inst.volume = 0;
@@ -1400,7 +1399,6 @@ class PlayState extends MusicBeatState
 
 		// nextSong is the next story-mode song, or null if this is the last one (or freeplay).
 		var nextSong:String = (isStoryMode && storyPlaylist.length > 1) ? storyPlaylist[1] : null;
-
 		callScripts("onSongEnd", [nextSong]);
 
 		if (SONG.validScore)
@@ -1511,12 +1509,12 @@ private function popUpScore(strumtime:Float, note:Note):Void
 
 		var rating:FlxSprite = new FlxSprite();
 		var daRating:String = "sick";
-
-		if (noteDiff > Conductor.safeZoneOffset * 0.9)
+	
+		if (noteDiff > Conductor.badWindow)
 			daRating = "shit";
-		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
+		else if (noteDiff > Conductor.goodWindow)
 			daRating = "bad";
-		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
+		else if (noteDiff > Conductor.sickWindow)
 			daRating = "good";
 
 		scoreSystem.addRating(daRating);
@@ -1664,176 +1662,180 @@ private function popUpScore(strumtime:Float, note:Note):Void
 
 		var controlArray:Array<Bool> = [leftP, downP, upP, rightP];
 
-		// FlxG.watch.addQuick('asdfa', upP);
-		// PRESSES
 		// Every lane is judged on its own: a press can only ever hit or miss a note in
 		// the lane that was pressed, so notes in other lanes can never cause a miss.
 		// A miss never blocks input either (the old stun check used to swallow the next
 		// ~83ms of presses, which wipes out whole streams on dense charts).
-
-		if (ClientPrefs.botPlay && generatedMusic && !boyfriend.stunned)
+		if (generatedMusic)
 		{
-			var notesToHit:Array<Note> = [];
+			var songPos:Float = Conductor.songPosition;
+			var minWindow:Float = -Conductor.shitWindow;
+			var maxWindow:Float = Conductor.shitWindow;
+			var anyTap:Bool = !ClientPrefs.botPlay && (upP || rightP || downP || leftP);
+			var anyHold:Bool = !ClientPrefs.botPlay && !boyfriend.stunned && (up || right || down || left);
 
-			notes.forEachAlive(function(daNote:Note)
+			if (anyTap)
 			{
-				if (!daNote.mustPress || daNote.wasGoodHit)
-					return;
-
-				// Hit once strumTime arrives (or if already past/exiting so a hitch never causes a miss)
-				if (daNote.strumTime <= Conductor.songPosition || daNote.tooLate)
-				{
-					notesToHit.push(daNote);
-				}
-			});
-
-			// Hit in chronological order so combo/score/animation order stays clean
-			notesToHit.sort(function(a:Note, b:Note):Int
-			{
-				if (a.strumTime < b.strumTime) return -1;
-				if (a.strumTime > b.strumTime) return 1;
-				return 0;
-			});
-
-			for (daNote in notesToHit)
-			{
-				if (daNote.alive && !daNote.wasGoodHit)
-					goodNoteHit(daNote);
+				boyfriend.holdTimer = 0;
+				bestTapNotes[0] = null;
+				bestTapNotes[1] = null;
+				bestTapNotes[2] = null;
+				bestTapNotes[3] = null;
 			}
-		}
 
-		// be glad i rewrote this JANKY ASS SHIT, it was a mess before and i hate it
-		if (!ClientPrefs.botPlay && (upP || rightP || downP || leftP) && generatedMusic)
-		{
-			boyfriend.holdTimer = 0;
+			if (ClientPrefs.botPlay && !boyfriend.stunned)
+				dueBotNotes.resize(0);
 
-			for (lane in 0...4)
+			var members = notes.members;
+			for (i in 0...members.length)
 			{
-				if (!controlArray[lane])
+				var daNote:Note = members[i];
+				if (daNote == null || !daNote.exists || !daNote.alive || !daNote.mustPress || daNote.wasGoodHit)
 					continue;
 
-				var target:Note = null;
-
-				notes.forEachAlive(function(daNote:Note)
+				if (ClientPrefs.botPlay && !boyfriend.stunned)
 				{
-					if (daNote.noteData != lane || !daNote.mustPress || daNote.isSustainNote || daNote.wasGoodHit)
-						return;
+					if (daNote.strumTime <= songPos || daNote.tooLate)
+						dueBotNotes.push(daNote);
+					continue;
+				}
 
-					// judged against the song position right now, not the canBeHit flag
-					// (that flag is computed before songPosition moves, so it is a frame stale)
-					var diff:Float = daNote.strumTime - Conductor.songPosition;
+				var lane:Int = daNote.noteData;
+				if (lane < 0 || lane > 3)
+					continue;
 
-					if (diff > -Conductor.safeZoneOffset && diff < Conductor.safeZoneOffset * 0.5)
-					{
-						// earliest note in the lane wins
-						if (target == null || daNote.strumTime < target.strumTime)
-							target = daNote;
-					}
-				});
-
-				if (target != null)
-					goodNoteHit(target);
-				else if (!ClientPrefs.ghostTapping)
-					noteMiss(lane);
-			}
-		}
-
-		if (!ClientPrefs.botPlay && (up || right || down || left) && !boyfriend.stunned && generatedMusic)
-		{
-			notes.forEachAlive(function(daNote:Note)
-			{
-				if (daNote.canBeHit && daNote.mustPress && daNote.isSustainNote)
+				if (anyTap && !daNote.isSustainNote && controlArray[lane])
 				{
-					switch (daNote.noteData)
+					var diff:Float = daNote.strumTime - songPos;
+					if (diff >= minWindow && diff <= maxWindow)
 					{
-						// NOTES YOU ARE HOLDING
-						case 2:
-							if (up)
-								goodNoteHit(daNote);
-						case 3:
-							if (right)
-								goodNoteHit(daNote);
-						case 1:
-							if (down)
-								goodNoteHit(daNote);
-						case 0:
-							if (left)
-								goodNoteHit(daNote);
+						var curBest:Note = bestTapNotes[lane];
+						if (curBest == null || Math.abs(diff) < Math.abs(curBest.strumTime - songPos))
+							bestTapNotes[lane] = daNote;
 					}
 				}
-			});
+				if (anyHold && daNote.canBeHit && daNote.isSustainNote)
+				{
+					var held:Bool = switch (lane)
+					{
+						case 0: left;
+						case 1: down;
+						case 2: up;
+						case 3: right;
+						default: false;
+					};
+					if (held)
+						goodNoteHit(daNote);
+				}
+			}
+
+			if (ClientPrefs.botPlay && !boyfriend.stunned)
+			{
+				if (dueBotNotes.length > 1)
+				{
+					dueBotNotes.sort(function(a:Note, b:Note):Int
+					{
+						if (a.strumTime < b.strumTime) return -1;
+						if (a.strumTime > b.strumTime) return 1;
+						return 0;
+					});
+				}
+
+				for (i in 0...dueBotNotes.length)
+				{
+					var botNote:Note = dueBotNotes[i];
+					if (botNote != null && botNote.alive && !botNote.wasGoodHit)
+						goodNoteHit(botNote);
+				}
+			}
+			else if (anyTap)
+			{
+				for (lane in 0...4)
+				{
+					if (!controlArray[lane])
+						continue;
+
+					if (bestTapNotes[lane] != null)
+						goodNoteHit(bestTapNotes[lane]);
+					else if (!ClientPrefs.ghostTapping)
+						noteMiss(lane);
+				}
+			}
 		}
 
 		if (boyfriend.holdTimer > Conductor.stepCrochet * 8 * 0.001
-		    && boyfriend.canDance()
-		    && !up && !down && !right && !left)
+			&& boyfriend.canDance()
+			&& !up && !down && !right && !left)
 		{
-		    if (boyfriend.animation.curAnim.name.startsWith('sing')
-		        && !boyfriend.animation.curAnim.name.endsWith('miss'))
-		    {
-		        boyfriend.playAnim('idle');
-		    }
+			if (boyfriend.animation.curAnim.name.startsWith('sing')
+				&& !boyfriend.animation.curAnim.name.endsWith('miss'))
+			{
+				boyfriend.playAnim('idle');
+			}
 		}
 
-		playerStrums.forEach(function(spr:FlxSprite)
+		for (spr in playerStrums.members)
 		{
-		    switch (spr.ID)
-		    {
-		        case 2:
-		            if (upP && spr.animation.curAnim.name != 'confirm')
-		                spr.animation.play('pressed');
-				
-		            if (upR)
-		            {
-		                spr.animation.play('static');
-					
-		                if (!isPixelStage)
-		                    spr.centerOffsets();
-		            }
-				
-		        case 3:
-		            if (rightP && spr.animation.curAnim.name != 'confirm')
-		                spr.animation.play('pressed');
-				
-		            if (rightR)
-		            {
-		                spr.animation.play('static');
-					
-		                if (!isPixelStage)
-		                    spr.centerOffsets();
-		            }
-				
-		        case 1:
-		            if (downP && spr.animation.curAnim.name != 'confirm')
-		                spr.animation.play('pressed');
-				
-		            if (downR)
-		            {
-		                spr.animation.play('static');
-					
-		                if (!isPixelStage)
-		                    spr.centerOffsets();
-		            }
-				
-		        case 0:
-		            if (leftP && spr.animation.curAnim.name != 'confirm')
-		                spr.animation.play('pressed');
-				
-		            if (leftR)
-		            {
-		                spr.animation.play('static');
-					
-		                if (!isPixelStage)
-		                    spr.centerOffsets();
-		            }
-		    }
-		});
+			if (spr == null || !spr.alive || spr.animation.curAnim == null)
+				continue;
+
+			switch (spr.ID)
+			{
+				case 2:
+					if (upP && spr.animation.curAnim.name != 'confirm')
+						spr.animation.play('pressed');
+
+					if (upR)
+					{
+						spr.animation.play('static');
+
+						if (!isPixelStage)
+							spr.centerOffsets();
+					}
+
+				case 3:
+					if (rightP && spr.animation.curAnim.name != 'confirm')
+						spr.animation.play('pressed');
+
+					if (rightR)
+					{
+						spr.animation.play('static');
+
+						if (!isPixelStage)
+							spr.centerOffsets();
+					}
+
+				case 1:
+					if (downP && spr.animation.curAnim.name != 'confirm')
+						spr.animation.play('pressed');
+
+					if (downR)
+					{
+						spr.animation.play('static');
+
+						if (!isPixelStage)
+							spr.centerOffsets();
+					}
+
+				case 0:
+					if (leftP && spr.animation.curAnim.name != 'confirm')
+						spr.animation.play('pressed');
+
+					if (leftR)
+					{
+						spr.animation.play('static');
+
+						if (!isPixelStage)
+							spr.centerOffsets();
+					}
+			}
 		}
+	}
 
 
 	private function spawnQueuedNote(q:QueuedNote):Void
 	{
-		var swagNote:Note = new Note(q.strumTime, q.noteData, null, false);
+		var swagNote:Note = getPooledNote(q.strumTime, q.noteData, null, false);
 		swagNote.sustainLength = q.sustainLength;
 		swagNote.scrollFactor.set(0, 0);
 		swagNote.mustPress = q.mustPress;
@@ -1854,7 +1856,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			sustainTime += stepDuration;
 			remainingSustain -= stepDuration;
 	
-			var sustainNote:Note = new Note(sustainTime, q.noteData, prevNote, true);
+			var sustainNote:Note = getPooledNote(sustainTime, q.noteData, prevNote, true);
 			sustainNote.scrollFactor.set();
 			sustainNote.mustPress = q.mustPress;
 			sustainNote.x = getStrumX(q.noteData, sustainNote.mustPress ? 1 : 0)
@@ -1866,6 +1868,72 @@ private function popUpScore(strumtime:Float, note:Note):Void
 		}
 	}
 
+	private function getPooledNote(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false):Note
+	{
+		var n:Note = notePool.pop();
+		if (n == null)
+		{
+			n = new Note(strumTime, noteData, prevNote, sustainNote);
+		}
+		else
+		{
+			n.resetNote(strumTime, noteData, prevNote, sustainNote);
+		}
+
+		n.active = true;
+		n.visible = true;
+		n.alive = true;
+		n.exists = true;
+		return n;
+	}
+
+	private function recycleNote(note:Note):Void
+	{
+			if (note == null)
+				return;
+
+			note.wasGoodHit = true;
+			note.active = false;
+			note.visible = false;
+			note.prevNote = null;
+			note.kill();
+			notes.remove(note, true);
+			notePool.push(note);
+	}
+
+	private function clearNotePool():Void
+	{
+		if (notePool != null)
+		{
+			for (i in 0...notePool.length)
+			{
+				var n:Note = notePool[i];
+				if (n != null)
+				{
+					if (n.clipRect != null)
+					{
+						n.clipRect.put();
+						n.clipRect = null;
+					}
+					n.prevNote = null;
+					n.destroy();
+				}
+			}
+			notePool.resize(0);
+		}
+
+		unspawnNotes.resize(0);
+		unspawnIdx = 0;
+		dueOpponentNotes.resize(0);
+		dueBotNotes.resize(0);
+	}
+
+	override public function destroy():Void
+	{
+		clearNotePool();
+		super.destroy();
+	}
+	
 	function noteMiss(direction:Int = 1):Void
 	{
 		if (ClientPrefs.botPlay)
@@ -1953,10 +2021,9 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			
 			if (!note.isSustainNote || ClientPrefs.sustainAnimations)
 			{
-			    var directions:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 			
-			    if (note.noteData >= 0 && note.noteData < directions.length)
-			        boyfriend.playAnim('sing${directions[note.noteData]}', true);
+			    if (note.noteData >= 0 && note.noteData < NOTE_DIRECTIONS.length)
+			        boyfriend.playAnim('sing${NOTE_DIRECTIONS[note.noteData]}', true);
 			    else if (boyfriend.animation.getByName('hey') != null)
 			        boyfriend.playAnim('hey', true);
 			}
@@ -1979,9 +2046,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			note.wasGoodHit = true;
 			vocals.volume = 1;
 
-			note.kill();
-			notes.remove(note, true);
-			note.destroy();
+			recycleNote(note);
 		}
 	}
 
@@ -2000,11 +2065,10 @@ private function popUpScore(strumtime:Float, note:Note):Void
 
 			if (!note.isSustainNote || ClientPrefs.sustainAnimations)
 			{
-				var directions:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 				var direction:Int = Std.int(Math.abs(note.noteData));
 
-				if (direction >= 0 && direction < directions.length)
-					dad.playAnim('sing${directions[direction]}$altAnim', true);
+				if (direction >= 0 && direction < NOTE_DIRECTIONS.length)
+					dad.playAnim('sing${NOTE_DIRECTIONS[direction]}$altAnim', true);
 				else if (dad.animation.getByName('hey') != null)
 					dad.playAnim('hey', true);
 			}
@@ -2033,9 +2097,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			if (SONG.needsVoices)
 				vocals.volume = 1;
 
-			note.kill();
-			notes.remove(note, true);
-			note.destroy();
+			recycleNote(note);
 		}
 	}
 }

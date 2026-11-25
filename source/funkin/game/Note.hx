@@ -35,21 +35,25 @@ class Note extends FlxSprite
 	public static var RED_NOTE:Int = 3;
 
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
-	{
-		super();
-
-		if (prevNote == null)
-			prevNote = this;
-
-		this.prevNote = prevNote;
-		isSustainNote = sustainNote;
+		{
+			super();
 		
-		// MAKE SURE ITS DEFINITELY OFF SCREEN?
-		y -= 2000;
-		this.strumTime = strumTime;
+			if (prevNote == null)
+				prevNote = this;
+		
+			this.prevNote = prevNote;
+			isSustainNote = sustainNote;
+	
+			// MAKE SURE ITS DEFINITELY OFF SCREEN?
+			y -= 2000;
+			this.strumTime = strumTime;
+			this.noteData = noteData;
+	
+			applyNoteVisuals();
+		}
 
-		this.noteData = noteData;
-
+	private function applyNoteVisuals():Void
+	{
 		if (PlayState.isPixelStage)
 		{
 			loadGraphic(Paths.graphic(Paths.image('weeb/pixelUI/arrows-pixels')), true, 17, 17);
@@ -76,16 +80,11 @@ class Note extends FlxSprite
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			updateHitbox();
-
 		}
 		else
 		{
 			frames = Paths.sparrow('gameplay/NOTE_assets');
 
-			// only register the animations THIS note can ever play. every addByPrefix scans the whole atlas, and
-			// a tap note never plays a hold anim (a hold piece never plays a scroll one), so registering all 12
-			// per note was ~10 wasted scans on every one of the thousands of notes in a chart.
-			// (a hold piece needs BOTH hold + holdend: it starts as the end cap and becomes a body piece when the next piece is built)
 			if (isSustainNote)
 			{
 				switch (noteData)
@@ -120,23 +119,21 @@ class Note extends FlxSprite
 			antialiasing = true;
 		}
 
-		// sustain pieces don't have a scroll anim (they get holdend below)
 		if (!isSustainNote)
 		{
-			switch(noteData) {
-			    case 0: animation.play('purpleScroll');
-			    case 1: animation.play('blueScroll');
-			    case 2: animation.play('greenScroll');
-			    case 3: animation.play('redScroll');
+			switch (noteData)
+			{
+				case 0: animation.play('purpleScroll');
+				case 1: animation.play('blueScroll');
+				case 2: animation.play('greenScroll');
+				case 3: animation.play('redScroll');
 			}
 		}
-
-		// trace(prevNote);
 
 		if (isSustainNote && prevNote != null)
 		{
 			alpha = 0.6;
-			
+
 			switch (noteData)
 			{
 				case 2:
@@ -167,18 +164,41 @@ class Note extends FlxSprite
 				}
 
 				prevNote.offset.y = -19;
-				// prevNote has to cover the gap down to this piece, and that gap is one step, which is a
-				// different number of ms at every BPM (and changes mid-song with the tempo map). So take it from
-				// the notes themselves: not a constant, and not Conductor.stepCrochet, which is only the tempo
-				// the song happened to be at when the chart was generated.
-				// (gap / 100 * 1.5) * speed is the vanilla formula: it is exactly 2.25 * speed at 100 BPM
-				// (150 ms steps) and leaves ~2.7% overlap so there are no seams between pieces.
-				// Speed is rounded to 2 decimals, same as the scroll in PlayState.update, or they drift apart.
 				prevNote.scale.y *= ((strumTime - prevNote.strumTime) / 100 * 0.75) * FlxMath.roundDecimal(PlayState.SONG.speed, 2);
 				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
 			}
 		}
+	}
+
+		public function resetNote(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false):Void
+	{
+		if (clipRect != null)
+		{
+			clipRect.put();
+			clipRect = null;
+		}
+
+		flipY = false;
+		alpha = 1;
+		canBeHit = false;
+		tooLate = false;
+		wasGoodHit = false;
+		sustainLength = 0;
+		noteScore = 1;
+
+		scale.set(1, 1);
+		offset.set(0, 0);
+
+		if (prevNote == null)
+			prevNote = this;
+
+		this.prevNote = prevNote;
+		isSustainNote = sustainNote;
+		this.strumTime = strumTime;
+		this.noteData = noteData;
+
+		// Re-apply graphics/animations/sustain sizing cleanly
+		applyNoteVisuals();
 	}
 
 	public function updateSustainFlip(strumLineY:Float, upY:Float = 50, downY:Float = -1):Void
