@@ -104,6 +104,20 @@ class PlayState extends MusicBeatState
 	static inline var NOTE_SPAWN_MARGIN:Float = 200;
 
 	private var notePool:Array<Note> = [];
+	// notes recycled this frame. they stay in notes.members (dead) until the next note pass compacts them out,
+	// and only go back into notePool after that, so a pooled note is never also still sitting in members
+	private var deadNotes:Array<Note> = [];
+
+	// timing probes: prints + shows spawn / note pass / input / draw cost once a second. flip to false to compile them out
+	static inline var NOTE_PROFILE:Bool = true;
+	private var profTxt:FlxText;
+	private var profClock:Float = 0;
+	private var profFrames:Int = 0;
+	private var profSpawned:Int = 0;
+	private var profSpawn:Float = 0;
+	private var profPass:Float = 0;
+	private var profKeys:Float = 0;
+	private var profDraw:Float = 0;
 
 	private var dueOpponentNotes:Array<Note> = [];
 	private var dueBotNotes:Array<Note> = [];
@@ -628,6 +642,8 @@ class PlayState extends MusicBeatState
 		// never later than the hit window though, or very fast scroll speeds would spawn notes too late to hit early
 		var spawnTime:Float = Math.max((FlxG.height - 50 + NOTE_SPAWN_MARGIN) / scrollSpeed, Conductor.safeZoneOffset * 2);
 
+		var tSpawn:Float = NOTE_PROFILE ? haxe.Timer.stamp() : 0;
+
 		while (unspawnIdx < unspawnNotes.length)
 		{
 			var targetNote:QueuedNote = unspawnNotes[unspawnIdx];
@@ -638,25 +654,44 @@ class PlayState extends MusicBeatState
 			spawnQueuedNote(targetNote);
 			unspawnNotes[unspawnIdx] = null;
 			unspawnIdx++;
+			if (NOTE_PROFILE) profSpawned++;
+		}
+
+		var tPass:Float = 0;
+		var tAfter:Float = 0;
+		if (NOTE_PROFILE)
+		{
+			tPass = haxe.Timer.stamp();
+			profSpawn += tPass - tSpawn;
 		}
 
 		if (generatedMusic)
 		{
 			dueOpponentNotes.resize(0);
+			dueBotNotes.resize(0);
 			var songPos:Float = Conductor.songPosition;
 			var baseStrumY:Float = strumLine.y;
+			var botOn:Bool = ClientPrefs.botPlay;
 
+			// one walk over the live notes does everything: timing flags, due lists (opponent + botplay), movement,
+			// clipping, off-screen exit AND compaction of the dead ones (so nothing ever has to splice the group)
 			var members = notes.members;
+			var w:Int = 0;
 			for (i in 0...members.length)
 			{
 				var daNote:Note = members[i];
 				if (daNote == null || !daNote.exists || !daNote.alive)
 					continue;
 
-				if (!daNote.mustPress && !daNote.wasGoodHit && (daNote.strumTime <= songPos || daNote.tooLate))
+				if (!daNote.wasGoodHit && (daNote.strumTime <= songPos || daNote.tooLate))
 				{
-					dueOpponentNotes.push(daNote);
+					if (!daNote.mustPress)
+						dueOpponentNotes.push(daNote);
+					else if (botOn)
+						dueBotNotes.push(daNote);
 				}
+
+				daNote.updateTiming();
 
 				var scrollFactor:Float = daNote.getScrollFactor(baseStrumY, upY, downY);
 				var offset:Float = (songPos - daNote.strumTime) * scrollSpeed;
@@ -680,12 +715,27 @@ class PlayState extends MusicBeatState
 					}
 
 					recycleNote(daNote);
+					continue;
 				}
-				else
-				{
-					if (!daNote.active) daNote.active = true;
-					if (!daNote.visible) daNote.visible = true;
-				}
+
+				members[w++] = daNote;
+			}
+
+			if (w != members.length)
+			{
+				members.resize(w);
+				notes.length = w;
+			}
+
+			// compacted: the dead ones are no longer in members, so they can go back in the pool
+			for (i in 0...deadNotes.length)
+				notePool.push(deadNotes[i]);
+			deadNotes.resize(0);
+
+			if (NOTE_PROFILE)
+			{
+				tAfter = haxe.Timer.stamp();
+				profPass += tAfter - tPass;
 			}
 
 			if (dueOpponentNotes.length > 1)
@@ -709,11 +759,65 @@ class PlayState extends MusicBeatState
 		if (!inCutscene)
 			keyShit();
 
+		if (NOTE_PROFILE)
+		{
+			// opponent hits + bot/player input, everything after the note pass
+			if (tAfter > 0) profKeys += haxe.Timer.stamp() - tAfter;
+			updateNoteProfile(elapsed);
+		}
+
 		#if debug
 		if (FlxG.keys.justPressed.ONE)
 			endSong();
 		#end
 	}
+
+	override function draw():Void
+	{
+		if (NOTE_PROFILE)
+		{
+			var t:Float = haxe.Timer.stamp();
+			super.draw();
+			profDraw += haxe.Timer.stamp() - t;
+		}
+		else
+			super.draw();
+	}
+
+	private function updateNoteProfile(elapsed:Float):Void
+	{
+		if (profTxt == null)
+		{
+			profTxt = new FlxText(10, 120, 0, '', 14);
+			profTxt.color = 0xFF00FF00;
+			profTxt.scrollFactor.set();
+			profTxt.cameras = [camHUD];
+			add(profTxt);
+		}
+
+		profFrames++;
+		profClock += elapsed;
+		if (profClock < 1)
+			return;
+
+		var f:Float = profFrames;
+		var live:Int = notes.members.length;
+		var report:String = 'live notes: $live | spawned/s: $profSpawned | fps: ${Std.int(f / profClock)}\n'
+			+ 'ms/frame  spawn: ${fmtMs(profSpawn / f)}  pass: ${fmtMs(profPass / f)}  hits+input: ${fmtMs(profKeys / f)}  draw: ${fmtMs(profDraw / f)}';
+		profTxt.text = report;
+		trace(report);
+
+		profClock = 0;
+		profFrames = 0;
+		profSpawned = 0;
+		profSpawn = 0;
+		profPass = 0;
+		profKeys = 0;
+		profDraw = 0;
+	}
+
+	private inline function fmtMs(seconds:Float):String
+		return Std.string(Math.round(seconds * 100000) / 100);
 
 	override function stepHit()
 	{
@@ -1683,24 +1787,16 @@ private function popUpScore(strumtime:Float, note:Note):Void
 					bestTapNotes[3] = null;
 				}
 			}
-		
-			if (ClientPrefs.botPlay && !boyfriend.stunned)
-				dueBotNotes.resize(0);
-		
+
+			// the bot's due notes were already collected by the note pass in update(), so only a real player
+			// pressing/holding something needs to walk the notes here
 			var members = notes.members;
-			for (i in 0...members.length)
+			for (i in 0...((anyTap || anyHold) ? members.length : 0))
 			{
 				var daNote:Note = members[i];
 				if (daNote == null || !daNote.exists || !daNote.alive || !daNote.mustPress || daNote.wasGoodHit)
 					continue;
-			
-				if (ClientPrefs.botPlay && !boyfriend.stunned)
-				{
-					if (daNote.strumTime <= songPos || daNote.tooLate)
-						dueBotNotes.push(daNote);
-					continue;
-				}
-			
+
 				var lane:Int = daNote.noteData;
 				if (lane < 0 || lane > 3)
 					continue;
@@ -1852,7 +1948,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 		swagNote.scrollFactor.set(0, 0);
 		swagNote.mustPress = q.mustPress;
 		swagNote.x = getStrumX(q.noteData, swagNote.mustPress ? 1 : 0);
-		notes.add(swagNote);
+		addLiveNote(swagNote);
 	
 		var remainingSustain:Float = swagNote.sustainLength;
 		var sustainTime:Float = q.strumTime;
@@ -1875,7 +1971,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 				+ sustainNote.width
 				+ sustainNote.offset.x / 4;
 	
-			notes.add(sustainNote);
+			addLiveNote(sustainNote);
 			prevNote = sustainNote;
 		}
 	}
@@ -1892,7 +1988,8 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			n.resetNote(strumTime, noteData, prevNote, sustainNote);
 		}
 
-		n.active = true;
+		// inactive on purpose: the group's update() skips inactive members, and update() runs the single note pass
+		n.active = false;
 		n.visible = true;
 		n.alive = true;
 		n.exists = true;
@@ -1901,7 +1998,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 
 	private function recycleNote(note:Note):Void
 	{
-			if (note == null)
+			if (note == null || !note.alive)
 				return;
 
 			note.wasGoodHit = true;
@@ -1909,8 +2006,16 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			note.visible = false;
 			note.prevNote = null;
 			note.kill();
-			notes.remove(note, true);
-			notePool.push(note);
+			// no notes.remove(): that's an indexOf + splice over every live note. the note pass compacts the dead out
+			deadNotes.push(note);
+	}
+
+	// FlxGroup.add does an indexOf AND an indexOf(null) over every member. notes are never added twice and
+	// members never holds a null hole (the pass compacts), so a push is all that's needed
+	private inline function addLiveNote(n:Note):Void
+	{
+		notes.members.push(n);
+		notes.length++;
 	}
 
 	private function clearNotePool():Void
@@ -1933,6 +2038,9 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			}
 			notePool.resize(0);
 		}
+
+		// deadNotes are still in notes.members, so the group's own destroy() handles them. just drop the refs
+		deadNotes.resize(0);
 
 		unspawnNotes.resize(0);
 		unspawnIdx = 0;

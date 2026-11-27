@@ -217,7 +217,14 @@ class Note extends FlxSprite
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+		updateTiming();
+	}
 
+	// the hit-window / late logic. PlayState calls this from its single note pass and keeps notes inactive, so
+	// the group never runs the full FlxSprite.update on thousands of single-frame notes every frame.
+	// (the opponent branch no longer sets wasGoodHit here: PlayState's due list is what hits those notes)
+	public function updateTiming():Void
+	{
 		if (mustPress)
 		{
 			// The * 0.5 us so that its easier to hit them too late, instead of too early
@@ -235,11 +242,6 @@ class Note extends FlxSprite
 		else
 		{
 			canBeHit = false;
-
-			if (strumTime <= Conductor.songPosition)
-			{
-				wasGoodHit = true;
-			}
 		}
 
 		if (tooLate)
