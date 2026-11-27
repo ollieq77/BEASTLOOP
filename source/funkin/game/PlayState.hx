@@ -1642,6 +1642,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 		});
 	}
 
+	
 	private function keyShit():Void
 	{
 		// HOLDING
@@ -1649,23 +1650,19 @@ private function popUpScore(strumtime:Float, note:Note):Void
 		var right = controls.RIGHT;
 		var down = controls.DOWN;
 		var left = controls.LEFT;
-
+	
 		var upP = controls.UP_P;
 		var rightP = controls.RIGHT_P;
 		var downP = controls.DOWN_P;
 		var leftP = controls.LEFT_P;
-
+	
 		var upR = controls.UP_R;
 		var rightR = controls.RIGHT_R;
 		var downR = controls.DOWN_R;
 		var leftR = controls.LEFT_R;
-
+	
 		var controlArray:Array<Bool> = [leftP, downP, upP, rightP];
-
-		// Every lane is judged on its own: a press can only ever hit or miss a note in
-		// the lane that was pressed, so notes in other lanes can never cause a miss.
-		// A miss never blocks input either (the old stun check used to swallow the next
-		// ~83ms of presses, which wipes out whole streams on dense charts).
+	
 		if (generatedMusic)
 		{
 			var songPos:Float = Conductor.songPosition;
@@ -1673,47 +1670,60 @@ private function popUpScore(strumtime:Float, note:Note):Void
 			var maxWindow:Float = Conductor.shitWindow;
 			var anyTap:Bool = !ClientPrefs.botPlay && (upP || rightP || downP || leftP);
 			var anyHold:Bool = !ClientPrefs.botPlay && !boyfriend.stunned && (up || right || down || left);
-
+		
 			if (anyTap)
 			{
 				boyfriend.holdTimer = 0;
-				bestTapNotes[0] = null;
-				bestTapNotes[1] = null;
-				bestTapNotes[2] = null;
-				bestTapNotes[3] = null;
+			
+				if (!ClientPrefs.spammableInputs)
+				{
+					bestTapNotes[0] = null;
+					bestTapNotes[1] = null;
+					bestTapNotes[2] = null;
+					bestTapNotes[3] = null;
+				}
 			}
-
+		
 			if (ClientPrefs.botPlay && !boyfriend.stunned)
 				dueBotNotes.resize(0);
-
+		
 			var members = notes.members;
 			for (i in 0...members.length)
 			{
 				var daNote:Note = members[i];
 				if (daNote == null || !daNote.exists || !daNote.alive || !daNote.mustPress || daNote.wasGoodHit)
 					continue;
-
+			
 				if (ClientPrefs.botPlay && !boyfriend.stunned)
 				{
 					if (daNote.strumTime <= songPos || daNote.tooLate)
 						dueBotNotes.push(daNote);
 					continue;
 				}
-
+			
 				var lane:Int = daNote.noteData;
 				if (lane < 0 || lane > 3)
 					continue;
-
+			
 				if (anyTap && !daNote.isSustainNote && controlArray[lane])
 				{
 					var diff:Float = daNote.strumTime - songPos;
+				
 					if (diff >= minWindow && diff <= maxWindow)
 					{
-						var curBest:Note = bestTapNotes[lane];
-						if (curBest == null || Math.abs(diff) < Math.abs(curBest.strumTime - songPos))
-							bestTapNotes[lane] = daNote;
+						if (ClientPrefs.spammableInputs)
+						{
+							goodNoteHit(daNote);
+						}
+						else
+						{
+							var curBest:Note = bestTapNotes[lane];
+							if (curBest == null || Math.abs(diff) < Math.abs(curBest.strumTime - songPos))
+								bestTapNotes[lane] = daNote;
+						}
 					}
 				}
+			
 				if (anyHold && daNote.canBeHit && daNote.isSustainNote)
 				{
 					var held:Bool = switch (lane)
@@ -1724,11 +1734,12 @@ private function popUpScore(strumtime:Float, note:Note):Void
 						case 3: right;
 						default: false;
 					};
+				
 					if (held)
 						goodNoteHit(daNote);
 				}
 			}
-
+		
 			if (ClientPrefs.botPlay && !boyfriend.stunned)
 			{
 				if (dueBotNotes.length > 1)
@@ -1740,7 +1751,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 						return 0;
 					});
 				}
-
+			
 				for (i in 0...dueBotNotes.length)
 				{
 					var botNote:Note = dueBotNotes[i];
@@ -1748,13 +1759,13 @@ private function popUpScore(strumtime:Float, note:Note):Void
 						goodNoteHit(botNote);
 				}
 			}
-			else if (anyTap)
+			else if (anyTap && !ClientPrefs.spammableInputs)
 			{
 				for (lane in 0...4)
 				{
 					if (!controlArray[lane])
 						continue;
-
+				
 					if (bestTapNotes[lane] != null)
 						goodNoteHit(bestTapNotes[lane]);
 					else if (!ClientPrefs.ghostTapping)
@@ -1762,7 +1773,7 @@ private function popUpScore(strumtime:Float, note:Note):Void
 				}
 			}
 		}
-
+	
 		if (boyfriend.holdTimer > Conductor.stepCrochet * 8 * 0.001
 			&& boyfriend.canDance()
 			&& !up && !down && !right && !left)
@@ -1773,64 +1784,65 @@ private function popUpScore(strumtime:Float, note:Note):Void
 				boyfriend.playAnim('idle');
 			}
 		}
-
+	
 		for (spr in playerStrums.members)
 		{
 			if (spr == null || !spr.alive || spr.animation.curAnim == null)
 				continue;
-
+		
 			switch (spr.ID)
 			{
 				case 2:
 					if (upP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-
+				
 					if (upR)
 					{
 						spr.animation.play('static');
-
+					
 						if (!isPixelStage)
 							spr.centerOffsets();
 					}
-
+				
 				case 3:
 					if (rightP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-
+				
 					if (rightR)
 					{
 						spr.animation.play('static');
-
+					
 						if (!isPixelStage)
 							spr.centerOffsets();
 					}
-
+				
 				case 1:
 					if (downP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-
+				
 					if (downR)
 					{
 						spr.animation.play('static');
-
+					
 						if (!isPixelStage)
 							spr.centerOffsets();
 					}
-
+				
 				case 0:
 					if (leftP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-
+				
 					if (leftR)
 					{
 						spr.animation.play('static');
-
+					
 						if (!isPixelStage)
 							spr.centerOffsets();
 					}
 			}
 		}
 	}
+
 
 
 	private function spawnQueuedNote(q:QueuedNote):Void

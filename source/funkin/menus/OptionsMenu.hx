@@ -58,6 +58,7 @@ class OptionsMenu extends MusicBeatState
         register("GAMEPLAY", new Option("Botplay", "botPlay"));
         register("GAMEPLAY", new Option("Ghost Tapping", "ghostTapping"));
         register("GAMEPLAY", new Option("Downscroll", "downscroll"));
+        register("GAMEPLAY", new Option("Spammable Inputs", "spammableInputs"));
 
         register("VISUALS", new Option("Opponent Note Flashes", "opponentNoteFlashes"));
         register("VISUALS", new Option("Vanilla Strum Offset", "vanillaStrumOffset"));

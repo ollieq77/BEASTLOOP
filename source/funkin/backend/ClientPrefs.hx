@@ -14,6 +14,7 @@ class ClientPrefs
 	public static var classicScoreTxt:Bool = false;
 	public static var ghostTapping:Bool = false;
 	public static var noteSplashes:Bool = false;
+	public static var spammableInputs:Bool = false;
 
 	public static function saveSettings():Bool
 	{
@@ -32,6 +33,7 @@ class ClientPrefs
 		FlxG.save.data.classicScoreTxt = classicScoreTxt;
 		FlxG.save.data.ghostTapping = ghostTapping;
 		FlxG.save.data.noteSplashes = noteSplashes;
+		FlxG.save.data.spammableInputs = spammableInputs;
 
 		var success:Bool = FlxG.save.flush();
 		trace('[ClientPrefs] Save flushed (success=$success): ${getSummary()}');
@@ -57,6 +59,7 @@ class ClientPrefs
 		if (FlxG.save.data.classicScoreTxt != null) { classicScoreTxt = FlxG.save.data.classicScoreTxt; loadedCount++; }
 		if (FlxG.save.data.ghostTapping != null) { ghostTapping = FlxG.save.data.ghostTapping; loadedCount++; }
 		if (FlxG.save.data.noteSplashes != null) { noteSplashes = FlxG.save.data.noteSplashes; loadedCount++; }
+		if (FlxG.save.data.spammableInputs != null) { spammableInputs = FlxG.save.data.spammableInputs; loadedCount++;}
 
 		if (loadedCount == 0)
 			trace('[ClientPrefs] No saved data found (fresh save) - using defaults: ${getSummary()}');
